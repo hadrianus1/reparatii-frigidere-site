@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Production build
+build/
+
+# Environment variables (NEVER commit!)
+.env
+.env.local
+.env.production
+
+# Uploaded files (served from external storage in production)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
