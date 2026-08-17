@@ -92,7 +92,12 @@ const initDB = async () => {
 // ===== FILE UPLOAD (base64 JSON — avoids CRA proxy multipart issues) =====
 
 const uploadsDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (err) {
+  // Read-only filesystem (e.g. Vercel serverless) — /api/upload will fail gracefully per-request instead.
+  console.warn('⚠️  Could not create uploads dir:', err.message);
+}
 
 app.post('/api/upload', requireAdmin, async (req, res) => {
   try {
