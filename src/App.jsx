@@ -7,10 +7,11 @@ import {
   FaMapMarkerAlt, FaShieldAlt, FaTools,
   FaThermometerHalf, FaWind, FaBolt, FaMicrochip, FaSnowflake,
   FaThumbsUp, FaThumbsDown, FaHeart, FaUpload, FaImages, FaYoutube,
-  FaEnvelope, FaClock,
+  FaEnvelope, FaClock, FaFacebook,
 } from "react-icons/fa";
 
 const YOUTUBE_URL = "https://www.youtube.com/channel/UC3UWS-FoCuzUIGZrlb4HQqA";
+const FACEBOOK_URL = "https://www.facebook.com/reparatii.frigider";
 const GOOGLE_REVIEWS_URL = "https://maps.app.goo.gl/4DwxLKT5YEjaiYXb8";
 
 // ===== GALLERY IMAGES (served locally from /public) =====
@@ -516,7 +517,9 @@ export default function App() {
         email: "adifrigotehnist@yahoo.com",
         address: "Bulevardul Timișoara 53, Sector 6, București",
         hours: "Luni – Sâmbătă: 09:00 – 18:00",
-        copyright: "Opris Adrian PFA • CUI 26374475 • Toate drepturile rezervate.",
+        legalAddress: "Sediul social: Bd. Timișoara nr. 53, sector 6, București. PFA CUI 26374475 / 07.01.2010",
+        consumerProtection: "Protecția consumatorilor: INFOCONS 0219551 · site:",
+        copyright: "Opris Adrian PFA • Toate drepturile rezervate.",
       },
     },
     en: {
@@ -614,7 +617,9 @@ export default function App() {
         email: "adifrigotehnist@yahoo.com",
         address: "Bulevardul Timișoara 53, Sector 6, Bucharest",
         hours: "Monday – Saturday: 09:00 – 18:00",
-        copyright: "Opris Adrian PFA • CUI 26374475 • All rights reserved.",
+        legalAddress: "Registered office: Bd. Timișoara no. 53, district 6, Bucharest. Sole proprietorship (PFA), Tax ID (CUI) 26374475 / 07.01.2010",
+        consumerProtection: "Consumer protection: INFOCONS 0219551 · site:",
+        copyright: "Opris Adrian PFA • All rights reserved.",
       },
     },
   }[lang];
@@ -725,6 +730,12 @@ export default function App() {
                 </a>
                 <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#ff0000", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
                   <FaYoutube size={20} />
+                </a>
+                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#1877f2", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
+                  <FaFacebook size={20} />
+                </a>
+                <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Maps" title="Google Maps" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#ea4335", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
+                  <FaMapMarkerAlt size={20} />
                 </a>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
@@ -1252,14 +1263,15 @@ export default function App() {
         <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white" }}>{t.contact.title}</h2>
           <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", marginBottom: "56px" }}>{t.contact.sub}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "12px", marginBottom: "48px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "12px", marginBottom: "48px" }}>
             {[
               { icon: <FaPhone />, value: t.contact.phone, href: `tel:${t.contact.phoneFull}` },
               { icon: <FaWhatsapp />, value: null, href: "https://wa.me/40737444337" },
               { icon: <FaYoutube />, value: null, href: YOUTUBE_URL },
+              { icon: <FaFacebook />, value: null, href: FACEBOOK_URL },
               { icon: <FaEnvelope />, value: t.contact.email, href: `mailto:${t.contact.email}` },
               { icon: <FaClock />, value: t.contact.hours, href: null },
-              { icon: <FaMapMarkerAlt />, value: t.contact.address, href: null },
+              { icon: <FaMapMarkerAlt />, value: t.contact.address, href: GOOGLE_REVIEWS_URL },
             ].map((item, i) => (
               <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 6px", border: "1px solid rgba(255,255,255,0.1)", minWidth: 0, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 {item.value === null && item.href ? (
@@ -1282,6 +1294,13 @@ export default function App() {
                 )}
               </div>
             ))}
+          </div>
+          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.8", marginBottom: "24px" }}>
+            <p style={{ margin: 0 }}>{t.contact.legalAddress}</p>
+            <p style={{ margin: 0 }}>
+              {t.contact.consumerProtection}{" "}
+              <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.6)" }}>anpc.ro</a>
+            </p>
           </div>
           <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px", margin: 0, userSelect: "none" }}>
             © <span onClick={() => (isAdmin ? handleAdminLogout() : setShowAdminLogin(true))} style={{ cursor: "default" }}>2026</span> {t.contact.copyright}
