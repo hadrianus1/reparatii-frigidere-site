@@ -487,9 +487,22 @@ app.get('/api/health', async (req, res) => {
 
 if (process.env.NODE_ENV === 'production') {
   const buildDir = path.join(__dirname, 'build');
-  app.use(express.static(buildDir));
+  app.use(express.static(buildDir, {
+    index: false, // index.html is served explicitly below, with no-cache headers
+    setHeaders: (res, filePath) => {
+      // CRA content-hashes filenames under build/static/** — safe to cache forever.
+      // Everything else (images, manifest.json, etc.) gets a short cache instead.
+      res.setHeader('Cache-Control', filePath.includes(`${path.sep}static${path.sep}`)
+        ? 'public, max-age=31536000, immutable'
+        : 'public, max-age=3600');
+    },
+  }));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) return next();
+    // Never cache the HTML shell — it references the current hashed JS/CSS bundle,
+    // so a stale copy (esp. on mobile Chrome's more aggressive heuristic caching)
+    // keeps serving an old bundle indefinitely after a new deploy.
+    res.set('Cache-Control', 'no-cache');
     res.sendFile(path.join(buildDir, 'index.html'));
   });
 }
