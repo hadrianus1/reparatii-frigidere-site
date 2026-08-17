@@ -1263,37 +1263,36 @@ export default function App() {
         <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white" }}>{t.contact.title}</h2>
           <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", marginBottom: "56px" }}>{t.contact.sub}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "48px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "12px" }}>
+            {[
+              { icon: <FaWhatsapp />, href: "https://wa.me/40737444337" },
+              { icon: <FaYoutube />, href: YOUTUBE_URL },
+              { icon: <FaFacebook />, href: FACEBOOK_URL },
+            ].map((item, i) => (
+              <a key={i} href={item.href} target="_blank" rel="noopener noreferrer"
+                style={{ background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "16px 6px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "center", fontSize: "22px", color: "#29b6f6", textDecoration: "none" }}
+                onMouseEnter={e => e.currentTarget.style.color = "white"}
+                onMouseLeave={e => e.currentTarget.style.color = "#29b6f6"}>{item.icon}</a>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "48px" }}>
             {[
               { icon: <FaPhone />, value: t.contact.phone, href: `tel:${t.contact.phoneFull}` },
-              { icon: <FaWhatsapp />, value: null, href: "https://wa.me/40737444337" },
-              { icon: <FaYoutube />, value: null, href: YOUTUBE_URL },
-              { icon: <FaFacebook />, value: null, href: FACEBOOK_URL },
               { icon: <FaEnvelope />, value: t.contact.email, href: `mailto:${t.contact.email}` },
               { icon: <FaClock />, value: t.contact.hours, href: null },
               { icon: <FaMapMarkerAlt />, value: t.contact.address, href: GOOGLE_REVIEWS_URL },
-            ].map((item, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 6px", border: "1px solid rgba(255,255,255,0.1)", minWidth: 0, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                {item.value === null && item.href ? (
-                  <a href={item.href} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: "22px", color: "#29b6f6", display: "flex", justifyContent: "center" }}
-                    onMouseEnter={e => e.currentTarget.style.color = "white"}
-                    onMouseLeave={e => e.currentTarget.style.color = "#29b6f6"}>{item.icon}</a>
-                ) : (
-                  <>
-                    <div style={{ fontSize: "18px", marginBottom: "8px", color: "#29b6f6", display: "flex", justifyContent: "center" }}>{item.icon}</div>
-                    {item.href ? (
-                      <a href={item.href} target={item.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
-                        style={{ fontSize: "11px", color: "white", textDecoration: "none", fontWeight: "500", wordBreak: "break-word" }}
-                        onMouseEnter={e => e.currentTarget.style.color = "#29b6f6"}
-                        onMouseLeave={e => e.currentTarget.style.color = "white"}>{item.value}</a>
-                    ) : (
-                      <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)", wordBreak: "break-word" }}>{item.value}</div>
-                    )}
-                  </>
-                )}
-              </div>
-            ))}
+            ].map((item, i) => {
+              const Tag = item.href ? "a" : "div";
+              return (
+                <Tag key={i}
+                  {...(item.href ? { href: item.href, target: item.href.startsWith("http") ? "_blank" : undefined, rel: "noopener noreferrer" } : {})}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)", color: item.href ? "white" : "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "13px", fontWeight: "500" }}
+                  onMouseEnter={item.href ? (e => e.currentTarget.style.color = "#29b6f6") : undefined}
+                  onMouseLeave={item.href ? (e => e.currentTarget.style.color = "white") : undefined}>
+                  <span style={{ color: "#29b6f6", display: "flex", fontSize: "16px" }}>{item.icon}</span> {item.value}
+                </Tag>
+              );
+            })}
           </div>
           <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.8", marginBottom: "24px" }}>
             <p style={{ margin: 0 }}>{t.contact.legalAddress}</p>
