@@ -499,6 +499,11 @@ if (process.env.NODE_ENV === 'production') {
   }));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) return next();
+    // A path with a file extension that express.static didn't already serve is a
+    // missing asset (e.g. a stale hashed bundle reference) — 404 it instead of
+    // falling back to index.html, which would serve HTML mislabeled as JS/CSS
+    // and get rejected by the browser's MIME sniffing instead of failing clearly.
+    if (/\.[a-zA-Z0-9]+$/.test(req.path)) return res.status(404).end();
     // Never cache the HTML shell — it references the current hashed JS/CSS bundle,
     // so a stale copy (esp. on mobile Chrome's more aggressive heuristic caching)
     // keeps serving an old bundle indefinitely after a new deploy.
