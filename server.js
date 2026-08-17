@@ -413,6 +413,63 @@ app.delete('/api/comments/:id/reactions', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ===== GOOGLE REVIEWS (live, newest-first, via Places API) =====
+
+const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+const GOOGLE_PLACE_QUERY = 'Opris Adrian P.F.A.- reparatii frigidere, Bulevardul Timișoara 53, Sector 6, București';
+const REVIEWS_TTL_MS = 6 * 60 * 60 * 1000; // 6h — reviews come in rarely, no need to refresh more often
+let cachedPlaceId = process.env.GOOGLE_PLACE_ID || null;
+let reviewsCache = null; // { data, fetchedAt }
+
+async function resolvePlaceId() {
+  if (cachedPlaceId) return cachedPlaceId;
+  const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+      'X-Goog-FieldMask': 'places.id,places.displayName',
+    },
+    body: JSON.stringify({ textQuery: GOOGLE_PLACE_QUERY, languageCode: 'ro', regionCode: 'RO' }),
+  });
+  const data = await res.json();
+  if (!data.places?.length) throw new Error('Place not found: ' + JSON.stringify(data.error || data));
+  cachedPlaceId = data.places[0].id;
+  return cachedPlaceId;
+}
+
+app.get('/api/google-reviews', async (req, res) => {
+  try {
+    if (!GOOGLE_PLACES_API_KEY) return res.status(503).json({ error: 'Google Places API key not configured' });
+    if (reviewsCache && Date.now() - reviewsCache.fetchedAt < REVIEWS_TTL_MS) return res.json(reviewsCache.data);
+
+    const placeId = await resolvePlaceId();
+    const detailsRes = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=ro&reviewsSort=newest`, {
+      headers: {
+        'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+        'X-Goog-FieldMask': 'rating,userRatingCount,reviews',
+      },
+    });
+    const details = await detailsRes.json();
+    if (details.error) throw new Error('Place Details error: ' + JSON.stringify(details.error));
+
+    const data = {
+      rating: details.rating,
+      userRatingCount: details.userRatingCount,
+      reviews: (details.reviews || []).map(r => ({
+        name: r.authorAttribution?.displayName || 'Client Google', rating: r.rating,
+        text: r.originalText?.text || r.text?.text || '',
+        relativeTime: r.relativePublishTimeDescription, time: r.publishTime,
+      })),
+    };
+    reviewsCache = { data, fetchedAt: Date.now() };
+    res.json(data);
+  } catch (err) {
+    console.error('Google reviews error:', err.message);
+    res.status(502).json({ error: 'Failed to fetch reviews' });
+  }
+});
+
 // ===== HEALTH =====
 
 app.get('/api/health', async (req, res) => {

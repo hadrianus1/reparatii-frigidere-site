@@ -6,31 +6,38 @@ import {
   FaReply, FaPlus, FaTimes, FaEye, FaEyeSlash,
   FaMapMarkerAlt, FaShieldAlt, FaTools,
   FaThermometerHalf, FaWind, FaBolt, FaMicrochip, FaSnowflake,
-  FaThumbsUp, FaThumbsDown, FaHeart, FaUpload, FaImages,
+  FaThumbsUp, FaThumbsDown, FaHeart, FaUpload, FaImages, FaYoutube,
+  FaEnvelope, FaClock,
 } from "react-icons/fa";
 
-// ===== GALLERY IMAGES (proxied through server to bypass hotlink protection) =====
+const YOUTUBE_URL = "https://www.youtube.com/channel/UC3UWS-FoCuzUIGZrlb4HQqA";
+const GOOGLE_REVIEWS_URL = "https://maps.app.goo.gl/4DwxLKT5YEjaiYXb8";
 
-const px = u => '/api/img-proxy?url=' + encodeURIComponent(u);
+// ===== GALLERY IMAGES (served locally from /public) =====
 
 const GALLERY = [
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatii_frigidere_1_0.jpeg?itok=irvDHNu2"), caption: "Reparație frigider la domiciliu" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/repar_frigidere_opris_adrian.jpg?itok=vE6MDYnw"), caption: "Opris Adrian — Tehnician autorizat AGFR" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/img_20200608_065349.jpg?itok=jSJbUVjY"), caption: "Service frigider Bosch" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/img_20191016_122313.jpg?itok=8DUwT66E"), caption: "Reparație frigider Gorenje" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/img_20200619_045619.jpg?itok=KzHZCIN2"), caption: "Reparație combine frigorifică Whirlpool" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/img_20200620_072828.jpg?itok=kChTdYnp"), caption: "Schimb compresor frigider Arctic" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatii_frigidere-_opris_adrian.jpg?itok=So5TbVeZ"), caption: "Reparație frigider Beko" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/img_20200401_211609.jpg?itok=Qn0RMyuF"), caption: "Service Hotpoint Ariston" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/img_20200924_040354.jpg?itok=Iigiwq5N"), caption: "Reparație frigider Indesit" },
-  { url: px("https://www.reparatii-frigidere.com/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatii_frigidere_ariston_hotpoint_2_2.jpeg"), caption: "Service Ariston Hotpoint — piese originale" },
-  { url: px("https://www.reparatii-frigidere.com/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatii_frigidere_cu_pierdere_freon_0.jpeg"), caption: "Reparație pierdere freon frigider" },
-  { url: px("https://www.reparatii-frigidere.com/sites/default/files/styles/poze_frigidere_mici/public/gallery/opris_adrian_-_reparatii_frigidere.jpg"), caption: "Opris Adrian PFA — 16+ ani experiență" },
-  { url: px("https://www.reparatii-frigidere.com/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatie_pierdere_freon_frigider_arctic.jpg"), caption: "Reparație pierdere freon Arctic" },
-  { url: px("https://www.reparatii-frigidere.com/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatii_frigidere_no_frost_-_opeis_adrian.jpg"), caption: "Reparații frigidere No Frost" },
-  { url: px("https://www.reparatii-frigidere.com/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatii_frigidere_hotpoint_ariston.jpeg"), caption: "Service Hotpoint Ariston București" },
-  { url: px("https://www.reparatii-frigidere.com/sites/default/files/styles/poze_frigidere_mici/public/gallery/reparatii_frigidere_2.jpeg"), caption: "Intervenție rapidă în toată București" },
-  { url: px("https://www.frigidere-reparatii.ro/sites/default/files/styles/poze_frigidere_mici/public/gallery/img_20200401_132345.jpg?itok=NnizZTkp"), caption: "Diagnosticare și reparare la client" },
+  { url: "/reparatii_frigidere_1_0.jpeg", caption: "Reparație frigider la domiciliu" },
+  { url: "/repar_frigidere_opris_adrian.jpg", caption: "Opris Adrian — Tehnician autorizat AGFR" },
+  { url: "/img_20200608_065349.jpg", caption: "Service frigider Bosch" },
+  { url: "/img_20191016_122313.jpg", caption: "Reparație frigider Gorenje" },
+  { url: "/img_20200619_045619.jpg", caption: "Reparație combină frigorifică Whirlpool" },
+  { url: "/img_20200620_072828.jpg", caption: "Schimb compresor frigider Arctic" },
+  { url: "/reparatii_frigidere-_opris_adrian.jpg", caption: "Reparație frigider Beko" },
+  { url: "/img_20200401_211609.jpg", caption: "Service Hotpoint Ariston" },
+  { url: "/img_20200924_040354.jpg", caption: "Reparație frigider Indesit" },
+  { url: "/reparatii_frigidere_ariston_hotpoint_2_2.jpeg", caption: "Service Ariston Hotpoint — piese originale" },
+  { url: "/reparatii_frigidere_cu_pierdere_freon_0.jpeg", caption: "Reparație pierdere freon frigider" },
+  { url: "/opris_adrian_-_reparatii_frigidere.jpg", caption: "Opris Adrian PFA — 16+ ani experiență" },
+  { url: "/reparatie_pierdere_freon_frigider_arctic.jpg", caption: "Reparație pierdere freon Arctic" },
+  { url: "/reparatii_frigidere_no_frost_-_opeis_adrian.jpg", caption: "Reparații frigidere No-Frost" },
+  { url: "/reparatii_frigidere_hotpoint_ariston.jpeg", caption: "Service Hotpoint Ariston București" },
+  { url: "/reparatii_frigidere_2.jpeg", caption: "Intervenție rapidă în toată București" },
+  { url: "/img_20200401_132345.jpg", caption: "Diagnosticare și reparare la client" },
+  { url: "/adrian-1.jpg", caption: "Diagnosticare placă electronică frigider" },
+  { url: "/img_20191119_230014.jpg", caption: "Reparație frigider Beko No-Frost — Sector 6" },
+  { url: "/img_20200303_225144_0.jpg", caption: "Reparație sistem No-Frost — ventilatoare și evaporator" },
+  { url: "/img_20200619_050154.jpg", caption: "Schimb compresor frigider" },
+  { url: "/img_20200712_234828.jpg", caption: "Reparație frigider Side-by-Side cu dozator de apă" },
 ];
 
 // ===== HELPERS =====
@@ -136,6 +143,9 @@ export default function App() {
   // FAQ
   const [openFaq, setOpenFaq] = useState(null);
 
+  // Google Reviews (live)
+  const [googleReviews, setGoogleReviews] = useState(null); // { rating, userRatingCount, reviews: [...] }
+
   // Session ID
   useEffect(() => {
     let sid = localStorage.getItem("frigSessionId");
@@ -162,6 +172,7 @@ export default function App() {
   useEffect(() => {
     fetch("/api/health").catch(() => {});
     fetch("/api/posts").then(r => r.json()).then(d => Array.isArray(d) && setPosts(d)).catch(() => {});
+    fetch("/api/google-reviews").then(r => r.ok ? r.json() : null).then(d => d && setGoogleReviews(d)).catch(() => {});
   }, []);
 
   // Admin token restore
@@ -414,9 +425,9 @@ export default function App() {
       hero: {
         badge: "Autorizat AGFR • 16+ ani experiență",
         h1: "Frigiderul s-a defectat?",
-        h1b: "Reparăm la domiciliu.",
-        sub: "Tehnicieni autorizați pentru frigidere, combine frigorifice și congelatoare. Intervenție rapidă în toată București.",
-        cta1: "Sună Acum", cta2: "WhatsApp",
+        h1b: "Îl reparăm la domiciliul tău.",
+        sub: "Tehnician frigotehnist autorizat certificat pentru frigidere, combine frigorifice și congelatoare. Intervenție rapidă în București și împrejurimi.",
+        cta1: "Sună Acum",
         badges: ["Garanție 12 luni", "Factură fiscală", "Piese originale", "Deplasare 70 lei"],
       },
       gallery: { title: "Galerie Foto", sub: "Lucrări realizate — reparații frigidere la domiciliu în București" },
@@ -450,7 +461,7 @@ export default function App() {
       zones: {
         title: "Zone de intervenție în București", sub: "Acoperim toată capitala și împrejurimile",
         sectors: "Toate sectoarele",
-        sectorsDesc: "Intervenim în toate cele 6 sectoare ale Bucureștiului, de la Sector 1 (Floreasca, Dorobanți, Aviației) până la Sector 6 (Militari, Drumul Taberei, Crângași).",
+        sectorsDesc: "Intervenim în toate cele 6 sectoare ale Bucureștiului: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova, Ferentari) și Sector 6 (Militari, Drumul Taberei, Crângași).",
         neighborhoods: "Cartiere principale",
         neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Ferentari, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa, Otopeni.",
         suburbs: "Localități limitrofe",
@@ -458,7 +469,7 @@ export default function App() {
         seoText: "Serviciile noastre de reparații frigidere acoperă întreaga arie metropolitană a Bucureștiului. Indiferent dacă locuiești în sectorul 1, 2, 3, 4, 5 sau 6, sau în localitățile limitrofe, tehnicianul nostru autorizat ajunge la tine rapid.",
       },
       reviews: {
-        title: "Ce spun clienții", sub: "Peste 500 de reparații efectuate în București",
+        title: "Ce spun clienții", sub: "Peste 800 de reparații efectuate în București",
         mapTitle: "Locația noastră", writeReview: "Lasă o recenzie pe Google",
         items: [
           { name: "Maria Constantin", zone: "Sector 1", rating: 5, text: "Servicii excelente! Frigiderul Bosch a fost reparat în aceeași zi. Tehnicianul a fost profesionist, a explicat tot ce a făcut și a lăsat totul curat. Prețul a fost corect.", date: "Octombrie 2025" },
@@ -512,9 +523,9 @@ export default function App() {
       nav: { acasa: "Home", servicii: "Services", galerie: "Gallery", zone: "Areas", blog: "Blog", recenzii: "Reviews", contact: "Contact" },
       hero: {
         badge: "AGFR Authorized • 16+ years experience",
-        h1: "Fridge broken down?", h1b: "We repair at your home.",
-        sub: "Authorized technicians for fridges, fridge-freezers and freezers. Fast response across Bucharest.",
-        cta1: "Call Now", cta2: "WhatsApp",
+        h1: "Fridge broken down?", h1b: "We repair it at your home.",
+        sub: "Certified, authorized fridge repair technician — fridges, fridge-freezers and freezers. Fast response in Bucharest and surrounding areas.",
+        cta1: "Call Now",
         badges: ["12-month warranty", "Fiscal invoice", "Original parts", "Call-out fee 70 RON"],
       },
       gallery: { title: "Photo Gallery", sub: "Our work — fridge repairs at home in Bucharest" },
@@ -548,7 +559,7 @@ export default function App() {
       zones: {
         title: "Service Areas in Bucharest", sub: "We cover the entire capital and surroundings",
         sectors: "All sectors",
-        sectorsDesc: "We serve all 6 sectors of Bucharest, from Sector 1 (Floreasca, Dorobanți, Aviației) to Sector 6 (Militari, Drumul Taberei, Crângași).",
+        sectorsDesc: "We serve all 6 sectors of Bucharest: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova, Ferentari) and Sector 6 (Militari, Drumul Taberei, Crângași).",
         neighborhoods: "Main neighborhoods",
         neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Ferentari, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa, Otopeni.",
         suburbs: "Surrounding areas",
@@ -556,7 +567,7 @@ export default function App() {
         seoText: "Our fridge repair services cover the entire Bucharest metropolitan area. Whether you live in sector 1, 2, 3, 4, 5, or 6, or in the surrounding towns, our authorized technician reaches you quickly.",
       },
       reviews: {
-        title: "What Clients Say", sub: "Over 500 repairs completed in Bucharest",
+        title: "What Clients Say", sub: "Over 800 repairs completed in Bucharest",
         mapTitle: "Our Location", writeReview: "Leave a Google review",
         items: [
           { name: "Maria Constantin", zone: "Sector 1", rating: 5, text: "Excellent service! The Bosch fridge was repaired the same day. The technician was professional, explained everything and left everything clean.", date: "October 2025" },
@@ -612,6 +623,13 @@ export default function App() {
   const formatDate = (d) => d ? new Date(d).toLocaleDateString(lang === "ro" ? "ro-RO" : "en-GB", { year: "numeric", month: "long", day: "numeric" }) : "";
   const visiblePosts = (isAdmin ? posts : posts.filter(p => p.published)).slice(0, postsVisible);
   const totalPosts = isAdmin ? posts.length : posts.filter(p => p.published).length;
+  const reviewItems = googleReviews?.reviews?.length
+    ? googleReviews.reviews.map(r => ({ name: r.name, rating: r.rating, text: r.text, date: r.relativeTime, zone: lang === "ro" ? "Recenzie Google" : "Google review" }))
+    : t.reviews.items;
+  const reviewsRating = googleReviews?.rating ?? 4.9;
+  const reviewsSub = googleReviews?.userRatingCount
+    ? (lang === "ro" ? `Peste ${googleReviews.userRatingCount} de reparații efectuate în București` : `Over ${googleReviews.userRatingCount} repairs completed in Bucharest`)
+    : t.reviews.sub;
   const commentsForPost = (postId) => postComments[postId] || [];
   const rootComments = (postId) => commentsForPost(postId).filter(c => !c.parent_id);
   const childComments = (postId, parentId) => commentsForPost(postId).filter(c => c.parent_id === parentId);
@@ -622,19 +640,23 @@ export default function App() {
     <div style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif", color: "#1e293b", background: "#f8faff" }}>
 
       {/* ===== HEADER ===== */}
-      <header style={{
-        position: "sticky", top: 0, zIndex: 100,
-        background: isScrolled ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.85)",
-        backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
-        borderBottom: isScrolled ? "1px solid #e2e8f0" : "none",
-        transition: "all 0.3s", height: "68px",
-        boxShadow: isScrolled ? "0 2px 16px rgba(0,0,0,0.06)" : "none",
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 32px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* Note: the blur/background/shadow live on the inner row, not on <header> itself —
+          backdrop-filter on an ancestor creates a new containing block for position:fixed
+          descendants (like .mobile-nav-overlay below), which broke the mobile menu's full-viewport coverage. */}
+      <header style={{ position: "sticky", top: 0, zIndex: 100, height: "68px" }}>
+        <div aria-hidden="true" style={{
+          position: "absolute", inset: 0,
+          background: isScrolled ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.85)",
+          backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          borderBottom: isScrolled ? "1px solid #e2e8f0" : "none",
+          transition: "all 0.3s",
+          boxShadow: isScrolled ? "0 2px 16px rgba(0,0,0,0.06)" : "none",
+        }} />
+        <div style={{ position: "relative", maxWidth: "1200px", margin: "0 auto", padding: "0 32px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="#acasa" onClick={() => setActiveNav("acasa")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ width: "36px", height: "36px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "18px" }}>❄️</div>
+            <img src="/logo_0.png" alt="Reparații frigidere" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
             <div>
-              <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1" }}>Reparații Frigidere</div>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1" }}>Reparații frigidere</div>
               <div style={{ fontSize: "10px", color: "#64748b", letterSpacing: "0.5px", textTransform: "uppercase" }}>Opris Adrian PFA</div>
             </div>
           </a>
@@ -663,7 +685,7 @@ export default function App() {
                 <button key={l} onClick={() => setLang(l)} style={{ background: "none", border: "none", fontSize: "12px", fontWeight: lang === l ? "700" : "400", color: lang === l ? "#0277bd" : "#94a3b8", cursor: "pointer", textTransform: "uppercase" }}>{l}</button>
               ))}
             </div>
-            <button className="hamburger-btn" onClick={() => setMenuOpen(o => !o)}><span /><span /><span /></button>
+            <button className={`hamburger-btn${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Închide meniul" : "Deschide meniul"}><span /><span /><span /></button>
           </div>
         </div>
 
@@ -682,27 +704,36 @@ export default function App() {
         <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
         <div style={{ position: "absolute", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(41,182,246,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
         <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 2, width: "100%" }}>
-          <div style={{ animation: "fadeInUp 0.7s ease both" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", marginBottom: "28px" }}>
-              <FaShieldAlt size={11} /> {t.hero.badge}
-            </div>
-            <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
-            <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "24px" }}>{t.hero.h1b}</h1>
-            <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
-            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
-              <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#29b6f6", color: "#0d1b2a", padding: "16px 32px", borderRadius: "10px", fontWeight: "700", fontSize: "16px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
-                <FaPhone size={16} /> {t.hero.cta1}: {t.contact.phone}
-              </a>
-              <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#25d366", color: "white", padding: "16px 28px", borderRadius: "10px", fontWeight: "700", fontSize: "15px", textDecoration: "none" }}>
-                <FaWhatsapp size={18} /> {t.hero.cta2}
-              </a>
-            </div>
-            <div className="hero-badges" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-              {t.hero.badges.map((b, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)", padding: "7px 14px", borderRadius: "8px", fontSize: "12px", fontWeight: "500" }}>
-                  <FaCheck size={10} color="#4ade80" /> {b}
-                </div>
-              ))}
+          <div className="two-col" style={{ display: "flex", alignItems: "center", gap: "48px" }}>
+            <img src="/poza-profil.jpg" alt="Opriș Adrian — tehnician frigotehnist autorizat AGFR" style={{
+              width: "320px", maxWidth: "100%", height: "auto", borderRadius: "20px", flexShrink: 0,
+              border: "3px solid rgba(41,182,246,0.4)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)", animation: "fadeInUp 0.7s ease both",
+            }} />
+            <div style={{ animation: "fadeInUp 0.7s ease both", minWidth: 0 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", marginBottom: "28px" }}>
+                <FaShieldAlt size={11} /> {t.hero.badge}
+              </div>
+              <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
+              <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "24px" }}>{t.hero.h1b}</h1>
+              <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
+              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
+                <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#29b6f6", color: "#0d1b2a", padding: "16px 32px", borderRadius: "10px", fontWeight: "700", fontSize: "16px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
+                  <FaPhone size={16} /> {t.hero.cta1}: {t.contact.phone} / 07 FRIGIDER
+                </a>
+                <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#25d366", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
+                  <FaWhatsapp size={20} />
+                </a>
+                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#ff0000", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
+                  <FaYoutube size={20} />
+                </a>
+              </div>
+              <div className="hero-badges" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                {t.hero.badges.map((b, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)", padding: "7px 14px", borderRadius: "8px", fontSize: "12px", fontWeight: "500" }}>
+                    <FaCheck size={10} color="#4ade80" /> {b}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -712,7 +743,6 @@ export default function App() {
       <section id="servicii" className="section-pad" style={{ background: "white" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <div style={{ fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#0277bd", marginBottom: "12px" }}>Prețuri clare</div>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.services.title}</h2>
             <p style={{ fontSize: "16px", color: "#64748b" }}>{t.services.sub}</p>
           </div>
@@ -886,10 +916,10 @@ export default function App() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.reviews.title}</h2>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>{t.reviews.sub}</p>
+            <p style={{ fontSize: "16px", color: "#64748b" }}>{reviewsSub}</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "48px" }}>
-            {t.reviews.items.map((r, i) => (
+            {reviewItems.map((r, i) => (
               <div key={i} style={{ background: "#f8faff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "24px", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 8px 24px rgba(2,119,189,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}>
@@ -914,9 +944,9 @@ export default function App() {
             </div>
             <div style={{ background: "#f0f7ff", borderRadius: "16px", padding: "32px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
               <div style={{ fontSize: "48px", marginBottom: "16px" }}>⭐</div>
-              <h3 style={{ fontSize: "20px", fontWeight: "700", color: "#0d1b2a", marginBottom: "8px" }}>4.9 / 5.0</h3>
+              <h3 style={{ fontSize: "20px", fontWeight: "700", color: "#0d1b2a", marginBottom: "8px" }}>{reviewsRating.toFixed(1)} / 5.0</h3>
               <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "24px", lineHeight: "1.6" }}>{lang === "ro" ? "Bazat pe recenzii Google Maps" : "Based on Google Maps reviews"}</p>
-              <a href="https://www.google.com/maps/search/Opris+Adrian+PFA+Reparatii+Frigidere+Bucuresti" target="_blank" rel="noopener noreferrer" className="btn-primary">{t.reviews.writeReview}</a>
+              <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" className="btn-primary">{t.reviews.writeReview}</a>
             </div>
           </div>
         </div>
@@ -1222,39 +1252,39 @@ export default function App() {
         <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white" }}>{t.contact.title}</h2>
           <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", marginBottom: "56px" }}>{t.contact.sub}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "32px", marginBottom: "48px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "12px", marginBottom: "48px" }}>
             {[
-              { icon: "📞", label: lang === "ro" ? "Telefon" : "Phone", value: t.contact.phone, href: `tel:${t.contact.phoneFull}` },
-              { icon: "💬", label: "WhatsApp", value: t.contact.phone, href: "https://wa.me/40737444337" },
-              { icon: "📧", label: "Email", value: t.contact.email, href: `mailto:${t.contact.email}` },
-              { icon: "⏰", label: lang === "ro" ? "Program" : "Hours", value: t.contact.hours, href: null },
-              { icon: "📍", label: lang === "ro" ? "Adresă" : "Address", value: t.contact.address, href: null },
+              { icon: <FaPhone />, value: t.contact.phone, href: `tel:${t.contact.phoneFull}` },
+              { icon: <FaWhatsapp />, value: null, href: "https://wa.me/40737444337" },
+              { icon: <FaYoutube />, value: null, href: YOUTUBE_URL },
+              { icon: <FaEnvelope />, value: t.contact.email, href: `mailto:${t.contact.email}` },
+              { icon: <FaClock />, value: t.contact.hours, href: null },
+              { icon: <FaMapMarkerAlt />, value: t.contact.address, href: null },
             ].map((item, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: "16px", padding: "24px 20px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <div style={{ fontSize: "28px", marginBottom: "10px" }}>{item.icon}</div>
-                <div style={{ fontSize: "11px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase", color: "#29b6f6", marginBottom: "6px" }}>{item.label}</div>
-                {item.href ? (
-                  <a href={item.href} target={item.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
-                    style={{ fontSize: "14px", color: "white", textDecoration: "none", fontWeight: "500" }}
-                    onMouseEnter={e => e.currentTarget.style.color = "#29b6f6"}
-                    onMouseLeave={e => e.currentTarget.style.color = "white"}>{item.value}</a>
+              <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 6px", border: "1px solid rgba(255,255,255,0.1)", minWidth: 0, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                {item.value === null && item.href ? (
+                  <a href={item.href} target="_blank" rel="noopener noreferrer"
+                    style={{ fontSize: "22px", color: "#29b6f6", display: "flex", justifyContent: "center" }}
+                    onMouseEnter={e => e.currentTarget.style.color = "white"}
+                    onMouseLeave={e => e.currentTarget.style.color = "#29b6f6"}>{item.icon}</a>
                 ) : (
-                  <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.8)" }}>{item.value}</div>
+                  <>
+                    <div style={{ fontSize: "18px", marginBottom: "8px", color: "#29b6f6", display: "flex", justifyContent: "center" }}>{item.icon}</div>
+                    {item.href ? (
+                      <a href={item.href} target={item.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
+                        style={{ fontSize: "11px", color: "white", textDecoration: "none", fontWeight: "500", wordBreak: "break-word" }}
+                        onMouseEnter={e => e.currentTarget.style.color = "#29b6f6"}
+                        onMouseLeave={e => e.currentTarget.style.color = "white"}>{item.value}</a>
+                    ) : (
+                      <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)", wordBreak: "break-word" }}>{item.value}</div>
+                    )}
+                  </>
                 )}
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", gap: "16px", justifyContent: "center", marginBottom: "40px", flexWrap: "wrap" }}>
-            <a href={`tel:${t.contact.phoneFull}`} className="btn-primary" style={{ background: "#29b6f6", color: "#0d1b2a", fontSize: "16px", padding: "14px 32px" }}>
-              <FaPhone size={15} /> {t.contact.phone}
-            </a>
-            <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#25d366", color: "white", padding: "14px 28px", borderRadius: "10px", fontWeight: "700", fontSize: "15px", textDecoration: "none" }}>
-              <FaWhatsapp size={18} /> WhatsApp
-            </a>
-          </div>
-          <p onClick={() => !isAdmin && setShowAdminLogin(true)}
-            style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px", margin: 0, cursor: "default", userSelect: "none" }}>
-            {t.contact.copyright}
+          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px", margin: 0, userSelect: "none" }}>
+            © <span onClick={() => (isAdmin ? handleAdminLogout() : setShowAdminLogin(true))} style={{ cursor: "default" }}>2026</span> {t.contact.copyright}
           </p>
         </div>
       </section>
