@@ -152,6 +152,9 @@ body {
   .two-col { flex-direction: column !important; }
   .hide-mobile { display: none !important; }
   .grid-auto { grid-template-columns: 1fr !important; }
+  .hero-content { width: 100%; text-align: center; }
+  .hero-content p { margin-left: auto; margin-right: auto; }
+  .hero-cta-row, .hero-badges { justify-content: center; }
 }
 
 @media (max-width: 480px) {

@@ -714,14 +714,14 @@ export default function App() {
               width: "320px", maxWidth: "100%", height: "auto", borderRadius: "20px", flexShrink: 0,
               border: "3px solid rgba(41,182,246,0.4)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)", animation: "fadeInUp 0.7s ease both",
             }} />
-            <div style={{ animation: "fadeInUp 0.7s ease both", minWidth: 0 }}>
+            <div className="hero-content" style={{ animation: "fadeInUp 0.7s ease both", minWidth: 0 }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", marginBottom: "28px" }}>
                 <FaShieldAlt size={11} /> {t.hero.badge}
               </div>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "24px" }}>{t.hero.h1b}</h1>
               <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
-              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
+              <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
                 <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#29b6f6", color: "#0d1b2a", padding: "16px 32px", borderRadius: "10px", fontWeight: "700", fontSize: "16px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
                   <FaPhone size={16} /> {t.hero.cta1}: {t.contact.phone} / 07 FRIGIDER
                 </a>
@@ -1263,16 +1263,17 @@ export default function App() {
         <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white" }}>{t.contact.title}</h2>
           <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", marginBottom: "56px" }}>{t.contact.sub}</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "12px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "48px" }}>
             {[
               { icon: <FaPhone />, value: t.contact.phone, href: `tel:${t.contact.phoneFull}` },
               { icon: <FaWhatsapp />, value: null, href: "https://wa.me/40737444337" },
               { icon: <FaYoutube />, value: null, href: YOUTUBE_URL },
               { icon: <FaFacebook />, value: null, href: FACEBOOK_URL },
-              { icon: <FaClock />, value: t.contact.hours, href: null, span: 2 },
-              { icon: <FaMapMarkerAlt />, value: t.contact.address, href: GOOGLE_REVIEWS_URL, span: 2 },
+              { icon: <FaEnvelope />, value: t.contact.email, href: `mailto:${t.contact.email}` },
+              { icon: <FaClock />, value: t.contact.hours, href: null },
+              { icon: <FaMapMarkerAlt />, value: t.contact.address, href: GOOGLE_REVIEWS_URL },
             ].map((item, i) => (
-              <div key={i} style={{ gridColumn: item.span ? `span ${item.span}` : undefined, background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 6px", border: "1px solid rgba(255,255,255,0.1)", minWidth: 0, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 6px", border: "1px solid rgba(255,255,255,0.1)", minWidth: 0, textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                 {item.value === null && item.href ? (
                   <a href={item.href} target="_blank" rel="noopener noreferrer"
                     style={{ fontSize: "22px", color: "#29b6f6", display: "flex", justifyContent: "center" }}
@@ -1294,11 +1295,6 @@ export default function App() {
               </div>
             ))}
           </div>
-          <a href={`mailto:${t.contact.email}`} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)", marginBottom: "48px", color: "white", textDecoration: "none", fontSize: "13px", fontWeight: "500", whiteSpace: "nowrap" }}
-            onMouseEnter={e => e.currentTarget.style.color = "#29b6f6"}
-            onMouseLeave={e => e.currentTarget.style.color = "white"}>
-            <FaEnvelope size={16} color="#29b6f6" /> {t.contact.email}
-          </a>
           <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.8", marginBottom: "24px" }}>
             <p style={{ margin: 0 }}>{t.contact.legalAddress}</p>
             <p style={{ margin: 0 }}>
