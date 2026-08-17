@@ -504,11 +504,13 @@ if (process.env.NODE_ENV === 'production') {
     // falling back to index.html, which would serve HTML mislabeled as JS/CSS
     // and get rejected by the browser's MIME sniffing instead of failing clearly.
     if (/\.[a-zA-Z0-9]+$/.test(req.path)) return res.status(404).end();
-    // Never cache the HTML shell — it references the current hashed JS/CSS bundle,
-    // so a stale copy (esp. on mobile Chrome's more aggressive heuristic caching)
-    // keeps serving an old bundle indefinitely after a new deploy.
-    res.set('Cache-Control', 'no-cache');
-    res.sendFile(path.join(buildDir, 'index.html'));
+    // Never cache the HTML shell, and skip conditional-request validation (ETag /
+    // Last-Modified) entirely — express.static's default ETag is size+mtime, not a
+    // content hash, and a stale serverless instance with a matching size can produce
+    // a false-positive 304 for genuinely different content. no-store + no validators
+    // forces a real fetch every time instead of trusting a conditional match.
+    res.set('Cache-Control', 'no-store');
+    res.sendFile(path.join(buildDir, 'index.html'), { etag: false, lastModified: false });
   });
 }
 
