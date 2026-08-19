@@ -672,7 +672,7 @@ export default function App() {
         seoText: "Serviciile noastre de reparații frigidere acoperă întreaga arie metropolitană a Bucureștiului. Indiferent dacă locuiești în sectorul 1, 2, 3, 4, 5 sau 6, sau în localitățile limitrofe, tehnicianul nostru autorizat ajunge la tine rapid.",
       },
       reviews: {
-        title: "Ce spun clienții", sub: "16+ ani de reparații frigidere în București",
+        title: "Ce spun clienții", sub: "16+ ani de reparații frigidere în București, peste 1000 de clienți mulțumiți",
         mapTitle: "Locația noastră",
         loadMore: "Mai multe recenzii", loadLess: "Mai puține recenzii",
         items: [
@@ -802,7 +802,7 @@ export default function App() {
         seoText: "Our fridge repair services cover the entire Bucharest metropolitan area. Whether you live in sector 1, 2, 3, 4, 5, or 6, or in the surrounding towns, our authorized technician reaches you quickly.",
       },
       reviews: {
-        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest",
+        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest, over 1000 satisfied clients",
         mapTitle: "Our Location",
         loadMore: "More reviews", loadLess: "Fewer reviews",
         items: [
