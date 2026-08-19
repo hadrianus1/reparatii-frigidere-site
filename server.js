@@ -69,8 +69,13 @@ const initDB = async () => {
     id SERIAL PRIMARY KEY, title VARCHAR(200) NOT NULL, slug VARCHAR(200) NOT NULL UNIQUE,
     excerpt TEXT, content TEXT NOT NULL, category VARCHAR(100) DEFAULT 'General',
     image_url VARCHAR(500), published BOOLEAN DEFAULT false,
+    title_en VARCHAR(200), excerpt_en TEXT, content_en TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW()
   )`);
+  // Existing deployments predate the _en columns — add them if missing.
+  await db.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS title_en VARCHAR(200)`);
+  await db.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS excerpt_en TEXT`);
+  await db.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS content_en TEXT`);
   await db.query(`CREATE TABLE IF NOT EXISTS post_comments (
     id SERIAL PRIMARY KEY, post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
     parent_id INTEGER REFERENCES post_comments(id) ON DELETE CASCADE,
@@ -165,6 +170,32 @@ app.get('/api/admin/verify', (req, res) => {
   try { jwt.verify(auth.slice(7), JWT_SECRET); res.json({ valid: true }); } catch { res.json({ valid: false }); }
 });
 
+// ===== TRANSLATION (DeepL, RO → EN, used when a blog post is saved) =====
+
+const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
+const DEEPL_API_URL = DEEPL_API_KEY && DEEPL_API_KEY.endsWith(':fx')
+  ? 'https://api-free.deepl.com/v2/translate'
+  : 'https://api.deepl.com/v2/translate';
+
+if (!DEEPL_API_KEY) console.warn('⚠️  DEEPL_API_KEY not set — posts will save without an English translation');
+
+// texts: string[] (RO) -> Promise<string[]> (EN), same order, '' preserved as ''
+async function translateToEnglish(texts) {
+  if (!DEEPL_API_KEY) return texts.map(() => null);
+  const toTranslate = texts.map((t, i) => ({ i, t })).filter(x => x.t && x.t.trim());
+  const out = texts.map(t => (t && t.trim() ? null : ''));
+  if (!toTranslate.length) return out;
+  const res = await fetch(DEEPL_API_URL, {
+    method: 'POST',
+    headers: { 'Authorization': `DeepL-Auth-Key ${DEEPL_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: toTranslate.map(x => x.t), source_lang: 'RO', target_lang: 'EN-US' }),
+  });
+  if (!res.ok) throw new Error(`DeepL ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  data.translations.forEach((tr, idx) => { out[toTranslate[idx].i] = tr.text; });
+  return out;
+}
+
 // ===== BLOG POSTS =====
 
 const makeSlug = (title) => title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now();
@@ -174,12 +205,12 @@ app.get('/api/posts', async (req, res) => {
     const admin = isAdminReq(req);
     if (db.isReal) {
       const result = admin
-        ? await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at, updated_at FROM posts ORDER BY created_at DESC')
-        : await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at FROM posts WHERE published = true ORDER BY created_at DESC');
+        ? await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at, updated_at, title_en, excerpt_en FROM posts ORDER BY created_at DESC')
+        : await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at, title_en, excerpt_en FROM posts WHERE published = true ORDER BY created_at DESC');
       return res.json(result.rows);
     }
     let rows = Array.from(db.posts.values()).sort((a, b) => b.created_at.localeCompare(a.created_at));
-    if (!admin) rows = rows.filter(p => p.published).map(({ content: _c, updated_at: _u, ...rest }) => rest);
+    if (!admin) rows = rows.filter(p => p.published).map(({ content: _c, content_en: _ce, updated_at: _u, ...rest }) => rest);
     res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -202,13 +233,19 @@ app.post('/api/posts', requireAdmin, async (req, res) => {
     const { title, excerpt, content, category, image_url } = req.body;
     if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
     const slug = makeSlug(title);
+    let title_en = null, excerpt_en = null, content_en = null;
+    try { [title_en, excerpt_en, content_en] = await translateToEnglish([title, excerpt || '', content]); }
+    catch (err) { console.error('Translation error:', err.message); }
     if (db.isReal) {
-      const result = await db.query('INSERT INTO posts (title, slug, excerpt, content, category, image_url) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *', [title, slug, excerpt || '', content, category || 'General', image_url || null]);
+      const result = await db.query(
+        'INSERT INTO posts (title, slug, excerpt, content, category, image_url, title_en, excerpt_en, content_en) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+        [title, slug, excerpt || '', content, category || 'General', image_url || null, title_en, excerpt_en, content_en]
+      );
       return res.status(201).json(result.rows[0]);
     }
     const id = db.nextPostId();
     const ts = new Date().toISOString();
-    const post = { id, title, slug, excerpt: excerpt || '', content, category: category || 'General', image_url: image_url || null, published: false, created_at: ts, updated_at: ts };
+    const post = { id, title, slug, excerpt: excerpt || '', content, category: category || 'General', image_url: image_url || null, published: false, created_at: ts, updated_at: ts, title_en, excerpt_en, content_en };
     db.posts.set(id, post);
     res.status(201).json(post);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -217,14 +254,20 @@ app.post('/api/posts', requireAdmin, async (req, res) => {
 app.patch('/api/posts/:id', requireAdmin, async (req, res) => {
   try {
     const { title, excerpt, content, category, image_url } = req.body;
+    let title_en = null, excerpt_en = null, content_en = null;
+    try { [title_en, excerpt_en, content_en] = await translateToEnglish([title, excerpt || '', content]); }
+    catch (err) { console.error('Translation error:', err.message); }
     if (db.isReal) {
-      const result = await db.query('UPDATE posts SET title=$1, excerpt=$2, content=$3, category=$4, image_url=$5, updated_at=NOW() WHERE id=$6 RETURNING *', [title, excerpt, content, category, image_url, req.params.id]);
+      const result = await db.query(
+        'UPDATE posts SET title=$1, excerpt=$2, content=$3, category=$4, image_url=$5, title_en=$6, excerpt_en=$7, content_en=$8, updated_at=NOW() WHERE id=$9 RETURNING *',
+        [title, excerpt, content, category, image_url, title_en, excerpt_en, content_en, req.params.id]
+      );
       if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
       return res.json(result.rows[0]);
     }
     const post = db.posts.get(Number(req.params.id));
     if (!post) return res.status(404).json({ error: 'Not found' });
-    Object.assign(post, { title, excerpt, content, category, image_url, updated_at: new Date().toISOString() });
+    Object.assign(post, { title, excerpt, content, category, image_url, title_en, excerpt_en, content_en, updated_at: new Date().toISOString() });
     res.json(post);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -416,63 +459,6 @@ app.delete('/api/comments/:id/reactions', async (req, res) => {
     }
     res.json({ success: true });
   } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-// ===== GOOGLE REVIEWS (live, newest-first, via Places API) =====
-
-const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
-const GOOGLE_PLACE_QUERY = 'Opris Adrian P.F.A.- reparatii frigidere, Bulevardul Timișoara 53, Sector 6, București';
-const REVIEWS_TTL_MS = 6 * 60 * 60 * 1000; // 6h — reviews come in rarely, no need to refresh more often
-let cachedPlaceId = process.env.GOOGLE_PLACE_ID || null;
-let reviewsCache = null; // { data, fetchedAt }
-
-async function resolvePlaceId() {
-  if (cachedPlaceId) return cachedPlaceId;
-  const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
-      'X-Goog-FieldMask': 'places.id,places.displayName',
-    },
-    body: JSON.stringify({ textQuery: GOOGLE_PLACE_QUERY, languageCode: 'ro', regionCode: 'RO' }),
-  });
-  const data = await res.json();
-  if (!data.places?.length) throw new Error('Place not found: ' + JSON.stringify(data.error || data));
-  cachedPlaceId = data.places[0].id;
-  return cachedPlaceId;
-}
-
-app.get('/api/google-reviews', async (req, res) => {
-  try {
-    if (!GOOGLE_PLACES_API_KEY) return res.status(503).json({ error: 'Google Places API key not configured' });
-    if (reviewsCache && Date.now() - reviewsCache.fetchedAt < REVIEWS_TTL_MS) return res.json(reviewsCache.data);
-
-    const placeId = await resolvePlaceId();
-    const detailsRes = await fetch(`https://places.googleapis.com/v1/places/${placeId}?languageCode=ro&reviewsSort=newest`, {
-      headers: {
-        'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
-        'X-Goog-FieldMask': 'rating,userRatingCount,reviews',
-      },
-    });
-    const details = await detailsRes.json();
-    if (details.error) throw new Error('Place Details error: ' + JSON.stringify(details.error));
-
-    const data = {
-      rating: details.rating,
-      userRatingCount: details.userRatingCount,
-      reviews: (details.reviews || []).map(r => ({
-        name: r.authorAttribution?.displayName || 'Client Google', rating: r.rating,
-        text: r.originalText?.text || r.text?.text || '',
-        relativeTime: r.relativePublishTimeDescription, time: r.publishTime,
-      })),
-    };
-    reviewsCache = { data, fetchedAt: Date.now() };
-    res.json(data);
-  } catch (err) {
-    console.error('Google reviews error:', err.message);
-    res.status(502).json({ error: 'Failed to fetch reviews' });
-  }
 });
 
 // ===== HEALTH =====

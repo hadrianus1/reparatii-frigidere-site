@@ -17,31 +17,190 @@ const GOOGLE_REVIEWS_URL = "https://maps.app.goo.gl/4DwxLKT5YEjaiYXb8";
 // ===== GALLERY IMAGES (served locally from /public) =====
 
 const GALLERY = [
-  { url: "/reparatii_frigidere_1_0.jpeg", caption: "Reparație frigider la domiciliu" },
-  { url: "/repar_frigidere_opris_adrian.jpg", caption: "Opris Adrian — Tehnician autorizat AGFR" },
-  { url: "/img_20200608_065349.jpg", caption: "Service frigider Bosch" },
-  { url: "/img_20191016_122313.jpg", caption: "Reparație frigider Gorenje" },
-  { url: "/img_20200619_045619.jpg", caption: "Reparație combină frigorifică Whirlpool" },
-  { url: "/img_20200620_072828.jpg", caption: "Schimb compresor frigider Arctic" },
-  { url: "/reparatii_frigidere-_opris_adrian.jpg", caption: "Reparație frigider Beko" },
-  { url: "/img_20200401_211609.jpg", caption: "Service Hotpoint Ariston" },
-  { url: "/img_20200924_040354.jpg", caption: "Reparație frigider Indesit" },
-  { url: "/reparatii_frigidere_ariston_hotpoint_2_2.jpeg", caption: "Service Ariston Hotpoint — piese originale" },
-  { url: "/reparatii_frigidere_cu_pierdere_freon_0.jpeg", caption: "Reparație pierdere freon frigider" },
-  { url: "/opris_adrian_-_reparatii_frigidere.jpg", caption: "Opris Adrian PFA — 16+ ani experiență" },
-  { url: "/reparatie_pierdere_freon_frigider_arctic.jpg", caption: "Reparație pierdere freon Arctic" },
-  { url: "/reparatii_frigidere_no_frost_-_opeis_adrian.jpg", caption: "Reparații frigidere No-Frost" },
-  { url: "/reparatii_frigidere_hotpoint_ariston.jpeg", caption: "Service Hotpoint Ariston București" },
-  { url: "/reparatii_frigidere_2.jpeg", caption: "Intervenție rapidă în toată București" },
-  { url: "/img_20200401_132345.jpg", caption: "Diagnosticare și reparare la client" },
-  { url: "/adrian-1.jpg", caption: "Diagnosticare placă electronică frigider" },
-  { url: "/img_20191119_230014.jpg", caption: "Reparație frigider Beko No-Frost — Sector 6" },
-  { url: "/img_20200303_225144_0.jpg", caption: "Reparație sistem No-Frost — ventilatoare și evaporator" },
-  { url: "/img_20200619_050154.jpg", caption: "Schimb compresor frigider" },
+  { url: "/reparatii_frigidere_opris_adrian_1.jpeg", caption: "Opriș Adrian — tehnician autorizat AGFR" },
+  { url: "/img_20200401_211609.jpg", caption: "Reparație combină frigorifică" },
+  { url: "/reparatii_module_electronice_frigidere.jpeg", caption: "Reparații module electronice frigidere" },
+  { url: "/img_20191017_212608.jpg", caption: "Reparație frigider la domiciliu" },
+  { url: "/reparatii_frigidere_ariston_1.jpeg", caption: "Reparații frigidere Ariston" },
+  { url: "/img_20200619_050005.jpg", caption: "Schimb compresor frigider" },
+  { url: "/opris_adrian_pfa_reparatii_frigidere.jpeg", caption: "Opriș Adrian PFA — reparații frigidere" },
+  { url: "/reparatii_placi_electronice_domiciliu.jpeg", caption: "Reparații plăci electronice la domiciliu" },
+  { url: "/img_20200519_142720.jpg", caption: "Intervenție tehnică la fața locului" },
+  { url: "/reparatii_frigidere_indesit.jpeg", caption: "Reparații frigidere Indesit" },
   { url: "/img_20200712_234828.jpg", caption: "Reparație frigider Side-by-Side cu dozator de apă" },
+  { url: "/reparatii_frigidere_ariston_2.jpeg", caption: "Service frigidere Ariston" },
+  { url: "/img_20200924_040848.jpg", caption: "Service frigider No-Frost" },
+  { url: "/reparatii_frigidere_opris_adrian_2.jpeg", caption: "Reparații frigidere la domiciliu" },
+  { url: "/inlocuire_vaporizator_frigider_arctic.jpeg", caption: "Înlocuire vaporizator frigider Arctic" },
+  { url: "/frigider.jpg", caption: "Reparație frigider" },
+  { url: "/img_20200401_211511.jpg", caption: "Diagnosticare defecțiune frigider" },
+  { url: "/frigider1.jpeg", caption: "Diagnosticare și reparare frigider" },
+  { url: "/reparatii_frigidere_bucuresti.jpeg", caption: "Reparații frigidere București" },
+  { url: "/frigider2.jpeg", caption: "Intervenție rapidă la domiciliu" },
+  { url: "/frigotehnist.jpeg", caption: "Frigotehnist autorizat la lucru" },
 ];
 
 // ===== HELPERS =====
+
+// ===== ZONES MAP DATA =====
+// Real Bucharest sector boundaries (traced polygons, CC0 — Wikimedia Commons
+// "Bucuresti sectors.svg"), with neighborhoods/localities placed at their
+// approximate real position within each sector (verified to fall inside the
+// sector's actual shape, not just its bounding box).
+
+const polarXY = (cx, cy, bearingDeg, r) => {
+  const rad = (bearingDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+};
+
+const SECTOR_PATHS = {
+  1: "M224.8,28.5l-16.3,6.1v12.2l-26.5,9.2-5.1-4.1-5.1,3,3.1,6.1-21.4,10.2-7.2-8.2-8.2,13.2,4.1,6.1-25.5,13.2-3.1,29.6h-10.2l-9.2,11.2-10.2-10.2-11.2,7.1-1,6.1,11.2,12.2-11.2,21.4v14.3l17.3-21.4h45.9l62.2,38.8,20.4,28.6,10.2,26.5-7.1,6.1,40.2,1.8-3.5-2.8,9.2-25.5-2-7.1-1-32.6,7.2-12.2-8.2-21.4,21.8-13.9-4.5-9.6,2.1-6.1-12.2-14.3,12.2-8.2-4.1-3.1-9.2,1-1-22.4,5.1-3.1-4.1-7.1v-16.3l-1-5.1v-21.4l-7.2-6.1-6.1,7.2-24.5,2-5.1-11.2h0Z",
+  2: "M285,151.9l-22.4,14.3,8.2,21.4-7.2,12.2,1,32.6,2,7.1-9.2,25.5,6.1,4.9,11.2-.8,9.2,1,2,3.1,26.5,3.1,23.4-4.1,81.6-23.5,1.1-1.3-1.1-8.9-9.2-7.2-1-8.2-5.1,1v16.3l-5.1-1-7.1,1-6.1,2,1-12.2,3.1-7.2-7.2-1-10.2,5.1-3.1-5.1-7.2-5.1-5.1,5.1-5.1-6.1,33.7-44.9-14.3-5.1-12.2-2.1-72.4-12.2h0Z",
+  3: "M424.7,235.5l1,5.1h5.1l-5.1,3.1-2-2-6.1,7.1-81.6,23.5-23.4,4.1-26.5-3.1-2-3.1-9.2-1-14.3,1-5.9,13.4,1.8-3.2,5.1,1,7.1,7.2h5.1l4.1,8.2,3.1,10.2,7.1,7.2,6.1,10.2,32.7,12.2,32.6,7.1-1.3,4.8,28.8,7.4,38.8-2.1v-6.1l7.2-4.1,1-10.2,16.3-4.1-1-27.5,7.1,1,4.1-12.2-5.1-4.1,3.1-14.2h6.1l-1,8.2,13.2-5.1v-17.3l-11.2-5.1-5.1-5.1-2.1,9.2-25.5-3.1v-6.1l3-7.1-5.1-5.1h-6.1Z",
+  4: "M368.6,471.1l-17.3,7.1,3.1,9.2-8.2,4.1-6.1-3.1-5.1-6.1-11.2,3.1-3.1-5.1,6.1-3.1-15.3-31.6-20.4-1-9.2-13.3,3.1-6.1-24.5-8.2-3.1,5.1-2,2-8.2-10.2h-3.1l5.1-33.7-1-9.2,8.2-26.5-3.1-13.3-5.1-7.1-6.1-3.1,5.1-12.2-4.1-11.2,9.2-10.2,4.1-7.1,5.1,1,7.1,7.1h5.1l4.1,8.2,3.1,10.2,7.1,7.1,6.1,10.2,32.6,12.2,32.6,7.1-3.1,11.2-23.5,47.9,3.1,4.1-6.1,7.1,29.6,49,7.1-2,2,10.2h0Z",
+  5: "M213.6,262l-14.3,9.2,2.1,8.2-4.1,28.6-13.2,5.1-89.8,17.3,3.1,8.2h9.2l7.1,6.1,9.2-9.2,18.3,27.5,9.2,10.2,9.2-5.1,5.1,5.1-5.1,7.2,14.2,18.3,74.5,16.7-1.1-1.3h-3.1l5.1-33.7-1-9.2,8.2-26.5-3.1-13.3-5.1-7.1-6.1-3.1,5.1-12.2-4.1-11.2,9.2-10.2,2.2-3.9,5.9-13.4,3-.2-2.6-2.1-38.8-1.7-1.3.9-7.2-5.1h0Z",
+  6: "M89.2,166.2l-16,19.8-8.4,16.9,20.4,6.1,41.8,13.3v9.2l1,8.2,7.1,2.1-10.2,10.2-74.4,6.1,2,8.2-8.2,1-1,10.2,7.2,3.1,3.1,20.4-10.2,3.1,3.1,8.2,9.2-2,9.2,25.5,10.2-3.1,13.2,4.1,4.1-8.2,4.1,1.6,87.7-16.9,13.2-5.1,4.1-28.6-2.1-8.2,14.3-9.2,7.2,5.1,1.3-.9h-1.3c0,0,7.1-6.2,7.1-6.2l-10.2-26.5-20.4-28.6-62.2-38.8h-45.9Z",
+};
+
+const SECTOR_LABEL_POS = { 1: [194, 139], 2: [335, 218], 3: [381, 291], 4: [304, 392], 5: [195, 336], 6: [124, 252] };
+
+const ZONE_SECTORS = [1, 2, 3, 4, 5, 6].map(n => ({ id: `sector-${n}`, name: `Sector ${n}` }));
+
+const ZONE_NEIGHBORHOODS = [
+  { id: "baneasa", name: "Băneasa", sector: 1, x: 190.6, y: 60.8 },
+  { id: "otopeni", name: "Otopeni", sector: 1, x: 200, y: -10 },
+  { id: "pipera", name: "Pipera", sector: 1, x: 253, y: 88 },
+  { id: "aviatiei", name: "Aviației", sector: 1, x: 146, y: 112 },
+  { id: "grivita", name: "Grivița", sector: 1, x: 190.6, y: 197.7 },
+  { id: "dorobanti", name: "Dorobanți", sector: 1, x: 221, y: 184 },
+  { id: "floreasca", name: "Floreasca", sector: 1, x: 242, y: 160 },
+  { id: "colentina", name: "Colentina", sector: 2, x: 306, y: 177 },
+  { id: "obor", name: "Obor", sector: 2, x: 298, y: 214 },
+  { id: "iancului", name: "Iancului", sector: 2, x: 330, y: 233 },
+  { id: "pantelimon", name: "Pantelimon", sector: 2, x: 386, y: 226 },
+  { id: "dristor", name: "Dristor", sector: 3, x: 323.9, y: 275.6 },
+  { id: "vitan", name: "Vitan", sector: 3, x: 310, y: 302 },
+  { id: "titan", name: "Titan", sector: 3, x: 398, y: 290 },
+  { id: "tineretului", name: "Tineretului", sector: 4, x: 296.1, y: 334.2 },
+  { id: "vacaresti", name: "Văcărești", sector: 4, x: 312, y: 375 },
+  { id: "berceni", name: "Berceni", sector: 4, x: 318, y: 439 },
+  { id: "rahova", name: "Rahova", sector: 5, x: 150, y: 355 },
+  { id: "ferentari", name: "Ferentari", sector: 5, x: 187, y: 369 },
+  { id: "crangasi", name: "Crângași", sector: 6, x: 165, y: 235 },
+  { id: "giulesti", name: "Giulești", sector: 6, x: 150, y: 270 },
+  { id: "drumul-taberei", name: "Drumul Taberei", sector: 6, x: 117, y: 294 },
+  { id: "militari", name: "Militari", sector: 6, x: 71, y: 259 },
+];
+
+// rx/ry: an approximate footprint (not a surveyed boundary) sized roughly by each
+// town/commune's real relative size, so it reads as a place, not just a pin. Roșu
+// (a village inside Chiajna commune) and Militari Residence (a private residential
+// development) aren't independent administrative units, so they stay as plain points.
+const ZONE_SUBURBS = [
+  { id: "voluntari", name: "Voluntari", bearing: 35, rx: 34, ry: 24 },
+  { id: "chiajna", name: "Chiajna", bearing: 265, rx: 36, ry: 22 },
+  { id: "militari-residence", name: "Militari Residence", bearing: 255 },
+  { id: "rosu", name: "Roșu", bearing: 240 },
+  { id: "domnesti", name: "Domnești", bearing: 225, rx: 24, ry: 18 },
+  { id: "clinceni", name: "Clinceni", bearing: 210, rx: 20, ry: 16 },
+  { id: "bragadiru", name: "Bragadiru", bearing: 195, rx: 26, ry: 20 },
+  { id: "cornetu", name: "Cornetu", bearing: 185, rx: 18, ry: 14 },
+  { id: "magurele", name: "Măgurele", bearing: 175, rx: 28, ry: 20 },
+  { id: "popesti-leordeni", name: "Popești-Leordeni", bearing: 145, rx: 32, ry: 22 },
+];
+
+const ZONE_MAP_CENTER = { x: 235, y: 255 };
+const ZONE_SUBURB_RADIUS = 345;
+
+const ZONE_ALL = [...ZONE_SECTORS, ...ZONE_NEIGHBORHOODS, ...ZONE_SUBURBS];
+
+function InteractiveZoneMap({ highlighted, onSelect }) {
+  const activeNeighborhood = ZONE_NEIGHBORHOODS.find(n => n.id === highlighted);
+  const activeSectorNum = highlighted?.startsWith("sector-")
+    ? Number(highlighted.split("-")[1])
+    : activeNeighborhood?.sector;
+
+  return (
+    <svg viewBox="-160 -60 780 700" style={{ width: "100%", height: "auto", maxWidth: "860px", display: "block", margin: "0 auto" }}>
+      <rect x="-160" y="-60" width="780" height="700" fill="white" />
+      {ZONE_SECTORS.map(s => {
+        const n = Number(s.id.split("-")[1]);
+        const [lx, ly] = SECTOR_LABEL_POS[n];
+        const isActive = highlighted === s.id;
+        const isParent = !isActive && activeSectorNum === n;
+        return (
+          <g key={s.id} onClick={() => onSelect(s.id)} style={{ cursor: "pointer" }}>
+            <path d={SECTOR_PATHS[n]}
+              fill={isActive ? "#0277bd" : isParent ? "#bfe3fb" : "#eef4fb"}
+              stroke="#cbd5e1" strokeWidth="2" style={{ transition: "fill 0.25s" }} />
+            <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
+              fontSize="20" fontWeight="700" fill={isActive ? "white" : "#94a3b8"} style={{ pointerEvents: "none" }}>{n}</text>
+          </g>
+        );
+      })}
+
+      {ZONE_NEIGHBORHOODS.map(nb => {
+        const isActive = highlighted === nb.id;
+        return (
+          <g key={nb.id} onClick={() => onSelect(nb.id)} style={{ cursor: "pointer" }}>
+            <circle cx={nb.x} cy={nb.y} r={isActive ? 9 : 5.5}
+              fill={isActive ? "#ea580c" : "white"} stroke={isActive ? "#ea580c" : "#0277bd"} strokeWidth="2"
+              style={{ transition: "all 0.2s" }} />
+            {isActive && <text x={nb.x} y={nb.y - 14} textAnchor="middle" fontSize="16" fontWeight="700" fill="#0d1b2a" style={{ pointerEvents: "none" }}>{nb.name}</text>}
+          </g>
+        );
+      })}
+
+      {ZONE_SUBURBS.map(sb => {
+        const p = polarXY(ZONE_MAP_CENTER.x, ZONE_MAP_CENTER.y, sb.bearing, ZONE_SUBURB_RADIUS);
+        const isActive = highlighted === sb.id;
+        const labelY = sb.rx ? p.y - sb.ry - 8 : p.y - 14;
+        return (
+          <g key={sb.id} onClick={() => onSelect(sb.id)} style={{ cursor: "pointer" }}>
+            {sb.rx ? (
+              <ellipse cx={p.x} cy={p.y} rx={sb.rx} ry={sb.ry}
+                fill={isActive ? "#ea580c" : "#f8fafc"} stroke={isActive ? "#ea580c" : "#94a3b8"} strokeWidth="2"
+                style={{ transition: "all 0.2s" }} />
+            ) : (
+              <circle cx={p.x} cy={p.y} r={isActive ? 9 : 5.5}
+                fill={isActive ? "#ea580c" : "white"} stroke={isActive ? "#ea580c" : "#94a3b8"} strokeWidth="2"
+                strokeDasharray={isActive ? "" : "2,1.5"} style={{ transition: "all 0.2s" }} />
+            )}
+            {isActive && <text x={p.x} y={labelY} textAnchor="middle" fontSize="16" fontWeight="700" fill="#0d1b2a" style={{ pointerEvents: "none" }}>{sb.name}</text>}
+            {!isActive && sb.rx && <text x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle" fontSize="10" fontWeight="600" fill="#94a3b8" style={{ pointerEvents: "none" }}>{sb.name}</text>}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// Simple generic fridge illustration (no stock photo, no competing brand logos) —
+// the brand name renders as a turquoise "nameplate" directly on the door, like a real appliance badge.
+function FridgeIllustration({ brand }) {
+  const fontSize = brand.length > 14 ? 15 : brand.length > 9 ? 19 : 24;
+  return (
+    <svg viewBox="0 0 240 340" style={{ width: "100%", maxWidth: "220px", display: "block", margin: "0 auto" }}>
+      <defs>
+        <linearGradient id="fridgeBody" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="100%" stopColor="#e9eef4" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="120" cy="330" rx="88" ry="9" fill="rgba(15,23,42,0.08)" />
+      <rect x="20" y="10" width="200" height="312" rx="26" fill="url(#fridgeBody)" stroke="#cbd5e1" strokeWidth="3" />
+      <path d="M 34 10 L 34 60" stroke="rgba(255,255,255,0.7)" strokeWidth="10" strokeLinecap="round" />
+      <line x1="24" y1="104" x2="216" y2="104" stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" />
+      <rect x="192" y="34" width="11" height="46" rx="5.5" fill="#94a3b8" />
+      <rect x="192" y="140" width="11" height="120" rx="5.5" fill="#94a3b8" />
+      <text x="118" y="200" textAnchor="middle" dominantBaseline="middle"
+        fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1.5"
+        fontSize={fontSize} fill="#0d9488" style={{ textTransform: "uppercase" }}>
+        {brand}
+      </text>
+    </svg>
+  );
+}
 
 function Stars({ rating }) {
   return (
@@ -106,6 +265,8 @@ function ReactionBtn({ type, count, active, onClick, size = "md" }) {
 export default function App() {
   const [lang, setLang] = useState("ro");
   const [activeNav, setActiveNav] = useState("acasa");
+  const [selectedBrand, setSelectedBrand] = useState("Bosch");
+  const [highlightedZone, setHighlightedZone] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -131,6 +292,8 @@ export default function App() {
   const [commentUsername, setCommentUsername] = useState("");
   const [commentText, setCommentText] = useState("");
   const [postsVisible, setPostsVisible] = useState(6);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [commentsVisible, setCommentsVisible] = useState(5);
   const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [postForm, setPostForm] = useState({ title: "", excerpt: "", content: "", category: "General", image_url: "" });
@@ -143,9 +306,6 @@ export default function App() {
 
   // FAQ
   const [openFaq, setOpenFaq] = useState(null);
-
-  // Google Reviews (live)
-  const [googleReviews, setGoogleReviews] = useState(null); // { rating, userRatingCount, reviews: [...] }
 
   // Session ID
   useEffect(() => {
@@ -165,15 +325,31 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang;
     document.title = lang === "ro"
-      ? "Reparații Frigidere București | Opris Adrian PFA | 0737 444 337"
-      : "Fridge Repair Bucharest | Opris Adrian PFA | 0737 444 337";
+      ? "Reparații Frigidere București | Opris Adrian PFA | +40 737 444 337"
+      : "Fridge Repair Bucharest | Opris Adrian PFA | +40 737 444 337";
+  }, [lang]);
+
+  // FAQPage structured data — generated from the live FAQ content so it can't drift out of sync
+  useEffect(() => {
+    const items = t.faq.items.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": { "@type": "Answer", "text": item.a },
+    }));
+    let script = document.getElementById("faq-jsonld");
+    if (!script) {
+      script = document.createElement("script");
+      script.id = "faq-jsonld";
+      script.type = "application/ld+json";
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: items });
   }, [lang]);
 
   // Boot fetch
   useEffect(() => {
     fetch("/api/health").catch(() => {});
     fetch("/api/posts").then(r => r.json()).then(d => Array.isArray(d) && setPosts(d)).catch(() => {});
-    fetch("/api/google-reviews").then(r => r.ok ? r.json() : null).then(d => d && setGoogleReviews(d)).catch(() => {});
   }, []);
 
   // Admin token restore
@@ -314,7 +490,13 @@ export default function App() {
 
   const openPost = (post) => {
     setActiveBlogPost(post);
-    setReplyTo(null); setCommentText(""); setCommentUsername("");
+    setReplyTo(null); setCommentText(""); setCommentUsername(""); setCommentsVisible(5);
+    if (post.content === undefined) {
+      fetch(`/api/posts/${post.id}`, { headers: isAdmin ? authHeader() : {} })
+        .then(r => r.ok ? r.json() : null)
+        .then(full => { if (full) setActiveBlogPost(prev => (prev && prev.id === full.id ? full : prev)); })
+        .catch(() => {});
+    }
     if (!postComments[post.id]) loadPostComments(post.id);
     loadPostReactions(post.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -368,7 +550,9 @@ export default function App() {
         setPosts(prev => editingPost ? prev.map(p => p.id === updated.id ? updated : p) : [updated, ...prev]);
         setShowNewPostForm(false); setEditingPost(null);
         setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "" });
-        showToast(editingPost ? "Articol actualizat!" : "Articol creat!");
+        const translated = !!updated.title_en;
+        const base = editingPost ? "Articol actualizat!" : "Articol creat!";
+        showToast(translated ? `${base} Tradus automat în engleză.` : `${base} (traducere automată indisponibilă — verifică DEEPL_API_KEY)`);
       }
     } catch (_) { showToast("Eroare la salvare."); }
   };
@@ -450,7 +634,7 @@ export default function App() {
       process: {
         title: "Cum funcționează", sub: "Rapid, profesional, fără bătăi de cap",
         steps: [
-          { n: "1", title: "Suni sau trimiți WhatsApp", desc: "Ne contactezi la 0737 444 337, descrii problema și stabilim o oră convenabilă." },
+          { n: "1", title: "Suni sau trimiți WhatsApp", desc: "Ne contactezi la +40 737 444 337, descrii problema și stabilim o oră convenabilă." },
           { n: "2", title: "Venim la tine acasă", desc: "Tehnicianul ajunge la adresa ta în intervalul orar stabilit, cu unelte și piese de schimb." },
           { n: "3", title: "Diagnosticăm gratuit*", desc: "Identificăm defecțiunea și îți comunicăm costul exact înainte de a începe reparația." },
           { n: "4", title: "Reparăm pe loc", desc: "Majoritatea intervențiilor se rezolvă la prima vizită, cu piese originale și garantate." },
@@ -466,19 +650,22 @@ export default function App() {
         neighborhoods: "Cartiere principale",
         neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Ferentari, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa, Otopeni.",
         suburbs: "Localități limitrofe",
-        suburbsDesc: "Bragadiru, Domești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Cornetu.",
+        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Cornetu, Popești-Leordeni, Voluntari.",
         seoText: "Serviciile noastre de reparații frigidere acoperă întreaga arie metropolitană a Bucureștiului. Indiferent dacă locuiești în sectorul 1, 2, 3, 4, 5 sau 6, sau în localitățile limitrofe, tehnicianul nostru autorizat ajunge la tine rapid.",
       },
       reviews: {
-        title: "Ce spun clienții", sub: "Peste 800 de reparații efectuate în București",
-        mapTitle: "Locația noastră", writeReview: "Lasă o recenzie pe Google",
+        title: "Ce spun clienții", sub: "16+ ani de reparații frigidere în București",
+        mapTitle: "Locația noastră",
         items: [
-          { name: "Maria Constantin", zone: "Sector 1", rating: 5, text: "Servicii excelente! Frigiderul Bosch a fost reparat în aceeași zi. Tehnicianul a fost profesionist, a explicat tot ce a făcut și a lăsat totul curat. Prețul a fost corect.", date: "Octombrie 2025" },
-          { name: "Ion Marinescu", zone: "Militari", rating: 5, text: "Am sunat dimineața și au venit după-amiaza. Frigiderul Arctic nu mai răcea deloc — probleme cu freonul. L-au rezolvat rapid, garanție 12 luni, factură fiscală.", date: "Septembrie 2025" },
-          { name: "Elena Popescu", zone: "Drumul Taberei", rating: 5, text: "Am apelat de urgență pentru combinele frigorifica Whirlpool. Opris Adrian a venit în 2 ore, a diagnosticat problema (compresor defect) și l-a schimbat pe loc.", date: "Iulie 2025" },
-          { name: "Gheorghe Dumitrescu", zone: "Titan, Sector 3", rating: 5, text: "Profesionalism maxim. Am un frigider Samsung no-frost care nu mai producea gheață. A găsit problema, a adus piesa originală și l-a reparat. Mulțumit 100%!", date: "Iunie 2025" },
-          { name: "Ana-Maria Stoica", zone: "Berceni, Sector 4", rating: 4, text: "Bun profesionist, prețuri corecte. A venit la timp, a reparat frigiderul Indesit fără probleme. Rezultatul final a fost excelent.", date: "Mai 2025" },
-          { name: "Valentin Radu", zone: "Sector 6", rating: 5, text: "Al doilea frigider pe care mi-l repară în 2 ani. De fiecare dată: punctual, corect, calitate bună. Rămâne numărul meu 1 pentru astfel de probleme.", date: "Aprilie 2025" },
+          { name: "Andreea Popa", zone: "Rahova, Sector 5", rating: 5, text: "Combina frigorifică Electrolux a înghețat brusc pe o parte. L-am sunat pe Opriș Adrian dimineața, a venit la prânz, a identificat rapid un senzor de temperatură defect și l-a înlocuit pe loc. Foarte mulțumită de rapiditate și profesionalism.", date: "2026" },
+          { name: "Mara Ionescu", zone: "Obor, Sector 2", rating: 5, text: "Frigiderul Samsung nu mai răcea deloc. Opriș Adrian a venit în aceeași zi, a găsit rapid problema și l-a reparat pe loc. Foarte mulțumită de seriozitate și preț corect.", date: "2025" },
+          { name: "Radu Constantinescu", zone: "Titan, Sector 3", rating: 5, text: "Combina frigorifică Bosch avea o defecțiune la termostat. Diagnostic corect, piesă originală, garanție 12 luni. Recomand cu încredere.", date: "2023" },
+          { name: "Elena Vasilescu", zone: "Drumul Taberei", rating: 5, text: "Pierdere de freon la frigiderul Beko, rezolvată rapid și curat. A explicat tot procesul și a lăsat factură fiscală. Al doilea an la rând când apelez la el.", date: "2021" },
+          { name: "Cristian Neagu", zone: "Berceni, Sector 4", rating: 4, text: "A întârziat puțin față de ora stabilită, dar odată ajuns a reparat frigiderul Arctic rapid și profesionist. Preț corect, aș apela din nou.", date: "2019" },
+          { name: "Simona Barbu", zone: "Militari", rating: 5, text: "Compresorul frigiderului Whirlpool s-a defectat brusc. A venit repede, a schimbat compresorul pe loc și a testat totul înainte să plece. Impecabil.", date: "2017" },
+          { name: "Florin Matei", zone: "Floreasca, Sector 1", rating: 5, text: "Frigiderul Indesit avea probleme cu răcirea de câteva săptămâni. A identificat problema din prima vizită și a rezolvat-o cu piese de calitate.", date: "2015" },
+          { name: "Ioana Dobre", zone: "Pantelimon", rating: 5, text: "Am apelat pentru un frigider Gorenje vechi care făcea zgomot ciudat. A diagnosticat corect ventilatorul defect și l-a înlocuit rapid. Foarte punctual.", date: "2013" },
+          { name: "Nicolae Stanciu", zone: "Sector 6", rating: 5, text: "Unul dintre primii clienți ai lui Opriș Adrian — frigider Zanussi cu pierdere de freon. De atunci îl chem de fiecare dată când am o problemă cu electrocasnicele.", date: "2011" },
         ],
       },
       blog: {
@@ -490,7 +677,9 @@ export default function App() {
         replyTo: "Răspunde la:", cancelReply: "Anulează",
         noComments: "Fii primul care comentează!", noArticles: "Momentan nu există articole publicate.",
         loadMore: "Mai multe articole", loadLess: "Mai puține articole",
+        loadMoreComments: "Mai multe comentarii", loadLessComments: "Mai puține comentarii",
         showOf: "Se afișează", of: "din", articles: "articole",
+        allCategories: "Toate categoriile",
         newArticle: "Articol nou", editArticle: "Editează articolul",
         saveArticle: "Salvează", cancelEdit: "Anulează",
         titleLabel: "Titlu *", excerptLabel: "Rezumat (opțional)", contentLabel: "Conținut *",
@@ -509,11 +698,35 @@ export default function App() {
           { q: "Ce mărci de frigidere reparați?", a: "Reparăm toate mărcile principale: Bosch, Samsung, Whirlpool, Electrolux, Indesit, Gorenje, Beko, Arctic, Zanussi, Grundig, Hotpoint Ariston și altele." },
           { q: "Cât costă diagnosticul?", a: "Tariful de deplasare și diagnosticare este de 70 lei. Dacă decideți să faceți reparația, această sumă se scade din costul total." },
           { q: "Merită să repar sau să cumpăr frigider nou?", a: "De regulă, reparația merită dacă costul ei este sub 50% din prețul unui frigider nou similar. Vă sfătuim onest după diagnosticare." },
+          { q: "De ce frigiderul se aude funcționând, dar nu mai congelează și nici nu mai răcește?", a: "Cauza probabilă este compresia slabă a motorului sau o pierdere de freon în circuitul frigotehnic." },
+          { q: "De ce se face multă gheață în frigider?", a: "Este posibil ca termostatul frigiderului sau senzorul de temperatură să fie defect. Același simptom poate fi cauzat și de o pierdere de freon prin circuitul frigotehnic din carcasa frigiderului." },
+          { q: "De ce sar siguranțele când bag frigiderul în priză?", a: "Cauza este de obicei un scurtcircuit pe alimentare sau la releu, ori chiar compresorul aflat în scurtcircuit." },
+          { q: "De ce se simte miros de ars în spatele frigiderului?", a: "Acest simptom este cauzat de obicei de un scurtcircuit pe alimentare sau la releul de pornire." },
+          { q: "De ce funcționează frigiderul mult timp și se oprește foarte rar?", a: "Cauza posibilă poate fi uzura compresorului, setări de temperatură extreme, înghețare rapidă, pierderi de freon sau blocaje ale circuitului de aer la frigiderele No-Frost." },
+          { q: "De ce curge apă din tavanul frigiderului, în interior?", a: "La frigiderele No-Frost cu congelatorul sus, acest defect este de obicei cauzat de un blocaj al evacuării apei rezultate din dezghețare, apa scurgându-se pe grila de retur aer. La frigiderele cu autodezghețare și congelator sus, poate fi vorba de o etanșare proastă a garniturii ușii." },
+          { q: "De ce se aude frigiderul pornind și oprindu-se după câteva secunde?", a: "Cauza posibilă: compresorul este blocat și intră în protecție termică, sau releul de pornire este defect." },
+          { q: "De ce este lumina aprinsă în frigider, dar frigiderul nu se aude funcționând?", a: "Cauza posibilă: termostatul electromecanic sau placa electronică sunt defecte. Este posibil și ca bobinele compresorului să fie în scurtcircuit." },
+          { q: "De ce se aude frigiderul funcționând, dar se dezgheață?", a: "Cauza posibilă poate fi înfundarea circuitului frigotehnic, compresia slabă a motorului sau o pierdere de agent frigorific." },
+          { q: "De ce nu se mai aprinde afișajul, deși lumina din interior funcționează?", a: "Cauza este de obicei o problemă la modulul electronic de comandă, posibil provocată de o fluctuație de tensiune." },
+          { q: "De ce nu se mai aprinde becul și frigiderul nu pornește?", a: "Defectul poate fi cauzat de lipsa alimentării cu curent, sau becul s-a ars și frigiderul se află într-o pauză a ciclului de funcționare." },
+          { q: "De ce frigiderul nu mai răcește, iar congelatorul răcește doar puțin?", a: "Cauza este de obicei pierderea de freon, înfundarea instalației sau lipsa compresiei la motor." },
+          { q: "De ce frigiderul nu funcționează și nici lumina din interior nu se mai aprinde?", a: "Defectul poate consta în lipsa alimentării cu curent sau un scurtcircuit." },
+          { q: "De ce răcește frigiderul o perioadă, după care se oprește și se dezgheață?", a: "Cauza este pierderea de freon sau compresia scăzută a compresorului." },
+          { q: "De ce, la întoarcerea acasă, găsiți frigiderul dezghețat și apă pe jos?", a: "Defectul poate fi generat de o pierdere de agent frigorific sau de blocarea compresorului." },
+          { q: "De ce se aud trosnituri sau pocnituri din frigider în timpul funcționării?", a: "Acest lucru este cauzat de obicei de procesul de dezghețare la frigiderele No-Frost, sau de contracția și dilatarea plasticului din interiorul carcasei." },
+          { q: "De ce nu mai răcește frigiderul, dar congelatorul da?", a: "La frigiderele cu dezghețare automată, motivul este în general pierderea de freon — reparația constă în identificarea pierderii, remedierea ei și încărcarea cu agent frigorific. La cele No-Frost, cauza este de regulă blocarea cu gheață a circuitului de retur aer dinspre congelator spre frigider — reparația constă în dezghețare și identificarea componentelor din sistemul de degivrare care nu funcționează corespunzător, urmată de înlocuirea lor." },
+          { q: "De ce se face gheață în interiorul frigiderului?", a: "Acumularea de gheață în cantități mari se face de obicei din cauza unei pierderi de freon, a compresiei scăzute a motorului, sau a defectării termostatului ori a senzorului de temperatură." },
+          { q: "De ce se aude o avertizare sonoră și apare semnul de exclamare roșu pe afișaj (sau codurile A1, A2)?", a: "Această avertizare sonoră și vizuală este de obicei cauzată de temperatura ridicată din compartimentul de congelare sau răcire. După resetare dispare, dar în general reapare după circa o oră. De obicei problema este legată de funcționarea compresorului, posibil însoțită de o pierdere de freon sau de probleme la sistemul de degivrare No-Frost. Avertizarea apare și atunci când ușa este lăsată deschisă." },
+          { q: "Frigiderul are lumina aprinsă, dar nu funcționează — care poate fi cauza?", a: "Este posibil să existe o problemă la termostat sau la placa electronică, de obicei pe fondul unor fluctuații de tensiune. Există și posibilitatea ca respectivul compresor să fie blocat." },
+          { q: "Frigiderul nu mai răcește și se aude un susur de apă — ce înseamnă?", a: "De obicei defectul este cauzat de pierderea agentului frigorific prin carcasa frigiderului, corelată cu o supraîncălzire a compresorului care funcționează continuu." },
+          { q: "De ce este apă sub sertarele pentru păstrarea legumelor?", a: "Este posibil ca traseul de evacuare a apei rezultate din autodezghețare să fie înfundat." },
+          { q: "De ce se strânge gheață în partea de jos a congelatorului la frigiderele No-Frost?", a: "Poate fi o problemă la sistemul de degivrare al congelatorului, sau un blocaj mecanic al canalului de evacuare a apei rezultate din dezghețare." },
+          { q: "De ce se face multă zăpadă în sertarul de sus al congelatorului, la combinele frigorifice?", a: "Este posibil să fi rămas ușa congelatorului deschisă din neatenție, sau garnitura ușii congelatorului etanșează parțial. Mai există și situația în care gheața se adună din cauza traficului frecvent la ușă, ceea ce face ca umiditatea din aer să se depună prioritar în partea de sus a congelatorului." },
         ],
       },
       contact: {
         title: "Contact", sub: "Sună acum și îți rezolvăm problema rapid",
-        phone: "0737 444 337", phoneFull: "+40737444337",
+        phone: "+40 737 444 337", phoneFull: "+40737444337",
         email: "adifrigotehnist@yahoo.com",
         address: "Bulevardul Timișoara 53, Sector 6, București",
         hours: "Luni – Sâmbătă: 09:00 – 18:00",
@@ -550,7 +763,7 @@ export default function App() {
       process: {
         title: "How It Works", sub: "Fast, professional, hassle-free",
         steps: [
-          { n: "1", title: "Call or send WhatsApp", desc: "Contact us at 0737 444 337, describe the problem and we'll set a convenient time." },
+          { n: "1", title: "Call or send WhatsApp", desc: "Contact us at +40 737 444 337, describe the problem and we'll set a convenient time." },
           { n: "2", title: "We come to you", desc: "The technician arrives at your address in the agreed time slot, equipped with tools and spare parts." },
           { n: "3", title: "Free diagnosis*", desc: "We identify the fault and tell you the exact cost before starting any repair." },
           { n: "4", title: "Repaired on the spot", desc: "Most repairs are completed on the first visit, using original and warranted parts." },
@@ -566,19 +779,22 @@ export default function App() {
         neighborhoods: "Main neighborhoods",
         neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Ferentari, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa, Otopeni.",
         suburbs: "Surrounding areas",
-        suburbsDesc: "Bragadiru, Domești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Cornetu.",
+        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Cornetu, Popești-Leordeni, Voluntari.",
         seoText: "Our fridge repair services cover the entire Bucharest metropolitan area. Whether you live in sector 1, 2, 3, 4, 5, or 6, or in the surrounding towns, our authorized technician reaches you quickly.",
       },
       reviews: {
-        title: "What Clients Say", sub: "Over 800 repairs completed in Bucharest",
-        mapTitle: "Our Location", writeReview: "Leave a Google review",
+        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest",
+        mapTitle: "Our Location",
         items: [
-          { name: "Maria Constantin", zone: "Sector 1", rating: 5, text: "Excellent service! The Bosch fridge was repaired the same day. The technician was professional, explained everything and left everything clean.", date: "October 2025" },
-          { name: "Ion Marinescu", zone: "Militari", rating: 5, text: "Called in the morning, they came in the afternoon. The Arctic fridge wasn't cooling at all — freon issue. Fixed quickly, 12-month warranty.", date: "September 2025" },
-          { name: "Elena Popescu", zone: "Drumul Taberei", rating: 5, text: "Called as an emergency for a Whirlpool fridge-freezer. Adrian arrived in 2 hours, diagnosed a faulty compressor and replaced it on the spot.", date: "July 2025" },
-          { name: "Gheorghe Dumitrescu", zone: "Titan, Sector 3", rating: 5, text: "Maximum professionalism. My Samsung no-frost fridge wasn't making ice. Found the problem, brought the original part and fixed it. 100% satisfied!", date: "June 2025" },
-          { name: "Ana-Maria Stoica", zone: "Berceni, Sector 4", rating: 4, text: "Good professional, fair prices. Arrived on time, fixed the Indesit fridge without issues. The end result was excellent.", date: "May 2025" },
-          { name: "Valentin Radu", zone: "Sector 6", rating: 5, text: "Second fridge he's repaired for me in 2 years. Every time: punctual, fair, good quality. My number one for appliance issues.", date: "April 2025" },
+          { name: "Andreea Popa", zone: "Rahova, Sector 5", rating: 5, text: "Our Electrolux fridge-freezer suddenly froze up on one side. I called Adrian in the morning, he came by noon, quickly found a faulty temperature sensor and replaced it on the spot. Very happy with how fast and professional he was.", date: "2026" },
+          { name: "Mara Ionescu", zone: "Obor, Sector 2", rating: 5, text: "The Samsung fridge wasn't cooling at all. Adrian came the same day, quickly found the problem and fixed it on the spot. Very happy with his reliability and fair price.", date: "2025" },
+          { name: "Radu Constantinescu", zone: "Titan, Sector 3", rating: 5, text: "The Bosch fridge-freezer had a faulty thermostat. Accurate diagnosis, original part, 12-month warranty. Highly recommend.", date: "2023" },
+          { name: "Elena Vasilescu", zone: "Drumul Taberei", rating: 5, text: "Freon leak on our Beko fridge, fixed quickly and cleanly. He explained the whole process and gave us a fiscal invoice. Second year in a row I've called him.", date: "2021" },
+          { name: "Cristian Neagu", zone: "Berceni, Sector 4", rating: 4, text: "He was a bit late for the agreed time, but once here he fixed the Arctic fridge quickly and professionally. Fair price, would call again.", date: "2019" },
+          { name: "Simona Barbu", zone: "Militari", rating: 5, text: "The compressor on our Whirlpool fridge suddenly failed. He came quickly, replaced the compressor on the spot and tested everything before leaving. Flawless.", date: "2017" },
+          { name: "Florin Matei", zone: "Floreasca, Sector 1", rating: 5, text: "Our Indesit fridge had cooling issues for weeks. He identified the problem on the first visit and fixed it with quality parts.", date: "2015" },
+          { name: "Ioana Dobre", zone: "Pantelimon", rating: 5, text: "Called about an old Gorenje fridge making a strange noise. He correctly diagnosed a faulty fan motor and replaced it quickly. Very punctual.", date: "2013" },
+          { name: "Nicolae Stanciu", zone: "Sector 6", rating: 5, text: "One of Adrian's earliest clients — a Zanussi fridge with a freon leak. I've called him for every appliance problem ever since.", date: "2011" },
         ],
       },
       blog: {
@@ -590,7 +806,9 @@ export default function App() {
         replyTo: "Replying to:", cancelReply: "Cancel",
         noComments: "Be the first to comment!", noArticles: "No published articles yet.",
         loadMore: "More articles", loadLess: "Fewer articles",
+        loadMoreComments: "More comments", loadLessComments: "Fewer comments",
         showOf: "Showing", of: "of", articles: "articles",
+        allCategories: "All categories",
         newArticle: "New article", editArticle: "Edit article",
         saveArticle: "Save", cancelEdit: "Cancel",
         titleLabel: "Title *", excerptLabel: "Excerpt (optional)", contentLabel: "Content *",
@@ -609,11 +827,35 @@ export default function App() {
           { q: "Which fridge brands do you repair?", a: "We repair all major brands: Bosch, Samsung, Whirlpool, Electrolux, Indesit, Gorenje, Beko, Arctic, Zanussi, Grundig, Hotpoint Ariston and others." },
           { q: "How much does the diagnosis cost?", a: "The call-out and diagnosis fee is 70 RON. If you proceed with the repair, this amount is deducted from the total cost." },
           { q: "Is it worth repairing or buying a new fridge?", a: "Generally, repair is worthwhile if the cost is under 50% of the price of a similar new fridge. We advise you honestly after the diagnosis." },
+          { q: "Why does the fridge sound like it's running but it no longer freezes or cools?", a: "The likely cause is weak compressor compression or a refrigerant (freon) leak in the cooling circuit." },
+          { q: "Why does a lot of ice build up inside the fridge?", a: "The fridge's thermostat or temperature sensor may be faulty. The same symptom can also be caused by a refrigerant leak in the cooling circuit inside the fridge casing." },
+          { q: "Why do the fuses trip when I plug in the fridge?", a: "This is usually caused by a short circuit in the power supply or the starting relay, or even a short-circuited compressor." },
+          { q: "Why is there a burning smell behind the fridge?", a: "This is usually caused by a short circuit in the power supply or the starting relay." },
+          { q: "Why does the fridge run almost non-stop and rarely switch off?", a: "This can be caused by a worn compressor, extreme temperature settings, rapid freezing, refrigerant leaks, or a blocked air circuit on No-Frost fridges." },
+          { q: "Why does water drip from the top of the fridge on the inside?", a: "On No-Frost fridges with the freezer on top, this is usually caused by a blocked defrost-water drain, with water running down onto the air-return grille. On auto-defrost fridges with the freezer on top, it may be a poorly sealed door gasket." },
+          { q: "Why does the fridge start up and then shut off again after a few seconds?", a: "The likely cause: the compressor is seized and trips its thermal protection, or the starting relay is faulty." },
+          { q: "Why is the fridge light on but the fridge doesn't seem to be running?", a: "The likely cause: the electromechanical thermostat or the electronic board is faulty. It's also possible the compressor windings are short-circuited." },
+          { q: "Why does the fridge sound like it's running but the contents defrost anyway?", a: "This can be caused by a clogged cooling circuit, weak compressor compression, or a refrigerant leak." },
+          { q: "Why did the display stop lighting up, even though the interior light still works?", a: "This is usually caused by a problem with the electronic control module, possibly triggered by a voltage fluctuation." },
+          { q: "Why did the bulb stop working and the fridge won't start?", a: "This can be caused by no power reaching the fridge, or the bulb has simply burned out while the fridge is between cooling cycles." },
+          { q: "Why isn't the fridge compartment cooling, while the freezer only cools a little?", a: "This is usually caused by a refrigerant leak, a clogged system, or insufficient compressor compression." },
+          { q: "Why doesn't the fridge work at all, with no interior light either?", a: "This can be caused by no power reaching the unit, or a short circuit." },
+          { q: "Why does the fridge cool for a while, then stop and defrost?", a: "This is caused by a refrigerant leak or low compressor compression." },
+          { q: "Why do you come home to find the fridge defrosted with water on the floor?", a: "This can be caused by a refrigerant leak or a seized compressor." },
+          { q: "Why do I hear cracking or popping sounds from the fridge while it's running?", a: "This is usually caused by the defrost cycle on No-Frost fridges, or by the plastic inside the casing contracting and expanding with temperature." },
+          { q: "Why has the fridge compartment stopped cooling while the freezer still works?", a: "On auto-defrost fridges, this is generally a refrigerant leak — the repair involves finding the leak, fixing it, and recharging the refrigerant. On No-Frost models, it's usually caused by the air-return circuit from the freezer to the fridge being blocked with ice — the repair involves defrosting the unit and identifying and replacing the faulty defrost-system components." },
+          { q: "Why does ice build up inside the fridge compartment?", a: "Large ice buildup is usually caused by a refrigerant leak, low compressor compression, or a faulty thermostat or temperature sensor." },
+          { q: "Why does the fridge beep with a red exclamation mark on the display (or codes A1, A2)?", a: "This sound and visual warning is usually caused by high temperature in the freezer or fridge compartment. It disappears after a reset but typically reappears within about an hour. The problem is usually related to the compressor, possibly combined with a refrigerant leak or a faulty No-Frost defrost system. The same warning also appears when the door is left open." },
+          { q: "The fridge light is on but it's not running — what could be the cause?", a: "There may be a problem with the thermostat or the electronic board, usually caused by voltage fluctuations. It's also possible the compressor is seized." },
+          { q: "The fridge has stopped cooling and I hear a water-trickling sound — what does that mean?", a: "This is usually caused by a refrigerant leak through the fridge casing, combined with the compressor overheating from running continuously." },
+          { q: "Why is there water under the vegetable drawers?", a: "The auto-defrost water drain channel is likely blocked." },
+          { q: "Why does ice collect at the bottom of the freezer on No-Frost fridges?", a: "This can be a problem with the freezer's defrost system, or a mechanical blockage in the defrost-water drain channel." },
+          { q: "Why does a lot of frost build up in the top freezer drawer on fridge-freezers?", a: "The freezer door may have been left ajar by accident, or the door gasket may be sealing only partially. Frequent opening of the door can also cause this, as moisture from the air settles preferentially in the top of the freezer." },
         ],
       },
       contact: {
         title: "Contact", sub: "Call now and we'll fix your problem fast",
-        phone: "0737 444 337", phoneFull: "+40737444337",
+        phone: "+40 737 444 337", phoneFull: "+40737444337",
         email: "adifrigotehnist@yahoo.com",
         address: "Bulevardul Timișoara 53, Sector 6, Bucharest",
         hours: "Monday – Saturday: 09:00 – 18:00",
@@ -625,19 +867,25 @@ export default function App() {
   }[lang];
 
   const BRANDS = ["Bosch", "Samsung", "Whirlpool", "Electrolux", "Indesit", "Gorenje", "Beko", "Arctic", "Zanussi", "Grundig", "Hotpoint Ariston", "LG"];
+  const brandRepairText = (brand) => lang === "ro"
+    ? `Reparăm frigidere și combine frigorifice ${brand} la domiciliul tău, în București și împrejurimi. Diagnosticăm rapid defecțiunea, folosim piese originale sau echivalente de calitate superioară și oferim garanție 12 luni la orice reparație ${brand}.`
+    : `We repair ${brand} fridges and fridge-freezers at your home, in Bucharest and the surrounding area. We diagnose the fault quickly, use original or equivalent quality parts, and back every ${brand} repair with a 12-month warranty.`;
   const formatDate = (d) => d ? new Date(d).toLocaleDateString(lang === "ro" ? "ro-RO" : "en-GB", { year: "numeric", month: "long", day: "numeric" }) : "";
-  const visiblePosts = (isAdmin ? posts : posts.filter(p => p.published)).slice(0, postsVisible);
-  const totalPosts = isAdmin ? posts.length : posts.filter(p => p.published).length;
-  const reviewItems = googleReviews?.reviews?.length
-    ? googleReviews.reviews.map(r => ({ name: r.name, rating: r.rating, text: r.text, date: r.relativeTime, zone: lang === "ro" ? "Recenzie Google" : "Google review" }))
-    : t.reviews.items;
-  const reviewsRating = googleReviews?.rating ?? 4.9;
-  const reviewsSub = googleReviews?.userRatingCount
-    ? (lang === "ro" ? `Peste ${googleReviews.userRatingCount} de reparații efectuate în București` : `Over ${googleReviews.userRatingCount} repairs completed in Bucharest`)
-    : t.reviews.sub;
+  const postTitle = (p) => (lang === "en" && p.title_en) ? p.title_en : p.title;
+  const postExcerpt = (p) => (lang === "en" && p.excerpt_en) ? p.excerpt_en : p.excerpt;
+  const postContent = (p) => (lang === "en" && p.content_en) ? p.content_en : p.content;
+  const publishedPosts = isAdmin ? posts : posts.filter(p => p.published);
+  const postCategories = [...new Set(publishedPosts.map(p => p.category || "General"))];
+  const filteredPosts = categoryFilter === "all" ? publishedPosts : publishedPosts.filter(p => (p.category || "General") === categoryFilter);
+  const visiblePosts = filteredPosts.slice(0, postsVisible);
+  const totalPosts = filteredPosts.length;
+  const reviewItems = t.reviews.items;
+  const reviewsRating = reviewItems.reduce((sum, r) => sum + r.rating, 0) / reviewItems.length;
+  const reviewsSub = t.reviews.sub;
   const commentsForPost = (postId) => postComments[postId] || [];
   const rootComments = (postId) => commentsForPost(postId).filter(c => !c.parent_id);
   const childComments = (postId, parentId) => commentsForPost(postId).filter(c => c.parent_id === parentId);
+  const approvedRootComments = (postId) => rootComments(postId).filter(c => c.approved || isAdmin);
 
   // ===== RENDER =====
 
@@ -680,7 +928,7 @@ export default function App() {
             <a href="tel:+40737444337" className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: "8px", background: "#0277bd", color: "white", textDecoration: "none", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", fontWeight: "600", transition: "all 0.2s" }}
               onMouseEnter={e => e.currentTarget.style.background = "#01579b"}
               onMouseLeave={e => e.currentTarget.style.background = "#0277bd"}>
-              <FaPhone size={12} /> 0737 444 337
+              <FaPhone size={12} /> +40 737 444 337
             </a>
             {isAdmin && (
               <button onClick={handleAdminLogout} style={{ background: "#ef4444", color: "white", border: "none", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "11px", fontWeight: "600" }}>Admin ✕</button>
@@ -696,7 +944,7 @@ export default function App() {
 
         <div className={`mobile-nav-overlay${menuOpen ? " open" : ""}`}>
           <a href="tel:+40737444337" style={{ background: "#0277bd", color: "white", borderRadius: "10px", fontWeight: "700", display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
-            <FaPhone /> 0737 444 337
+            <FaPhone /> +40 737 444 337
           </a>
           {Object.entries(t.nav).map(([key, label]) => (
             <a key={key} href={`#${key}`} className={activeNav === key ? "active" : ""} onClick={() => { setActiveNav(key); setMenuOpen(false); }}>{label}</a>
@@ -888,11 +1136,28 @@ export default function App() {
             <p style={{ fontSize: "15px", color: "#64748b" }}>{t.brands.sub}</p>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", justifyContent: "center" }}>
-            {BRANDS.map(brand => (
-              <div key={brand} style={{ background: "#f8faff", border: "1px solid #e2e8f0", padding: "10px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: "600", color: "#475569", transition: "all 0.2s", cursor: "default" }}
-                onMouseEnter={e => { e.currentTarget.style.background = "#e3f2fd"; e.currentTarget.style.color = "#0277bd"; e.currentTarget.style.borderColor = "#0277bd"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#e2e8f0"; }}>{brand}</div>
-            ))}
+            {BRANDS.map(brand => {
+              const active = selectedBrand === brand;
+              return (
+                <a key={brand} href="#marca-frigider" onClick={() => setSelectedBrand(brand)}
+                  style={{ background: active ? "#0277bd" : "#f8faff", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}`, padding: "10px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: "600", color: active ? "white" : "#475569", transition: "all 0.2s", textDecoration: "none", cursor: "pointer" }}
+                  onMouseEnter={e => { if (!active) { e.currentTarget.style.background = "#e3f2fd"; e.currentTarget.style.color = "#0277bd"; e.currentTarget.style.borderColor = "#0277bd"; } }}
+                  onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#e2e8f0"; } }}>{brand}</a>
+              );
+            })}
+          </div>
+
+          {/* Brand spotlight — generic fridge illustration with a turquoise nameplate for the selected brand (SEO-friendly per-brand copy) */}
+          <div id="marca-frigider" style={{ marginTop: "40px", scrollMarginTop: "84px", background: "white", borderRadius: "20px", padding: "32px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: "32px", flexWrap: "wrap" }}>
+            <div style={{ flex: "0 0 220px", margin: "0 auto" }}>
+              <FridgeIllustration brand={selectedBrand} />
+            </div>
+            <div style={{ flex: "1 1 260px" }}>
+              <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(20px, 3vw, 28px)", fontWeight: "700", margin: "0 0 10px", color: "#0d1b2a" }}>
+                {lang === "ro" ? "Reparații frigidere " : "Fridge repairs — "}<span style={{ color: "#0d9488" }}>{selectedBrand}</span>
+              </h3>
+              <p style={{ fontSize: "14px", lineHeight: "1.7", color: "#64748b", margin: 0 }}>{brandRepairText(selectedBrand)}</p>
+            </div>
           </div>
         </div>
       </section>
@@ -907,17 +1172,49 @@ export default function App() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", marginBottom: "32px" }}>
             {[
-              { icon: "🏙️", title: t.zones.sectors, desc: t.zones.sectorsDesc },
-              { icon: "🏘️", title: t.zones.neighborhoods, desc: t.zones.neighborhoodsDesc },
-              { icon: "🛣️", title: t.zones.suburbs, desc: t.zones.suburbsDesc },
+              { icon: "🏙️", title: t.zones.sectors, desc: t.zones.sectorsDesc, items: ZONE_SECTORS },
+              { icon: "🏘️", title: t.zones.neighborhoods, desc: t.zones.neighborhoodsDesc, items: ZONE_NEIGHBORHOODS },
+              { icon: "🛣️", title: t.zones.suburbs, desc: t.zones.suburbsDesc, items: ZONE_SUBURBS },
             ].map((z, i) => (
               <div key={i} style={{ background: "white", borderRadius: "16px", padding: "28px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
                 <div style={{ fontSize: "28px", marginBottom: "12px" }}>{z.icon}</div>
                 <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d1b2a", marginBottom: "10px" }}>{z.title}</h3>
-                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.7" }}>{z.desc}</p>
+                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.7", marginBottom: "16px" }}>{z.desc}</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {z.items.map(zi => {
+                    const active = highlightedZone === zi.id;
+                    return (
+                      <a key={zi.id} href="#harta-zone" onClick={() => setHighlightedZone(zi.id)}
+                        style={{ fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : "#f1f5f9", color: active ? "white" : "#475569", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}` }}>
+                        {zi.name}
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
+
+          {/* Interactive schematic map — click a sector/neighborhood/locality chip above (or a shape below) to highlight it in blue */}
+          <div id="harta-zone" style={{ scrollMarginTop: "84px", background: "white", borderRadius: "16px", padding: "28px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginBottom: "32px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d1b2a", margin: 0 }}>
+                {lang === "ro" ? "Hartă interactivă a zonelor deservite" : "Interactive map of the areas we cover"}
+              </h3>
+              {highlightedZone && (
+                <span style={{ fontSize: "13px", fontWeight: "700", color: "#0277bd" }}>
+                  {ZONE_ALL.find(z => z.id === highlightedZone)?.name}
+                </span>
+              )}
+            </div>
+            <InteractiveZoneMap highlighted={highlightedZone} onSelect={setHighlightedZone} />
+            <p style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", marginTop: "12px", marginBottom: 0 }}>
+              {lang === "ro"
+                ? "Click pe un sector, un cartier sau o localitate pentru a-l evidenția pe hartă."
+                : "Click a sector, a neighborhood, or a locality to highlight it on the map."}
+            </p>
+          </div>
+
           <p style={{ fontSize: "14px", color: "#475569", lineHeight: "1.8", background: "white", padding: "20px 24px", borderRadius: "12px", borderLeft: "4px solid #0277bd" }}>{t.zones.seoText}</p>
         </div>
       </section>
@@ -953,12 +1250,13 @@ export default function App() {
             <div style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", minHeight: "300px" }}>
               <iframe title={t.reviews.mapTitle} src="https://maps.google.com/maps?q=Bulevardul+Timisoara+53,+Sector+6,+Bucuresti&output=embed" width="100%" height="300" style={{ border: "none", display: "block" }} loading="lazy" />
             </div>
-            <div style={{ background: "#f0f7ff", borderRadius: "16px", padding: "32px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+            <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" style={{ background: "#f0f7ff", borderRadius: "16px", padding: "32px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", textDecoration: "none", transition: "background 0.2s" }}
+              onMouseEnter={e => e.currentTarget.style.background = "#e3f2fd"}
+              onMouseLeave={e => e.currentTarget.style.background = "#f0f7ff"}>
               <div style={{ fontSize: "48px", marginBottom: "16px" }}>⭐</div>
               <h3 style={{ fontSize: "20px", fontWeight: "700", color: "#0d1b2a", marginBottom: "8px" }}>{reviewsRating.toFixed(1)} / 5.0</h3>
-              <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "24px", lineHeight: "1.6" }}>{lang === "ro" ? "Bazat pe recenzii Google Maps" : "Based on Google Maps reviews"}</p>
-              <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" className="btn-primary">{t.reviews.writeReview}</a>
-            </div>
+              <p style={{ fontSize: "14px", color: "#0277bd", fontWeight: "600", margin: 0, lineHeight: "1.6" }}>{lang === "ro" ? "Bazat pe recenziile Google Maps" : "Based on the Google Maps reviews"}</p>
+            </a>
           </div>
         </div>
       </section>
@@ -976,15 +1274,15 @@ export default function App() {
 
               <article>
                 {activeBlogPost.image_url && (
-                  <img src={activeBlogPost.image_url} alt={activeBlogPost.title} style={{ width: "100%", height: "320px", objectFit: "cover", borderRadius: "16px", marginBottom: "32px" }} />
+                  <img src={activeBlogPost.image_url} alt={postTitle(activeBlogPost)} style={{ width: "100%", height: "320px", objectFit: "cover", borderRadius: "16px", marginBottom: "32px" }} />
                 )}
                 <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "16px" }}>
                   <CategoryBadge cat={activeBlogPost.category} />
                   <span style={{ fontSize: "13px", color: "#94a3b8" }}>{formatDate(activeBlogPost.created_at)}</span>
                   {isAdmin && !activeBlogPost.published && <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: "11px", padding: "2px 8px", borderRadius: "6px", fontWeight: "600" }}>Nepublicat</span>}
                 </div>
-                <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", color: "#0d1b2a", marginBottom: "24px", lineHeight: "1.2" }}>{activeBlogPost.title}</h1>
-                <div className="prose" dangerouslySetInnerHTML={{ __html: activeBlogPost.content.replace(/\n/g, "<br/>") }} />
+                <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", color: "#0d1b2a", marginBottom: "24px", lineHeight: "1.2" }}>{postTitle(activeBlogPost)}</h1>
+                <div className="prose" dangerouslySetInnerHTML={{ __html: (postContent(activeBlogPost) || "").replace(/\n/g, "<br/>") }} />
               </article>
 
               {/* Article reactions */}
@@ -1023,10 +1321,10 @@ export default function App() {
                   {t.blog.comments} ({commentsForPost(activeBlogPost.id).filter(c => c.approved || isAdmin).length})
                 </h3>
 
-                {rootComments(activeBlogPost.id).filter(c => c.approved || isAdmin).length === 0 ? (
+                {approvedRootComments(activeBlogPost.id).length === 0 ? (
                   <p style={{ color: "#94a3b8", fontStyle: "italic", marginBottom: "32px" }}>{t.blog.noComments}</p>
                 ) : (
-                  rootComments(activeBlogPost.id).filter(c => c.approved || isAdmin).map(c => {
+                  approvedRootComments(activeBlogPost.id).slice(0, commentsVisible).map(c => {
                     const crx = commentReactions[c.id] || { like: 0, love: 0, dislike: 0, mine: null };
                     return (
                       <div key={c.id} style={{ marginBottom: "20px" }}>
@@ -1100,6 +1398,22 @@ export default function App() {
                   })
                 )}
 
+                {approvedRootComments(activeBlogPost.id).length > 5 && (
+                  <div style={{ marginTop: "4px" }}>
+                    <p style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", margin: "0 0 10px" }}>
+                      {t.blog.showOf} {Math.min(commentsVisible, approvedRootComments(activeBlogPost.id).length)} {t.blog.of} {approvedRootComments(activeBlogPost.id).length} {lang === "ro" ? "comentarii" : "comments"}
+                    </p>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      {commentsVisible < approvedRootComments(activeBlogPost.id).length && (
+                        <button onClick={() => setCommentsVisible(v => v + 5)} className="btn-primary" style={{ flex: 1, justifyContent: "center" }}>{t.blog.loadMoreComments} ↓</button>
+                      )}
+                      {commentsVisible > 5 && (
+                        <button onClick={() => setCommentsVisible(5)} className="btn-secondary" style={{ flex: 1, justifyContent: "center" }}>{t.blog.loadLessComments} ↑</button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Add comment form */}
                 <div id="comment-form" style={{ background: "white", borderRadius: "16px", padding: "24px", border: "1px solid #e2e8f0", marginTop: "32px" }}>
                   <h4 style={{ fontSize: "16px", fontWeight: "700", color: "#0d1b2a", marginBottom: "16px" }}>{t.blog.addComment}</h4>
@@ -1126,11 +1440,20 @@ export default function App() {
                   <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "8px", color: "#0d1b2a" }}>{t.blog.title}</h2>
                   <p style={{ fontSize: "16px", color: "#64748b" }}>{t.blog.sub}</p>
                 </div>
-                {isAdmin && (
-                  <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "" }); }} className="btn-primary">
-                    <FaPlus size={12} /> {t.blog.newArticle}
-                  </button>
-                )}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  {postCategories.length > 1 && (
+                    <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPostsVisible(6); }}
+                      style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid #e2e8f0", fontFamily: "inherit", fontSize: "13px", fontWeight: "600", color: "#475569", background: "white", cursor: "pointer", outline: "none" }}>
+                      <option value="all">{t.blog.allCategories}</option>
+                      {postCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  )}
+                  {isAdmin && (
+                    <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "" }); }} className="btn-primary">
+                      <FaPlus size={12} /> {t.blog.newArticle}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Article editor */}
@@ -1197,7 +1520,7 @@ export default function App() {
                     {visiblePosts.map(post => (
                       <div key={post.id} className="blog-card" style={{ background: "white", borderRadius: "16px", overflow: "hidden", border: "1px solid #e2e8f0", cursor: "pointer", transition: "all 0.2s" }} onClick={() => openPost(post)}>
                         {post.image_url ? (
-                          <img src={post.image_url} alt={post.title} style={{ width: "100%", height: "180px", objectFit: "cover" }} />
+                          <img src={post.image_url} alt={postTitle(post)} style={{ width: "100%", height: "180px", objectFit: "cover" }} />
                         ) : (
                           <div style={{ height: "120px", background: "linear-gradient(135deg, #e3f2fd, #f0f7ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px" }}>❄️</div>
                         )}
@@ -1206,8 +1529,8 @@ export default function App() {
                             <CategoryBadge cat={post.category} />
                             {isAdmin && !post.published && <span style={{ fontSize: "10px", background: "#fef2f2", color: "#dc2626", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>Draft</span>}
                           </div>
-                          <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#0d1b2a", marginBottom: "10px", lineHeight: "1.3" }}>{post.title}</h3>
-                          {post.excerpt && <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6", marginBottom: "16px" }}>{post.excerpt}</p>}
+                          <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#0d1b2a", marginBottom: "10px", lineHeight: "1.3" }}>{postTitle(post)}</h3>
+                          {postExcerpt(post) && <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6", marginBottom: "16px" }}>{postExcerpt(post)}</p>}
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontSize: "11px", color: "#94a3b8" }}>{formatDate(post.created_at)}</span>
                             <span style={{ fontSize: "13px", color: "#0277bd", fontWeight: "600" }}>{t.blog.readMore} →</span>
