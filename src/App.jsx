@@ -720,6 +720,7 @@ export default function App() {
         newArticle: "Articol nou", editArticle: "Editează articolul",
         saveArticle: "Salvează", cancelEdit: "Anulează",
         contentLangLabel: "Limba textului de mai jos", contentLangHint: "Cealaltă limbă va fi completată automat, prin traducere.",
+        langRo: "Română", langEn: "Engleză",
         titleLabel: "Titlu *", excerptLabel: "Rezumat (opțional)", contentLabel: "Conținut *",
         categoryLabel: "Categorie", imageLabel: "URL imagine", imageUpload: "Sau încarcă imagine",
         publish: "Publică", unpublish: "Ascunde", deleteArticle: "Șterge",
@@ -869,6 +870,7 @@ export default function App() {
         newArticle: "New article", editArticle: "Edit article",
         saveArticle: "Save", cancelEdit: "Cancel",
         contentLangLabel: "Language of the text below", contentLangHint: "The other language will be filled in automatically, via translation.",
+        langRo: "Romanian", langEn: "English",
         titleLabel: "Title *", excerptLabel: "Excerpt (optional)", contentLabel: "Content *",
         categoryLabel: "Category", imageLabel: "Image URL", imageUpload: "Or upload image",
         publish: "Publish", unpublish: "Unpublish", deleteArticle: "Delete",
@@ -1405,7 +1407,7 @@ export default function App() {
               {/* Admin post controls */}
               {isAdmin && (
                 <div style={{ display: "flex", gap: "10px", marginTop: "16px", padding: "16px 20px", background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", flexWrap: "wrap" }}>
-                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", image_url: activeBlogPost.image_url || "", lang: "ro" }); setShowNewPostForm(true); }}
+                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", image_url: activeBlogPost.image_url || "", lang: "ro" }); setShowNewPostForm(true); setActiveBlogPost(null); }}
                     style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f59e0b", color: "white", border: "none", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}>
                     <FaEdit size={12} /> {t.blog.editArticle}
                   </button>
@@ -1572,7 +1574,7 @@ export default function App() {
                       {["ro", "en"].map(l => (
                         <button key={l} type="button" onClick={() => setPostForm(p => ({ ...p, lang: l }))}
                           style={{ padding: "8px 16px", borderRadius: "8px", border: `1.5px solid ${postForm.lang === l ? "#0277bd" : "#e2e8f0"}`, background: postForm.lang === l ? "#e3f2fd" : "white", color: postForm.lang === l ? "#0277bd" : "#475569", fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "inherit" }}>
-                          {l === "ro" ? "🇷🇴 Română" : "🇬🇧 English"}
+                          {l === "ro" ? t.blog.langRo : t.blog.langEn}
                         </button>
                       ))}
                     </div>
