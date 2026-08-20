@@ -639,7 +639,7 @@ export default function App() {
           { label: "Experiență", value: "16+ ani" },
           { label: "Autorizare", value: "AGFR — freon" },
           { label: "PFA", value: "CUI 26374475 / 07.01.2010" },
-          { label: "Intervenții", value: "1000+ efectuate" },
+          { label: "Intervenții efectuate", value: "1000+" },
         ],
         paragraphs: [
           "Numele meu este Adrian Opriș și sunt tehnician calificat, autorizat frigotehnist și electronist automatizări, având experiența de peste 16 ani. Efectuez reparații frigidere și combine frigorifice în zona Capitalei ca independent, înregistrat oficial CUI 26374475 / 07.01.2010, autorizat AGFR pentru utilizarea și încărcarea cu freon a instalațiilor frigorifice. Vă stau la dispoziție pentru a vă oferi servicii de reparații frigidere de calitate, la domiciliu, în caz de urgență.",
@@ -787,7 +787,7 @@ export default function App() {
           { label: "Experience", value: "16+ years" },
           { label: "Authorization", value: "AGFR — refrigerant" },
           { label: "Sole trader (PFA)", value: "Tax ID 26374475 / 07.01.2010" },
-          { label: "Interventions", value: "1000+ completed" },
+          { label: "Interventions completed", value: "1000+" },
         ],
         paragraphs: [
           "My name is Adrian Opriș and I am a qualified, authorized refrigeration technician and automation electronics engineer, with over 16 years of experience. I carry out fridge and fridge-freezer repairs in the Bucharest area as a sole trader, officially registered under Tax ID (CUI) 26374475 / 07.01.2010, and authorized by AGFR to handle and charge refrigeration systems with refrigerant (freon). I'm at your service for quality fridge repairs at home, including emergencies.",

@@ -14,7 +14,11 @@ npm run dev
 - Compiles `src/App.jsx` with Create React App and serves it on **port 3003** (from `.env`'s `PORT`; CRA picks up `.env` automatically).
 - `package.json`'s `proxy` field points at `http://localhost:3003` — i.e. itself, since no backend is running alongside it. `/api/*` calls (`/api/health`, `/api/posts`, fired from `App.jsx`'s boot `useEffect`) fail silently — every fetch there ends in `.catch(() => {})` — so the page still renders completely, just with an empty blog list ("Momentan nu există articole publicate."). That's expected, not a bug, for anything that isn't blog/comments/admin work.
 - First compile takes ~20-30s. Wait for `Compiled successfully!` in the output before checking the page — don't just poll the port, webpack keeps the port open before the bundle is ready.
-- Stop it via the background-task id you started it with, or by killing whatever process is listening on 3003.
+- **Stopping it via the harness's background-task-stop does not free port 3003 on Windows** — `npm run dev` spawns `react-scripts`/`node.exe` as a detached child that survives the wrapper being torn down. Confirmed by relaunching `npm run dev` right after stopping the task and getting `Something is already running on port 3003.`. Find the real PID and kill it directly:
+  ```bash
+  netstat -ano | grep ":3003" | grep LISTENING   # last column is the PID
+  taskkill //PID <pid> //F
+  ```
 
 ## Full stack — needed for blog / comments / admin / reactions work
 
