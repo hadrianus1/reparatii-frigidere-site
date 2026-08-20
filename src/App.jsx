@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import "./App.css";
+import seoData from "./seo-data.json";
 import {
   FaPhone, FaWhatsapp, FaCheck, FaTrash, FaEdit,
   FaStar, FaRegStar, FaChevronDown, FaChevronLeft, FaChevronRight,
@@ -13,6 +14,7 @@ import {
 const YOUTUBE_URL = "https://www.youtube.com/channel/UC3UWS-FoCuzUIGZrlb4HQqA";
 const FACEBOOK_URL = "https://www.facebook.com/reparatii.frigider";
 const GOOGLE_REVIEWS_URL = "https://maps.app.goo.gl/4DwxLKT5YEjaiYXb8";
+const SITE_URL = "https://www.frigidere-reparatii.ro";
 
 // ===== GALLERY IMAGES (served locally from /public) =====
 
@@ -284,6 +286,7 @@ export default function App() {
   const [activeNav, setActiveNav] = useState("acasa");
   const [selectedBrand, setSelectedBrand] = useState("Bosch");
   const [highlightedZone, setHighlightedZone] = useState(null);
+  const [pathname, setPathname] = useState(() => window.location.pathname);
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -339,13 +342,14 @@ export default function App() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Document title
+  // Real URLs (via the History API, no router library) for blog posts, brands and
+  // service zones — lets each be indexed, bookmarked and shared on its own, instead of
+  // only existing as client-side state on the homepage. Browser back/forward support:
   useEffect(() => {
-    document.documentElement.lang = lang;
-    document.title = lang === "ro"
-      ? "Reparații Frigidere București | Opris Adrian PFA | +40 737 444 337"
-      : "Fridge Repair Bucharest | Opris Adrian PFA | +40 737 444 337";
-  }, [lang]);
+    const onPopState = () => setPathname(window.location.pathname);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   // FAQPage structured data — generated from the live FAQ content so it can't drift out of sync
   useEffect(() => {
@@ -517,7 +521,7 @@ export default function App() {
     }
     if (!postComments[post.id]) loadPostComments(post.id);
     loadPostReactions(post.id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    document.getElementById("blog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleAddComment = async () => {
@@ -617,7 +621,7 @@ export default function App() {
     if (!window.confirm("Ștergi articolul definitiv?")) return;
     try {
       const res = await fetch(`/api/posts/${postId}`, { method: "DELETE", headers: authHeader() });
-      if (res.ok) { setPosts(prev => prev.filter(p => p.id !== postId)); if (activeBlogPost?.id === postId) setActiveBlogPost(null); showToast("Articol șters!"); }
+      if (res.ok) { setPosts(prev => prev.filter(p => p.id !== postId)); if (activeBlogPost?.id === postId) { navigateTo("/"); setActiveBlogPost(null); } showToast("Articol șters!"); }
     } catch (_) {}
   };
 
@@ -929,7 +933,8 @@ export default function App() {
     },
   }[lang];
 
-  const BRANDS = ["Bosch", "Samsung", "Whirlpool", "Electrolux", "Indesit", "Gorenje", "Beko", "Arctic", "Zanussi", "Grundig", "Hotpoint Ariston", "LG"];
+  const BRANDS = seoData.brands.map(b => b.name);
+  const brandSlug = (name) => seoData.brands.find(b => b.name === name)?.slug || "";
   const brandRepairText = (brand) => lang === "ro"
     ? `Reparăm frigidere și combine frigorifice ${brand} la domiciliul tău, în București și împrejurimi. Diagnosticăm rapid defecțiunea, folosim piese originale sau echivalente de calitate superioară și oferim garanție 12 luni la orice reparație ${brand}.`
     : `We repair ${brand} fridges and fridge-freezers at your home, in Bucharest and the surrounding area. We diagnose the fault quickly, use original or equivalent quality parts, and back every ${brand} repair with a 12-month warranty.`;
@@ -950,6 +955,108 @@ export default function App() {
   const childComments = (postId, parentId) => commentsForPost(postId).filter(c => c.parent_id === parentId);
   const approvedRootComments = (postId) => rootComments(postId).filter(c => c.approved || isAdmin);
 
+  // ===== ROUTING (blog posts, brand pages, zone pages) =====
+  // Same single-page layout for every URL — the path only decides which section gets
+  // focused/scrolled-to and what the <title>/meta tags say. See CLAUDE.md.
+
+  const seoSlugMatch = pathname.match(/^\/reparatii-frigidere-([a-z0-9-]+)\/?$/);
+  const routeBrand = seoSlugMatch ? seoData.brands.find(b => b.slug === seoSlugMatch[1]) : null;
+  const routeZone = seoSlugMatch && !routeBrand ? ZONE_ALL.find(z => z.id === seoSlugMatch[1]) : null;
+  const blogSlugMatch = pathname.match(/^\/blog\/([^/]+)\/?$/);
+  const routeBlogSlug = blogSlugMatch ? blogSlugMatch[1] : null;
+
+  const navigateTo = (path) => {
+    if (path !== window.location.pathname) { window.history.pushState({}, "", path); setPathname(path); }
+  };
+  const isPlainClick = (e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
+  const goToBrand = (e, brand) => {
+    if (!isPlainClick(e)) return;
+    e.preventDefault();
+    navigateTo(`/reparatii-frigidere-${brandSlug(brand)}`);
+    setSelectedBrand(brand);
+    document.getElementById("marca-frigider")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const goToZone = (e, zoneId) => {
+    if (!isPlainClick(e)) return;
+    e.preventDefault();
+    navigateTo(`/reparatii-frigidere-${zoneId}`);
+    setHighlightedZone(zoneId);
+    document.getElementById("harta-zone")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  // For the interactive map's SVG shapes — no <a href>, no modifier-key click to preserve.
+  const selectZone = (zoneId) => { navigateTo(`/reparatii-frigidere-${zoneId}`); setHighlightedZone(zoneId); };
+  const goToPost = (e, post) => {
+    if (!isPlainClick(e)) return;
+    e.preventDefault();
+    navigateTo(`/blog/${post.slug}`);
+    openPost(post);
+  };
+  const backToBlogList = (e) => {
+    if (e && !isPlainClick(e)) return;
+    if (e) e.preventDefault();
+    navigateTo("/");
+    setActiveBlogPost(null);
+  };
+
+  // Deep link / back-forward navigation: focus the right section once its data is ready.
+  useEffect(() => {
+    if (routeBrand) {
+      setSelectedBrand(routeBrand.name);
+      document.getElementById("marca-frigider")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (routeZone) {
+      setHighlightedZone(routeZone.id);
+      document.getElementById("harta-zone")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (routeBlogSlug) {
+      const match = posts.find(p => p.slug === routeBlogSlug);
+      if (match) openPost(match);
+    }
+  }, [pathname, posts]);
+
+  // <title>/meta description/canonical/OG — route-specific when on a post/brand/zone
+  // page, generic homepage copy everywhere else (including after navigating back to "/").
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    let title, description, canonical, ogImage;
+    if (routeBlogSlug) {
+      const post = posts.find(p => p.slug === routeBlogSlug);
+      if (post) {
+        title = `${postTitle(post)} | Opris Adrian PFA`;
+        description = postExcerpt(post) || postTitle(post);
+        canonical = `${SITE_URL}/blog/${post.slug}`;
+        ogImage = post.image_url ? `${SITE_URL}${post.image_url}` : undefined;
+      }
+    } else if (routeBrand) {
+      title = lang === "ro" ? `Reparații frigidere ${routeBrand.name} București | Opris Adrian PFA` : `${routeBrand.name} Fridge Repair Bucharest | Opris Adrian PFA`;
+      description = brandRepairText(routeBrand.name);
+      canonical = `${SITE_URL}/reparatii-frigidere-${routeBrand.slug}`;
+    } else if (routeZone) {
+      title = lang === "ro" ? `Reparații frigidere ${routeZone.name}, București | Opris Adrian PFA` : `Fridge Repair ${routeZone.name}, Bucharest | Opris Adrian PFA`;
+      description = lang === "ro"
+        ? `Reparații frigidere și combine frigorifice la domiciliu în ${routeZone.name}. Tehnician autorizat AGFR, 16+ ani experiență, garanție 12 luni. Sună: +40 737 444 337.`
+        : `Fridge and fridge-freezer repairs at home in ${routeZone.name}. AGFR-authorized technician, 16+ years experience, 12-month warranty. Call: +40 737 444 337.`;
+      canonical = `${SITE_URL}/reparatii-frigidere-${routeZone.id}`;
+    }
+    if (!title) {
+      title = lang === "ro" ? "Reparații Frigidere București | Opris Adrian PFA | +40 737 444 337" : "Fridge Repair Bucharest | Opris Adrian PFA | +40 737 444 337";
+      description = t.hero.sub;
+      canonical = `${SITE_URL}/`;
+    }
+    document.title = title;
+    const upsert = (selector, tag, attrs) => {
+      let el = document.querySelector(selector);
+      if (!el) { el = document.createElement(tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); document.head.appendChild(el); }
+      return el;
+    };
+    upsert('meta[name="description"]', "meta", { name: "description" }).setAttribute("content", description);
+    upsert('link[rel="canonical"]', "link", { rel: "canonical" }).setAttribute("href", canonical);
+    upsert('meta[property="og:title"]', "meta", { property: "og:title" }).setAttribute("content", title);
+    upsert('meta[property="og:description"]', "meta", { property: "og:description" }).setAttribute("content", description);
+    upsert('meta[property="og:url"]', "meta", { property: "og:url" }).setAttribute("content", canonical);
+    if (ogImage) upsert('meta[property="og:image"]', "meta", { property: "og:image" }).setAttribute("content", ogImage);
+    upsert('meta[name="twitter:title"]', "meta", { name: "twitter:title" }).setAttribute("content", title);
+    upsert('meta[name="twitter:description"]', "meta", { name: "twitter:description" }).setAttribute("content", description);
+  }, [pathname, posts, lang]);
+
   // ===== RENDER =====
 
   return (
@@ -969,7 +1076,7 @@ export default function App() {
           boxShadow: isScrolled ? "0 2px 16px rgba(0,0,0,0.06)" : "none",
         }} />
         <div style={{ position: "relative", maxWidth: "1200px", margin: "0 auto", padding: "0 32px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <a href="#acasa" onClick={() => setActiveNav("acasa")} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
+          <a href="#acasa" onClick={() => { setActiveNav("acasa"); navigateTo("/"); }} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
             <img src="/logo_0.png" alt="Reparații frigidere" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
             <div>
               <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1" }}>Reparații frigidere</div>
@@ -979,7 +1086,7 @@ export default function App() {
 
           <nav className="desktop-nav" style={{ display: "flex", gap: "6px" }}>
             {Object.entries(t.nav).map(([key, label]) => (
-              <a key={key} href={`#${key}`} onClick={() => setActiveNav(key)}
+              <a key={key} href={`#${key}`} onClick={() => { setActiveNav(key); if (key === "acasa") navigateTo("/"); }}
                 style={{ textDecoration: "none", fontSize: "13px", fontWeight: "500", color: activeNav === key ? "#0277bd" : "#475569", padding: "6px 10px", borderRadius: "6px", background: activeNav === key ? "#e3f2fd" : "transparent", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#f0f7ff"; e.currentTarget.style.color = "#0277bd"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = activeNav === key ? "#e3f2fd" : "transparent"; e.currentTarget.style.color = activeNav === key ? "#0277bd" : "#475569"; }}
@@ -1010,7 +1117,7 @@ export default function App() {
             <FaPhone /> +40 737 444 337
           </a>
           {Object.entries(t.nav).map(([key, label]) => (
-            <a key={key} href={`#${key}`} className={activeNav === key ? "active" : ""} onClick={() => { setActiveNav(key); setMenuOpen(false); }}>{label}</a>
+            <a key={key} href={`#${key}`} className={activeNav === key ? "active" : ""} onClick={() => { setActiveNav(key); setMenuOpen(false); if (key === "acasa") navigateTo("/"); }}>{label}</a>
           ))}
         </div>
       </header>
@@ -1236,7 +1343,7 @@ export default function App() {
             {BRANDS.map(brand => {
               const active = selectedBrand === brand;
               return (
-                <a key={brand} href="#marca-frigider" onClick={() => setSelectedBrand(brand)}
+                <a key={brand} href={`/reparatii-frigidere-${brandSlug(brand)}`} onClick={e => goToBrand(e, brand)}
                   style={{ background: active ? "#0277bd" : "#f8faff", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}`, padding: "10px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: "600", color: active ? "white" : "#475569", transition: "all 0.2s", textDecoration: "none", cursor: "pointer" }}
                   onMouseEnter={e => { if (!active) { e.currentTarget.style.background = "#e3f2fd"; e.currentTarget.style.color = "#0277bd"; e.currentTarget.style.borderColor = "#0277bd"; } }}
                   onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#e2e8f0"; } }}>{brand}</a>
@@ -1281,7 +1388,7 @@ export default function App() {
                   {z.items.map(zi => {
                     const active = highlightedZone === zi.id;
                     return (
-                      <a key={zi.id} href="#harta-zone" onClick={() => setHighlightedZone(zi.id)}
+                      <a key={zi.id} href={`/reparatii-frigidere-${zi.id}`} onClick={e => goToZone(e, zi.id)}
                         style={{ fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : "#f1f5f9", color: active ? "white" : "#475569", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}` }}>
                         {zi.name}
                       </a>
@@ -1304,7 +1411,7 @@ export default function App() {
                 </span>
               )}
             </div>
-            <InteractiveZoneMap highlighted={highlightedZone} onSelect={setHighlightedZone} />
+            <InteractiveZoneMap highlighted={highlightedZone} onSelect={selectZone} />
             <p style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", marginTop: "12px", marginBottom: 0 }}>
               {lang === "ro"
                 ? "Click pe un sector, un cartier sau o localitate pentru a-l evidenția pe hartă."
@@ -1376,7 +1483,7 @@ export default function App() {
           {activeBlogPost ? (
             /* ---- POST VIEW ---- */
             <div>
-              <button onClick={() => setActiveBlogPost(null)} style={{ background: "none", border: "none", color: "#0277bd", cursor: "pointer", fontSize: "14px", fontWeight: "600", marginBottom: "28px", display: "flex", alignItems: "center", gap: "6px", padding: 0 }}>
+              <button onClick={backToBlogList} style={{ background: "none", border: "none", color: "#0277bd", cursor: "pointer", fontSize: "14px", fontWeight: "600", marginBottom: "28px", display: "flex", alignItems: "center", gap: "6px", padding: 0 }}>
                 {t.blog.backToList}
               </button>
 
@@ -1653,7 +1760,7 @@ export default function App() {
                 <>
                   <div className="grid-auto" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
                     {visiblePosts.map(post => (
-                      <div key={post.id} className="blog-card" style={{ background: "white", borderRadius: "16px", overflow: "hidden", border: "1px solid #e2e8f0", cursor: "pointer", transition: "all 0.2s" }} onClick={() => openPost(post)}>
+                      <div key={post.id} className="blog-card" style={{ background: "white", borderRadius: "16px", overflow: "hidden", border: "1px solid #e2e8f0", cursor: "pointer", transition: "all 0.2s" }} onClick={e => goToPost(e, post)}>
                         {post.image_url ? (
                           <img src={post.image_url} alt={postTitle(post)} style={{ width: "100%", height: "180px", objectFit: "cover" }} />
                         ) : (

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
@@ -7,6 +8,9 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const jwt = require('jsonwebtoken');
+
+const seoData = require('./src/seo-data.json');
+const SITE_URL = 'https://www.frigidere-reparatii.ro';
 
 const app = express();
 
@@ -517,10 +521,84 @@ app.get('/api/health', async (req, res) => {
   catch (err) { res.status(503).json({ status: 'db_error', error: err.message }); }
 });
 
+// ===== SEO: sitemap + per-route <head> tags =====
+// The client is a plain CRA SPA — one HTML shell for every URL. These fill the two gaps
+// that leaves for search engines and link-preview bots, which don't (reliably) run the
+// client's JS: an actual list of every real URL, and correct <title>/description/OG/
+// canonical tags baked into the HTML response itself for the URLs that have real content
+// (blog posts, brand pages, zone pages). The client (src/App.jsx) does the same thing at
+// runtime via the History API for in-app navigation; this covers the first request.
+
+const publishedPostRows = async () => {
+  if (db.isReal) {
+    const result = await db.query('SELECT slug, title, excerpt, image_url, updated_at FROM posts WHERE published = true ORDER BY created_at DESC');
+    return result.rows;
+  }
+  return Array.from(db.posts.values()).filter(p => p.published);
+};
+
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const posts = await publishedPostRows();
+    const urls = [
+      { loc: `${SITE_URL}/` },
+      ...seoData.brands.map(b => ({ loc: `${SITE_URL}/reparatii-frigidere-${b.slug}` })),
+      ...seoData.zones.map(z => ({ loc: `${SITE_URL}/reparatii-frigidere-${z.slug}` })),
+      ...posts.map(p => ({ loc: `${SITE_URL}/blog/${p.slug}`, lastmod: p.updated_at })),
+    ];
+    const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+      + urls.map(u => `  <url>\n    <loc>${u.loc}</loc>\n`
+        + (u.lastmod ? `    <lastmod>${new Date(u.lastmod).toISOString().slice(0, 10)}</lastmod>\n` : '')
+        + '  </url>').join('\n')
+      + '\n</urlset>\n';
+    res.set('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) { res.status(500).end(); }
+});
+
+const brandTitle = (name) => `Reparații frigidere ${name} București | Opris Adrian PFA`;
+const brandDescription = (name) => `Reparăm frigidere și combine frigorifice ${name} la domiciliul tău, în București și împrejurimi. Diagnosticăm rapid defecțiunea, folosim piese originale sau echivalente de calitate superioară și oferim garanție 12 luni la orice reparație ${name}.`;
+const zoneTitle = (name) => `Reparații frigidere ${name}, București | Opris Adrian PFA`;
+const zoneDescription = (name) => `Reparații frigidere și combine frigorifice la domiciliu în ${name}. Tehnician autorizat AGFR, 16+ ani experiență, garanție 12 luni. Sună: +40 737 444 337.`;
+
+const escapeHtmlAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+function injectMeta(html, { title, description, canonical, ogImage }) {
+  let out = html;
+  if (title) {
+    const t = escapeHtmlAttr(title);
+    out = out.replace(/<title>.*?<\/title>/, `<title>${t}</title>`);
+    out = out.replace(/(<meta property="og:title" content=")[^"]*(")/, `$1${t}$2`);
+    out = out.replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${t}$2`);
+  }
+  if (description) {
+    const d = escapeHtmlAttr(description);
+    out = out.replace(/(<meta name="description" content=")[^"]*(")/, `$1${d}$2`);
+    out = out.replace(/(<meta property="og:description" content=")[^"]*(")/, `$1${d}$2`);
+    out = out.replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${d}$2`);
+  }
+  if (canonical) {
+    const c = escapeHtmlAttr(canonical);
+    out = out.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${c}$2`);
+    out = out.replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${c}$2`);
+  }
+  if (ogImage) {
+    const img = escapeHtmlAttr(ogImage);
+    out = out.replace(/(<meta property="og:image" content=")[^"]*(")/, `$1${img}$2`);
+    out = out.replace(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${img}$2`);
+  }
+  return out;
+}
+
 // ===== STATIC FILES (production) =====
 
 if (process.env.NODE_ENV === 'production') {
   const buildDir = path.join(__dirname, 'build');
+  const indexHtmlPath = path.join(buildDir, 'index.html');
+  let indexHtmlTemplate = null;
+  try { indexHtmlTemplate = fs.readFileSync(indexHtmlPath, 'utf8'); }
+  catch (err) { console.warn('⚠️  Could not read build/index.html:', err.message); }
+
   app.use(express.static(buildDir, {
     index: false, // index.html is served explicitly below, with no-cache headers
     setHeaders: (res, filePath) => {
@@ -531,7 +609,7 @@ if (process.env.NODE_ENV === 'production') {
         : 'public, max-age=3600');
     },
   }));
-  app.get('*', (req, res, next) => {
+  app.get('*', async (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) return next();
     // A path with a file extension that express.static didn't already serve is a
     // missing asset (e.g. a stale hashed bundle reference) — 404 it instead of
@@ -544,7 +622,40 @@ if (process.env.NODE_ENV === 'production') {
     // a false-positive 304 for genuinely different content. no-store + no validators
     // forces a real fetch every time instead of trusting a conditional match.
     res.set('Cache-Control', 'no-store');
-    res.sendFile(path.join(buildDir, 'index.html'), { etag: false, lastModified: false });
+
+    if (!indexHtmlTemplate) return res.sendFile(indexHtmlPath, { etag: false, lastModified: false });
+
+    // Blog/brand/zone URLs get their <title>/description/OG/canonical baked into the
+    // HTML itself (see injectMeta above) — everything else gets the generic shell,
+    // same as before. Content-Type set explicitly since we're using res.send(), not
+    // res.sendFile(), for this branch.
+    let html = indexHtmlTemplate;
+    try {
+      const blogMatch = req.path.match(/^\/blog\/([^/]+)\/?$/);
+      const seoMatch = req.path.match(/^\/reparatii-frigidere-([a-z0-9-]+)\/?$/);
+      if (blogMatch) {
+        const posts = await publishedPostRows();
+        const post = posts.find(p => p.slug === blogMatch[1]);
+        if (post) {
+          html = injectMeta(html, {
+            title: `${post.title} | Opris Adrian PFA`,
+            description: post.excerpt || post.title,
+            canonical: `${SITE_URL}/blog/${post.slug}`,
+            ogImage: post.image_url ? (/^https?:\/\//.test(post.image_url) ? post.image_url : `${SITE_URL}${post.image_url}`) : undefined,
+          });
+        }
+      } else if (seoMatch) {
+        const brand = seoData.brands.find(b => b.slug === seoMatch[1]);
+        const zone = !brand && seoData.zones.find(z => z.slug === seoMatch[1]);
+        if (brand) {
+          html = injectMeta(html, { title: brandTitle(brand.name), description: brandDescription(brand.name), canonical: `${SITE_URL}/reparatii-frigidere-${brand.slug}` });
+        } else if (zone) {
+          html = injectMeta(html, { title: zoneTitle(zone.name), description: zoneDescription(zone.name), canonical: `${SITE_URL}/reparatii-frigidere-${zone.slug}` });
+        }
+      }
+    } catch (err) { console.error('Meta injection error:', err.message); }
+    res.set('Content-Type', 'text/html');
+    res.send(html);
   });
 }
 

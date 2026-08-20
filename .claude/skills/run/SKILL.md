@@ -30,6 +30,15 @@ then, with `NODE_ENV=production` set (`$env:NODE_ENV="production"; node server.j
 
 Without a real `DATABASE_URL` in `.env`, the API runs on an in-memory store — data resets on every restart, which is normal for local testing.
 
+**Don't fight over port 3003 with an already-running `npm run dev`.** If a frontend-only dev server is already up for the user to look at, don't kill it just to run a backend test — start the full-stack (or API-only) instance on a throwaway port instead: `PORT=3099 node server.js` (add `NODE_ENV=production` too if you need the built frontend, after `npm run build`). Test against `http://localhost:3099`, then stop that instance when done; the user's 3003 instance is never touched. Verify with `netstat -ano | grep ":3099" | grep LISTENING` before and after.
+
+## Verifying routes / SEO (blog post, brand, zone pages; sitemap)
+
+`src/App.jsx` gives blog posts (`/blog/:slug`), fridge brands, and service zones (`/reparatii-frigidere-:slug` for both) real URLs via the History API — see "Real URLs without a router" in `CLAUDE.md`. Two independent things to check when touching this:
+
+- **Client-side matching/state** (works against the plain `npm run dev` frontend, no backend needed): `page.goto('http://localhost:3003/reparatii-frigidere-samsung')` then check `page.title()`, `page.getAttribute('meta[name="description"]', 'content')`, and that the relevant section (`#marca-frigider` / `#harta-zone`) reflects the route. An unmatched slug (`/reparatii-frigidere-doesnotexist`, `/blog/does-not-exist`) must fall back to the generic homepage title, not crash.
+- **Server-rendered `<head>` tags** (only real with the *built* frontend, since `injectMeta()` in `server.js` rewrites `build/index.html`'s tags before sending — a raw `fetch()`/`curl` is enough, no browser needed): `npm run build`, then run full-stack per above, and `fetch('http://localhost:3099/reparatii-frigidere-bosch').then(r => r.text())` — grep the response HTML directly for `<title>`, `<meta name="description"`, `<link rel="canonical"`, since this is what a crawler/link-unfurler sees on the very first request, before any JS runs. Same for `/blog/:slug` (needs a real published post — create one via `/api/admin/login` + `POST /api/posts` + `PATCH /api/posts/:id/publish`, check its meta, then `DELETE` it) and `GET /sitemap.xml` (should list home + every `src/seo-data.json` brand/zone + every published post's slug, `Content-Type: application/xml`).
+
 ## Screenshotting to verify a change
 
 Neither `chromium-cli` nor a `playwright` devDependency is present in this repo. What works in this environment: `npx` fetches and caches `playwright` (a Chromium binary is already available, no `playwright install` step needed).
