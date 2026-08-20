@@ -69,13 +69,14 @@ const initDB = async () => {
     id SERIAL PRIMARY KEY, title VARCHAR(200) NOT NULL, slug VARCHAR(200) NOT NULL UNIQUE,
     excerpt TEXT, content TEXT NOT NULL, category VARCHAR(100) DEFAULT 'General',
     image_url VARCHAR(500), published BOOLEAN DEFAULT false,
-    title_en VARCHAR(200), excerpt_en TEXT, content_en TEXT,
+    title_en VARCHAR(200), excerpt_en TEXT, content_en TEXT, tags TEXT[] DEFAULT '{}',
     created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW()
   )`);
-  // Existing deployments predate the _en columns — add them if missing.
+  // Existing deployments predate the _en/tags columns — add them if missing.
   await db.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS title_en VARCHAR(200)`);
   await db.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS excerpt_en TEXT`);
   await db.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS content_en TEXT`);
+  await db.query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}'`);
   await db.query(`CREATE TABLE IF NOT EXISTS post_comments (
     id SERIAL PRIMARY KEY, post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
     parent_id INTEGER REFERENCES post_comments(id) ON DELETE CASCADE,
@@ -245,13 +246,17 @@ async function resolvePostTranslation(title, excerpt, content, lang) {
 
 const makeSlug = (title) => title.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now();
 
+const normalizeTags = (tags) => Array.isArray(tags)
+  ? [...new Set(tags.map(t => String(t).trim()).filter(Boolean))].slice(0, 20)
+  : [];
+
 app.get('/api/posts', async (req, res) => {
   try {
     const admin = isAdminReq(req);
     if (db.isReal) {
       const result = admin
-        ? await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at, updated_at, title_en, excerpt_en FROM posts ORDER BY created_at DESC')
-        : await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at, title_en, excerpt_en FROM posts WHERE published = true ORDER BY created_at DESC');
+        ? await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at, updated_at, title_en, excerpt_en, tags FROM posts ORDER BY created_at DESC')
+        : await db.query('SELECT id, title, slug, excerpt, category, image_url, published, created_at, title_en, excerpt_en, tags FROM posts WHERE published = true ORDER BY created_at DESC');
       return res.json(result.rows);
     }
     let rows = Array.from(db.posts.values()).sort((a, b) => b.created_at.localeCompare(a.created_at));
@@ -275,20 +280,21 @@ app.get('/api/posts/:id', async (req, res) => {
 
 app.post('/api/posts', requireAdmin, async (req, res) => {
   try {
-    const { title, excerpt, content, category, image_url, lang } = req.body;
+    const { title, excerpt, content, category, image_url, lang, tags } = req.body;
     if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
     const r = await resolvePostTranslation(title, excerpt, content, lang);
     const slug = makeSlug(r.title);
+    const cleanTags = normalizeTags(tags);
     if (db.isReal) {
       const result = await db.query(
-        'INSERT INTO posts (title, slug, excerpt, content, category, image_url, title_en, excerpt_en, content_en) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
-        [r.title, slug, r.excerpt, r.content, category || 'General', image_url || null, r.title_en, r.excerpt_en, r.content_en]
+        'INSERT INTO posts (title, slug, excerpt, content, category, image_url, title_en, excerpt_en, content_en, tags) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *',
+        [r.title, slug, r.excerpt, r.content, category || 'General', image_url || null, r.title_en, r.excerpt_en, r.content_en, cleanTags]
       );
       return res.status(201).json({ ...result.rows[0], translated: r.translated });
     }
     const id = db.nextPostId();
     const ts = new Date().toISOString();
-    const post = { id, title: r.title, slug, excerpt: r.excerpt, content: r.content, category: category || 'General', image_url: image_url || null, published: false, created_at: ts, updated_at: ts, title_en: r.title_en, excerpt_en: r.excerpt_en, content_en: r.content_en };
+    const post = { id, title: r.title, slug, excerpt: r.excerpt, content: r.content, category: category || 'General', image_url: image_url || null, published: false, created_at: ts, updated_at: ts, title_en: r.title_en, excerpt_en: r.excerpt_en, content_en: r.content_en, tags: cleanTags };
     db.posts.set(id, post);
     res.status(201).json({ ...post, translated: r.translated });
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -296,19 +302,20 @@ app.post('/api/posts', requireAdmin, async (req, res) => {
 
 app.patch('/api/posts/:id', requireAdmin, async (req, res) => {
   try {
-    const { title, excerpt, content, category, image_url, lang } = req.body;
+    const { title, excerpt, content, category, image_url, lang, tags } = req.body;
     const r = await resolvePostTranslation(title, excerpt, content, lang);
+    const cleanTags = normalizeTags(tags);
     if (db.isReal) {
       const result = await db.query(
-        'UPDATE posts SET title=$1, excerpt=$2, content=$3, category=$4, image_url=$5, title_en=$6, excerpt_en=$7, content_en=$8, updated_at=NOW() WHERE id=$9 RETURNING *',
-        [r.title, r.excerpt, r.content, category, image_url, r.title_en, r.excerpt_en, r.content_en, req.params.id]
+        'UPDATE posts SET title=$1, excerpt=$2, content=$3, category=$4, image_url=$5, title_en=$6, excerpt_en=$7, content_en=$8, tags=$9, updated_at=NOW() WHERE id=$10 RETURNING *',
+        [r.title, r.excerpt, r.content, category, image_url, r.title_en, r.excerpt_en, r.content_en, cleanTags, req.params.id]
       );
       if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
       return res.json({ ...result.rows[0], translated: r.translated });
     }
     const post = db.posts.get(Number(req.params.id));
     if (!post) return res.status(404).json({ error: 'Not found' });
-    Object.assign(post, { title: r.title, excerpt: r.excerpt, content: r.content, category, image_url, title_en: r.title_en, excerpt_en: r.excerpt_en, content_en: r.content_en, updated_at: new Date().toISOString() });
+    Object.assign(post, { title: r.title, excerpt: r.excerpt, content: r.content, category, image_url, title_en: r.title_en, excerpt_en: r.excerpt_en, content_en: r.content_en, tags: cleanTags, updated_at: new Date().toISOString() });
     res.json({ ...post, translated: r.translated });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

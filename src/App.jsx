@@ -314,7 +314,7 @@ export default function App() {
   const [commentsVisible, setCommentsVisible] = useState(5);
   const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
-  const [postForm, setPostForm] = useState({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro" });
+  const [postForm, setPostForm] = useState({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro", tags: "" });
   const [uploading, setUploading] = useState(false);
 
   // Reactions
@@ -562,13 +562,14 @@ export default function App() {
     try {
       const url = editingPost ? `/api/posts/${editingPost.id}` : "/api/posts";
       const method = editingPost ? "PATCH" : "POST";
-      const res = await fetch(url, { method, headers: { "Content-Type": "application/json", ...authHeader() }, body: JSON.stringify(postForm) });
+      const payload = { ...postForm, tags: postForm.tags.split(",").map(t => t.trim()).filter(Boolean) };
+      const res = await fetch(url, { method, headers: { "Content-Type": "application/json", ...authHeader() }, body: JSON.stringify(payload) });
       if (res.ok) {
         const updated = await res.json();
         setPosts(prev => editingPost ? prev.map(p => p.id === updated.id ? updated : p) : [updated, ...prev]);
         setShowNewPostForm(false); setEditingPost(null);
         const targetLangLabel = postForm.lang === "en" ? "română" : "engleză";
-        setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro" });
+        setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro", tags: "" });
         const base = editingPost ? "Articol actualizat!" : "Articol creat!";
         showToast(updated.translated ? `${base} Tradus automat în ${targetLangLabel}.` : `${base} (traducere automată indisponibilă — verifică DEEPL_API_KEY)`);
       }
@@ -722,6 +723,7 @@ export default function App() {
         contentLangLabel: "Limba textului de mai jos", contentLangHint: "Cealaltă limbă va fi completată automat, prin traducere.",
         langRo: "Română", langEn: "Engleză",
         titleLabel: "Titlu *", excerptLabel: "Rezumat (opțional)", contentLabel: "Conținut *",
+        tagsLabel: "Etichete / cuvinte cheie (opțional)", tagsHint: "Separate prin virgulă, ex: freon, compresor, no-frost",
         categoryLabel: "Categorie", imageLabel: "URL imagine", imageUpload: "Sau încarcă imagine",
         publish: "Publică", unpublish: "Ascunde", deleteArticle: "Șterge",
         approve: "Aprobă",
@@ -872,6 +874,7 @@ export default function App() {
         contentLangLabel: "Language of the text below", contentLangHint: "The other language will be filled in automatically, via translation.",
         langRo: "Romanian", langEn: "English",
         titleLabel: "Title *", excerptLabel: "Excerpt (optional)", contentLabel: "Content *",
+        tagsLabel: "Tags / keywords (optional)", tagsHint: "Comma-separated, e.g.: freon, compressor, no-frost",
         categoryLabel: "Category", imageLabel: "Image URL", imageUpload: "Or upload image",
         publish: "Publish", unpublish: "Unpublish", deleteArticle: "Delete",
         approve: "Approve",
@@ -1080,7 +1083,7 @@ export default function App() {
               <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.about.title}</h2>
               <p style={{ fontSize: "16px", color: "#64748b", marginBottom: "28px" }}>{t.about.sub}</p>
               {t.about.paragraphs.map((p, i) => (
-                <p key={i} style={{ fontSize: "15px", color: "#334155", lineHeight: "1.8", marginBottom: "16px" }}>{p}</p>
+                <p key={i} style={{ fontSize: "15px", color: "#334155", lineHeight: "1.8", marginBottom: "16px", textIndent: "28px" }}>{p}</p>
               ))}
             </div>
           </div>
@@ -1388,6 +1391,13 @@ export default function App() {
                 </div>
                 <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", color: "#0d1b2a", marginBottom: "24px", lineHeight: "1.2" }}>{postTitle(activeBlogPost)}</h1>
                 <div className="prose" dangerouslySetInnerHTML={{ __html: (postContent(activeBlogPost) || "").replace(/\n/g, "<br/>") }} />
+                {activeBlogPost.tags?.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "28px" }}>
+                    {activeBlogPost.tags.map(tag => (
+                      <span key={tag} style={{ background: "#f1f5f9", color: "#475569", fontSize: "12px", fontWeight: "500", padding: "4px 12px", borderRadius: "20px" }}>#{tag}</span>
+                    ))}
+                  </div>
+                )}
               </article>
 
               {/* Article reactions */}
@@ -1407,7 +1417,7 @@ export default function App() {
               {/* Admin post controls */}
               {isAdmin && (
                 <div style={{ display: "flex", gap: "10px", marginTop: "16px", padding: "16px 20px", background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", flexWrap: "wrap" }}>
-                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", image_url: activeBlogPost.image_url || "", lang: "ro" }); setShowNewPostForm(true); setActiveBlogPost(null); }}
+                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", image_url: activeBlogPost.image_url || "", lang: "ro", tags: (activeBlogPost.tags || []).join(", ") }); setShowNewPostForm(true); setActiveBlogPost(null); }}
                     style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f59e0b", color: "white", border: "none", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}>
                     <FaEdit size={12} /> {t.blog.editArticle}
                   </button>
@@ -1554,7 +1564,7 @@ export default function App() {
                     </select>
                   )}
                   {isAdmin && (
-                    <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro" }); }} className="btn-primary">
+                    <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro", tags: "" }); }} className="btn-primary">
                       <FaPlus size={12} /> {t.blog.newArticle}
                     </button>
                   )}
@@ -1597,6 +1607,12 @@ export default function App() {
                       )}
                     </div>
                   ))}
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#475569", marginBottom: "6px" }}>{t.blog.tagsLabel}</label>
+                    <input type="text" value={postForm.tags} onChange={e => setPostForm(p => ({ ...p, tags: e.target.value }))} placeholder={t.blog.tagsHint}
+                      style={{ width: "100%", padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
+                  </div>
 
                   {/* Image: URL + upload */}
                   <div style={{ marginBottom: "16px" }}>
