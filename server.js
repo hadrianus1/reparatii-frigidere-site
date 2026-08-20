@@ -113,11 +113,16 @@ const initDB = async () => {
 // Old deployments may still have files under public/uploads linked from existing posts.
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
+// Allow-list, not just a startsWith('image/') prefix check — image/svg+xml would pass a
+// prefix check and can carry a <script>, which the browser executes if GET /api/images/:id
+// (unauthenticated) is opened directly rather than only loaded via an <img> tag.
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
 app.post('/api/upload', requireAdmin, async (req, res) => {
   try {
     const { type = 'image/jpeg', data } = req.body;
     if (!data) return res.status(400).json({ error: 'No file data' });
-    if (!type.startsWith('image/')) return res.status(400).json({ error: 'Only images allowed' });
+    if (!ALLOWED_IMAGE_TYPES.has(type)) return res.status(400).json({ error: 'Only JPEG, PNG, WebP or GIF images are allowed' });
     const buffer = Buffer.from(data, 'base64');
     if (db.isReal) {
       const result = await db.query('INSERT INTO images (mime, data) VALUES ($1, $2) RETURNING id', [type, buffer]);
@@ -142,7 +147,9 @@ app.get('/api/images/:id', async (req, res) => {
       img = db.images.get(Number(req.params.id));
     }
     if (!img) return res.status(404).end();
-    res.setHeader('Content-Type', img.mime);
+    // Defense in depth: re-check against the allow-list rather than trusting whatever was
+    // stored, in case an old row predates ALLOWED_IMAGE_TYPES being enforced on upload.
+    res.setHeader('Content-Type', ALLOWED_IMAGE_TYPES.has(img.mime) ? img.mime : 'application/octet-stream');
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // content at a given id never changes
     res.end(img.data);
   } catch (err) { res.status(500).end(); }

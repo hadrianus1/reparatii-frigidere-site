@@ -75,7 +75,7 @@ body {
 
 /* ===== BLOG ===== */
 .prose { line-height: 1.8; font-size: 15px; color: #475569; }
-.prose p { margin-bottom: 16px; }
+.prose p { margin-bottom: 16px; text-indent: 28px; }
 .prose h2 { font-size: 22px; font-weight: 700; color: #1e293b; margin: 28px 0 12px; }
 .prose h3 { font-size: 18px; font-weight: 600; color: #1e293b; margin: 20px 0 8px; }
 .prose ul, .prose ol { margin: 0 0 16px 24px; }

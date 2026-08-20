@@ -942,6 +942,9 @@ export default function App() {
   const postTitle = (p) => (lang === "en" && p.title_en) ? p.title_en : p.title;
   const postExcerpt = (p) => (lang === "en" && p.excerpt_en) ? p.excerpt_en : p.excerpt;
   const postContent = (p) => (lang === "en" && p.content_en) ? p.content_en : p.content;
+  // Each line the admin types in the article textarea becomes its own indented paragraph
+  // (.prose p has text-indent in App.css), rather than one block with <br/> for every line.
+  const postContentHtml = (p) => (postContent(p) || "").split("\n").map(line => line.trim()).filter(Boolean).map(line => `<p>${line}</p>`).join("");
   const publishedPosts = isAdmin ? posts : posts.filter(p => p.published);
   const postCategories = [...new Set(publishedPosts.map(p => p.category || "General"))];
   const filteredPosts = categoryFilter === "all" ? publishedPosts : publishedPosts.filter(p => (p.category || "General") === categoryFilter);
@@ -1497,7 +1500,7 @@ export default function App() {
                   {isAdmin && !activeBlogPost.published && <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: "11px", padding: "2px 8px", borderRadius: "6px", fontWeight: "600" }}>Nepublicat</span>}
                 </div>
                 <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", color: "#0d1b2a", marginBottom: "24px", lineHeight: "1.2" }}>{postTitle(activeBlogPost)}</h1>
-                <div className="prose" dangerouslySetInnerHTML={{ __html: (postContent(activeBlogPost) || "").replace(/\n/g, "<br/>") }} />
+                <div className="prose" dangerouslySetInnerHTML={{ __html: postContentHtml(activeBlogPost) }} />
                 {activeBlogPost.tags?.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "28px" }}>
                     {activeBlogPost.tags.map(tag => (
