@@ -1,6 +1,5 @@
 require('dotenv').config();
 const path = require('path');
-const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const express = require('express');
@@ -54,12 +53,13 @@ if (useRealDB) {
   db = { query: (text, params) => pool.query(text, params), isReal: true };
   console.log('🐘 Using PostgreSQL database');
 } else {
-  let postIdSeq = 1, commentIdSeq = 1;
+  let postIdSeq = 1, commentIdSeq = 1, imageIdSeq = 1;
   const posts = new Map();
   const comments = new Map();
   const postReactions = new Map();    // Map<postId, Map<sessionId, type>>
   const commentReactions = new Map(); // Map<commentId, Map<sessionId, type>>
-  db = { isReal: false, posts, comments, postReactions, commentReactions, nextPostId: () => postIdSeq++, nextCommentId: () => commentIdSeq++ };
+  const images = new Map();           // Map<imageId, { mime, data: Buffer }>
+  db = { isReal: false, posts, comments, postReactions, commentReactions, images, nextPostId: () => postIdSeq++, nextCommentId: () => commentIdSeq++, nextImageId: () => imageIdSeq++ };
   console.log('💾 Using in-memory store (data resets on restart)');
 }
 
@@ -92,35 +92,56 @@ const initDB = async () => {
     session_id VARCHAR(64) NOT NULL, type VARCHAR(10) NOT NULL,
     PRIMARY KEY (comment_id, session_id)
   )`);
+  // Uploaded images live in the DB, not on disk — serverless hosts (Vercel) have no
+  // persistent/writable filesystem, so a saved file would vanish before it could be served.
+  await db.query(`CREATE TABLE IF NOT EXISTS images (
+    id SERIAL PRIMARY KEY, mime VARCHAR(100) NOT NULL, data BYTEA NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  )`);
 };
 
 // ===== FILE UPLOAD (base64 JSON — avoids CRA proxy multipart issues) =====
+// Images are stored in the DB (see `images` table / in-memory `db.images`) and served back
+// through /api/images/:id, not written to disk — Vercel's serverless functions have no
+// writable/persistent filesystem, so a disk-based upload would silently vanish in production.
 
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
-try {
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-} catch (err) {
-  // Read-only filesystem (e.g. Vercel serverless) — /api/upload will fail gracefully per-request instead.
-  console.warn('⚠️  Could not create uploads dir:', err.message);
-}
+// Old deployments may still have files under public/uploads linked from existing posts.
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
 app.post('/api/upload', requireAdmin, async (req, res) => {
   try {
-    const { filename = 'upload.jpg', type = 'image/jpeg', data } = req.body;
+    const { type = 'image/jpeg', data } = req.body;
     if (!data) return res.status(400).json({ error: 'No file data' });
     if (!type.startsWith('image/')) return res.status(400).json({ error: 'Only images allowed' });
-    const ext = path.extname(filename).toLowerCase() || '.jpg';
-    const name = Date.now() + '-' + Math.random().toString(36).slice(2) + ext;
-    fs.writeFileSync(path.join(uploadsDir, name), Buffer.from(data, 'base64'));
-    res.json({ url: '/uploads/' + name });
+    const buffer = Buffer.from(data, 'base64');
+    if (db.isReal) {
+      const result = await db.query('INSERT INTO images (mime, data) VALUES ($1, $2) RETURNING id', [type, buffer]);
+      return res.json({ url: `/api/images/${result.rows[0].id}` });
+    }
+    const id = db.nextImageId();
+    db.images.set(id, { mime: type, data: buffer });
+    res.json({ url: `/api/images/${id}` });
   } catch (err) {
     console.error('Upload error:', err.message);
     res.status(500).json({ error: 'Upload failed' });
   }
 });
 
-// Serve uploaded files in dev mode too
-app.use('/uploads', express.static(uploadsDir));
+app.get('/api/images/:id', async (req, res) => {
+  try {
+    let img;
+    if (db.isReal) {
+      const result = await db.query('SELECT mime, data FROM images WHERE id = $1', [req.params.id]);
+      img = result.rows[0];
+    } else {
+      img = db.images.get(Number(req.params.id));
+    }
+    if (!img) return res.status(404).end();
+    res.setHeader('Content-Type', img.mime);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // content at a given id never changes
+    res.end(img.data);
+  } catch (err) { res.status(500).end(); }
+});
 
 // ===== IMAGE PROXY (bypasses hotlink protection on external gallery images) =====
 
