@@ -1,0 +1,31 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this is
+
+Marketing/business site for Opris Adrian PFA, a fridge-repair technician in Bucharest. Bilingual (RO/EN) single-page React frontend plus a small Express API for a blog (posts, comments, reactions). No test suite and no linter script are configured.
+
+## Commands
+
+- `npm run dev` — CRA dev server only, on port 3003 (from `.env`'s `PORT`). Hot-reloads `src/App.jsx`. The `proxy` field in `package.json` points at `http://localhost:3003` (itself, since no backend is running), so `/api/*` calls silently fail and are swallowed by `.catch(() => {})` in `App.jsx`'s boot effect — the page still renders fully, just with an empty blog/posts list. **This is enough for any content, copy, layout, or styling change.**
+- `npm run server` (or `npm start`) — runs only `server.js` (the Express API) on port 3003. Without `NODE_ENV=production` it does not serve the frontend at all (see `Static serving` below).
+- `npm run build` — production CRA build into `build/`.
+- To test the full stack locally (frontend + API together, e.g. for blog/comments/admin work): `npm run build`, then run `server.js` with `NODE_ENV=production` set, which serves `build/` and the `/api/*` routes from the same port 3003.
+- There is no test runner and no `npm run lint` script.
+
+## Architecture
+
+**Single-file frontend.** All UI — hero, about, how-it-works, services, gallery, brand picker, interactive service-area map, reviews, blog, FAQ, contact, plus the admin blog editor — lives in `src/App.jsx` as one component tree (~1700+ lines). There's no router; navigation is anchor-based (`<a href="#id">`) with `activeNav` state tracking scroll position, and each top-level `<section>` corresponds to one entry in the header nav's `t.nav` object. Not every section has a nav entry or an `id` (e.g. "Cum funcționează"/How-it-works and "Mărci deservite"/Brands are scrolled-past, not linked).
+
+**Translations.** All copy lives in one `const t = { ro: {...}, en: {...} }[lang]` object inside `App`, keyed by section (`hero`, `about`, `process`, `services`, `gallery`, `brands`, `zones`, `reviews`, `blog`, `faq`, `contact`). RO and EN are maintained by hand and must be kept structurally parallel — the two objects are read with the same JSX, so a key present in one and missing in the other breaks that language at render time (or throws, if a `.map` is called on it). Blog post content, by contrast, is auto-translated RO→EN server-side via DeepL when a post is saved (see below).
+
+**Service-area map.** `SECTOR_PATHS`, `AREA_PATHS`, `ZONE_NEIGHBORHOODS`, `ZONE_SUBURBS` near the top of `App.jsx` hold real OpenStreetMap-derived SVG paths and hand-fitted label/marker coordinates for Bucharest's 6 sectors plus surrounding towns, all pre-projected into one shared coordinate space so they align. Neighborhood/suburb marker `x`/`y` values were verified to actually fall inside their sector's path — if you add one, do the same rather than eyeballing it.
+
+**Backend (`server.js`).** Express API under `/api/*`: blog posts (CRUD + publish toggle), threaded comments (with admin approval), like/love/dislike reactions on both posts and comments (keyed by a client-generated `sessionId` persisted in `localStorage`), JWT-based admin auth (`/api/admin/login`, single shared `ADMIN_PASSWORD`), an image upload endpoint (base64 JSON body, not multipart — chosen to avoid CRA proxy issues with multipart), and an image proxy (`/api/img-proxy`) that fetches external images server-side to bypass hotlink protection.
+
+**Database has a dual mode.** If `DATABASE_URL` is unset (or still the placeholder from `.env.example`), `server.js` falls back to an in-memory `Map`-based store (data resets on every restart) instead of Postgres — this is the default for local dev. Real Postgres is used when a real `DATABASE_URL` is set; schema is created/migrated on boot via `initDB()` (`CREATE TABLE IF NOT EXISTS` + `ADD COLUMN IF NOT EXISTS`), not a separate migration tool. Any new column needs both the `CREATE TABLE` definition and an `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` for existing deployments, and the equivalent field needs adding to the in-memory code path too.
+
+**Static serving is production-only.** `server.js` only serves `build/` and falls back to `index.html` for client-side routes when `NODE_ENV=production`; otherwise it's API-only. Deployed on both Render (`render.yaml`, builds then runs `node server.js`) and Vercel (`vercel.json`, routes everything through `server.js` as a serverless function).
+
+**Gallery** (`GALLERY` const) and **brand list** (`BRANDS` const) are static arrays of `/public` image paths / brand names, not fetched from the API — the admin gallery "Adaugă" button only appends to client-side state for the current session, it doesn't persist.

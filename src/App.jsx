@@ -624,7 +624,7 @@ export default function App() {
 
   const t = {
     ro: {
-      nav: { acasa: "Acasă", servicii: "Servicii", galerie: "Galerie", zone: "Zone", blog: "Blog", recenzii: "Recenzii", contact: "Contact" },
+      nav: { acasa: "Acasă", despre: "Despre mine", servicii: "Servicii", galerie: "Galerie", zone: "Zone", blog: "Blog", recenzii: "Recenzii", contact: "Contact" },
       hero: {
         badge: "Autorizat AGFR • 16+ ani experiență",
         h1: "Frigiderul s-a defectat?",
@@ -632,6 +632,24 @@ export default function App() {
         sub: "Tehnician frigotehnist autorizat certificat pentru frigidere, combine frigorifice și congelatoare. Intervenție rapidă în București și împrejurimi.",
         cta1: "Sună Acum",
         badges: ["Garanție 12 luni", "Factură fiscală", "Piese originale", "Deplasare 70 lei"],
+      },
+      about: {
+        title: "Despre mine", sub: "16+ ani de reparații frigidere în București, 1000+ de clienți mulțumiți",
+        facts: [
+          { label: "Experiență", value: "16+ ani" },
+          { label: "Autorizare", value: "AGFR — freon" },
+          { label: "PFA", value: "CUI 26374475 / 07.01.2010" },
+          { label: "Intervenții", value: "1000+ efectuate" },
+        ],
+        paragraphs: [
+          "Numele meu este Adrian Opriș și sunt tehnician calificat, autorizat frigotehnist și electronist automatizări, având experiența de peste 16 ani. Efectuez reparații frigidere și combine frigorifice în zona Capitalei ca independent, înregistrat oficial CUI 26374475 / 07.01.2010, autorizat AGFR pentru utilizarea și încărcarea cu freon a instalațiilor frigorifice. Vă stau la dispoziție pentru a vă oferi servicii de reparații frigidere de calitate, la domiciliu, în caz de urgență.",
+          "Nu reprezint service de reprezentanță și efectuez rapid reparații cu piese originale, în mod profesionist, oferind o garanție de 12 luni cu factură fiscală.",
+          "Asigur intervenții prompte de: încărcare cu freon, înlocuire compresor, înlocuire termostat, senzori de temperatură, schimbare ventilatoare, reparații placă electronică la frigidere și alte intervenții, la prețuri avantajoase.",
+          "Pentru o informare cât mai apropiată de posibila cauză a defectului, vă rog frumos, pentru a veni pregătit cu piese potrivite și a vă executa reparația frigiderului cât mai rapid, să vă aflați în apropierea frigiderului în momentul discuției telefonice, pentru a vă putea pune câteva scurte întrebări legate de funcționalitatea lui. De asemenea, m-ar ajuta și poze cu frigiderul sau combina frigorifică în cauză, pentru a-mi face o idee cât mai clară despre natura problemei tehnice apărute. Pe baza discuției telefonice, dacă vă pot ajuta cu reparația frigiderului, vom stabili de comun acord o vizită pentru o constatare și eventuala reparație la domiciliul dumneavoastră.",
+          "Folosesc scule specifice domeniului frigotehnic, de calitate, care au cele mai bune evaluări, iar în cadrul reparației frigiderului folosesc piese originale de calitate, cu garanție, oferind garanție pentru reparația frigiderului efectuată și piesa înlocuită.",
+          "Mentenanța frigiderelor casnice, efectuată de un frigotehnist autorizat, chiar dacă nu este obligatorie prin lege, este necesară după 3-4 ani de folosire. Consider importantă și punerea în funcțiune, inclusiv reglarea setărilor frigiderului în funcție de locație și modul de amplasare. Efectuate corect, acestea ar ajuta mult utilizatorii să se poată bucura cât mai mult de combina frigorifică sau frigider, evitând defecțiunile premature.",
+          "De asemenea, pot efectua revizii profesionale periodice la frigidere și combine frigorifice. Pentru orice problemă legată de service la frigiderul dumneavoastră, vă stau la dispoziție cu profesionalismul și experiența îndelungată acumulată în cele peste 1000 de intervenții efectuate.",
+        ],
       },
       gallery: { title: "Galerie Foto", sub: "Lucrări realizate — reparații frigidere la domiciliu în București" },
       services: {
@@ -652,7 +670,7 @@ export default function App() {
       process: {
         title: "Cum funcționează", sub: "Rapid, profesional, fără bătăi de cap",
         steps: [
-          { n: "1", title: "Suni sau trimiți WhatsApp", desc: "Ne contactezi la +40 737 444 337, descrii problema și stabilim o oră convenabilă." },
+          { n: "1", title: "Suni sau trimiți WhatsApp", desc: "Descrii problema și stabilim împreună o oră convenabilă.", phone: "0737 444 337" },
           { n: "2", title: "Venim la tine acasă", desc: "Tehnicianul ajunge la adresa ta în intervalul orar stabilit, cu unelte și piese de schimb." },
           { n: "3", title: "Diagnosticăm gratuit*", desc: "Identificăm defecțiunea și îți comunicăm costul exact înainte de a începe reparația." },
           { n: "4", title: "Reparăm pe loc", desc: "Majoritatea intervențiilor se rezolvă la prima vizită, cu piese originale și garantate." },
@@ -672,7 +690,7 @@ export default function App() {
         seoText: "Serviciile noastre de reparații frigidere acoperă întreaga arie metropolitană a Bucureștiului. Indiferent dacă locuiești în sectorul 1, 2, 3, 4, 5 sau 6, sau în localitățile limitrofe, tehnicianul nostru autorizat ajunge la tine rapid.",
       },
       reviews: {
-        title: "Ce spun clienții", sub: "16+ ani de reparații a frigiderelor în București, 1000+ de clienți mulțumiți",
+        title: "Ce spun clienții", sub: "16+ ani de reparații a frigiderelor în București, 1000+ de clienți mulțumiți, 700+ review-uri pe Google Maps",
         mapTitle: "Locația noastră",
         loadMore: "Mai multe recenzii", loadLess: "Mai puține recenzii",
         items: [
@@ -755,13 +773,31 @@ export default function App() {
       },
     },
     en: {
-      nav: { acasa: "Home", servicii: "Services", galerie: "Gallery", zone: "Areas", blog: "Blog", recenzii: "Reviews", contact: "Contact" },
+      nav: { acasa: "Home", despre: "About Me", servicii: "Services", galerie: "Gallery", zone: "Areas", blog: "Blog", recenzii: "Reviews", contact: "Contact" },
       hero: {
         badge: "AGFR Authorized • 16+ years experience",
         h1: "Fridge broken down?", h1b: "We repair it at your home.",
         sub: "Certified, authorized fridge repair technician — fridges, fridge-freezers and freezers. Fast response in Bucharest and surrounding areas.",
         cta1: "Call Now",
         badges: ["12-month warranty", "Fiscal invoice", "Original parts", "Call-out fee 70 RON"],
+      },
+      about: {
+        title: "About Me", sub: "16+ years of fridge repairs in Bucharest, 1000+ satisfied clients",
+        facts: [
+          { label: "Experience", value: "16+ years" },
+          { label: "Authorization", value: "AGFR — refrigerant" },
+          { label: "Sole trader (PFA)", value: "Tax ID 26374475 / 07.01.2010" },
+          { label: "Interventions", value: "1000+ completed" },
+        ],
+        paragraphs: [
+          "My name is Adrian Opriș and I am a qualified, authorized refrigeration technician and automation electronics engineer, with over 16 years of experience. I carry out fridge and fridge-freezer repairs in the Bucharest area as a sole trader, officially registered under Tax ID (CUI) 26374475 / 07.01.2010, and authorized by AGFR to handle and charge refrigeration systems with refrigerant (freon). I'm at your service for quality fridge repairs at home, including emergencies.",
+          "I don't represent a manufacturer's service center — I carry out fast repairs with original parts, professionally, and back every repair with a 12-month warranty and a fiscal invoice.",
+          "I provide prompt interventions: refrigerant (freon) recharging, compressor replacement, thermostat replacement, temperature sensors, fan replacement, electronic board repairs for fridges, and other services at competitive prices.",
+          "For information as close as possible to the likely cause of the fault — so I can come prepared with the right parts and repair your fridge as quickly as possible — please be near the fridge during our phone call, so I can ask you a few short questions about how it's behaving. Photos of the fridge or fridge-freezer in question would also help me get a clearer picture of the technical problem. Based on our phone conversation, if I can help with the repair, we'll agree together on a visit to assess the fault and carry out the repair at your home.",
+          "I use quality tools specific to the refrigeration trade, with the best reviews, and for every repair I use quality original parts, with warranty, guaranteeing both the repair carried out and the part replaced.",
+          "Maintenance of household fridges by an authorized refrigeration technician, while not legally required, becomes necessary after 3-4 years of use. I also consider commissioning important, including adjusting the fridge's settings according to its location and placement. Done correctly, this helps users enjoy their fridge-freezer or fridge for much longer, avoiding premature failures.",
+          "I also carry out periodic professional maintenance checks on fridges and fridge-freezers. For any service issue with your fridge, I'm at your disposal with the professionalism and extensive experience built up over more than 1000 interventions carried out.",
+        ],
       },
       gallery: { title: "Photo Gallery", sub: "Our work — fridge repairs at home in Bucharest" },
       services: {
@@ -782,7 +818,7 @@ export default function App() {
       process: {
         title: "How It Works", sub: "Fast, professional, hassle-free",
         steps: [
-          { n: "1", title: "Call or send WhatsApp", desc: "Contact us at +40 737 444 337, describe the problem and we'll set a convenient time." },
+          { n: "1", title: "Call or send WhatsApp", desc: "Describe the problem and we'll set a convenient time together.", phone: "0737 444 337" },
           { n: "2", title: "We come to you", desc: "The technician arrives at your address in the agreed time slot, equipped with tools and spare parts." },
           { n: "3", title: "Free diagnosis*", desc: "We identify the fault and tell you the exact cost before starting any repair." },
           { n: "4", title: "Repaired on the spot", desc: "Most repairs are completed on the first visit, using original and warranted parts." },
@@ -802,7 +838,7 @@ export default function App() {
         seoText: "Our fridge repair services cover the entire Bucharest metropolitan area. Whether you live in sector 1, 2, 3, 4, 5, or 6, or in the surrounding towns, our authorized technician reaches you quickly.",
       },
       reviews: {
-        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest, 1000+ satisfied clients",
+        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest, 1000+ satisfied clients, 700+ reviews on Google Maps",
         mapTitle: "Our Location",
         loadMore: "More reviews", loadLess: "Fewer reviews",
         items: [
@@ -1018,6 +1054,60 @@ export default function App() {
         </div>
       </section>
 
+      {/* ===== ABOUT ME ===== */}
+      <section id="despre" className="section-pad" style={{ background: "white" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div className="two-col" style={{ display: "flex", alignItems: "flex-start", gap: "56px" }}>
+            <div style={{ flexShrink: 0, width: "300px", maxWidth: "100%" }}>
+              <img src="/adrian-1.jpg" alt="Adrian Opriș — tehnician frigotehnist autorizat AGFR" style={{
+                width: "100%", height: "auto", borderRadius: "16px", display: "block",
+                border: "1px solid #e2e8f0", boxShadow: "0 12px 32px rgba(2,119,189,0.15)",
+              }} />
+              <div style={{ marginTop: "20px", border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden" }}>
+                {t.about.facts.map((f, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", padding: "12px 16px", borderBottom: i < t.about.facts.length - 1 ? "1px solid #e2e8f0" : "none", background: i % 2 === 1 ? "#f8faff" : "white" }}>
+                    <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "500" }}>{f.label}</span>
+                    <span style={{ fontSize: "12px", color: "#0d1b2a", fontWeight: "700", textAlign: "right" }}>{f.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.about.title}</h2>
+              <p style={{ fontSize: "16px", color: "#64748b", marginBottom: "28px" }}>{t.about.sub}</p>
+              {t.about.paragraphs.map((p, i) => (
+                <p key={i} style={{ fontSize: "15px", color: "#334155", lineHeight: "1.8", marginBottom: "16px" }}>{p}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PROCESS ===== */}
+      <section style={{ padding: "80px 40px", background: "#f0f7ff" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "60px" }}>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.process.title}</h2>
+            <p style={{ fontSize: "16px", color: "#64748b" }}>{t.process.sub}</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "24px", marginBottom: "24px" }}>
+            {t.process.steps.map((step, i) => (
+              <div key={i} style={{ background: "white", borderRadius: "16px", padding: "28px 20px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                <div style={{ width: "48px", height: "48px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "white", fontFamily: "'Poppins', sans-serif", fontSize: "20px", fontWeight: "700" }}>{step.n}</div>
+                <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#0d1b2a", marginBottom: "8px", lineHeight: "1.3" }}>{step.title}</h3>
+                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6" }}>{step.desc}</p>
+                {step.phone && (
+                  <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "10px", fontSize: "14px", fontWeight: "700", color: "#0277bd", textDecoration: "none", whiteSpace: "nowrap" }}>
+                    <FaPhone size={11} /> {step.phone}
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+          <p style={{ textAlign: "center", fontSize: "13px", color: "#94a3b8" }}>{t.process.note}</p>
+        </div>
+      </section>
+
       {/* ===== SERVICES ===== */}
       <section id="servicii" className="section-pad" style={{ background: "white" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
@@ -1125,26 +1215,6 @@ export default function App() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ===== PROCESS ===== */}
-      <section style={{ padding: "80px 40px", background: "#f0f7ff" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.process.title}</h2>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>{t.process.sub}</p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "24px", marginBottom: "24px" }}>
-            {t.process.steps.map((step, i) => (
-              <div key={i} style={{ background: "white", borderRadius: "16px", padding: "28px 20px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                <div style={{ width: "48px", height: "48px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "white", fontFamily: "'Poppins', sans-serif", fontSize: "20px", fontWeight: "700" }}>{step.n}</div>
-                <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#0d1b2a", marginBottom: "8px", lineHeight: "1.3" }}>{step.title}</h3>
-                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6" }}>{step.desc}</p>
-              </div>
-            ))}
-          </div>
-          <p style={{ textAlign: "center", fontSize: "13px", color: "#94a3b8" }}>{t.process.note}</p>
         </div>
       </section>
 
