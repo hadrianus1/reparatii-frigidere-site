@@ -314,7 +314,7 @@ export default function App() {
   const [commentsVisible, setCommentsVisible] = useState(5);
   const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
-  const [postForm, setPostForm] = useState({ title: "", excerpt: "", content: "", category: "General", image_url: "" });
+  const [postForm, setPostForm] = useState({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro" });
   const [uploading, setUploading] = useState(false);
 
   // Reactions
@@ -567,10 +567,10 @@ export default function App() {
         const updated = await res.json();
         setPosts(prev => editingPost ? prev.map(p => p.id === updated.id ? updated : p) : [updated, ...prev]);
         setShowNewPostForm(false); setEditingPost(null);
-        setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "" });
-        const translated = !!updated.title_en;
+        const targetLangLabel = postForm.lang === "en" ? "română" : "engleză";
+        setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro" });
         const base = editingPost ? "Articol actualizat!" : "Articol creat!";
-        showToast(translated ? `${base} Tradus automat în engleză.` : `${base} (traducere automată indisponibilă — verifică DEEPL_API_KEY)`);
+        showToast(updated.translated ? `${base} Tradus automat în ${targetLangLabel}.` : `${base} (traducere automată indisponibilă — verifică DEEPL_API_KEY)`);
       }
     } catch (_) { showToast("Eroare la salvare."); }
   };
@@ -719,6 +719,7 @@ export default function App() {
         allCategories: "Toate categoriile",
         newArticle: "Articol nou", editArticle: "Editează articolul",
         saveArticle: "Salvează", cancelEdit: "Anulează",
+        contentLangLabel: "Limba textului de mai jos", contentLangHint: "Cealaltă limbă va fi completată automat, prin traducere.",
         titleLabel: "Titlu *", excerptLabel: "Rezumat (opțional)", contentLabel: "Conținut *",
         categoryLabel: "Categorie", imageLabel: "URL imagine", imageUpload: "Sau încarcă imagine",
         publish: "Publică", unpublish: "Ascunde", deleteArticle: "Șterge",
@@ -867,6 +868,7 @@ export default function App() {
         allCategories: "All categories",
         newArticle: "New article", editArticle: "Edit article",
         saveArticle: "Save", cancelEdit: "Cancel",
+        contentLangLabel: "Language of the text below", contentLangHint: "The other language will be filled in automatically, via translation.",
         titleLabel: "Title *", excerptLabel: "Excerpt (optional)", contentLabel: "Content *",
         categoryLabel: "Category", imageLabel: "Image URL", imageUpload: "Or upload image",
         publish: "Publish", unpublish: "Unpublish", deleteArticle: "Delete",
@@ -1403,7 +1405,7 @@ export default function App() {
               {/* Admin post controls */}
               {isAdmin && (
                 <div style={{ display: "flex", gap: "10px", marginTop: "16px", padding: "16px 20px", background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", flexWrap: "wrap" }}>
-                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", image_url: activeBlogPost.image_url || "" }); setShowNewPostForm(true); }}
+                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", image_url: activeBlogPost.image_url || "", lang: "ro" }); setShowNewPostForm(true); }}
                     style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f59e0b", color: "white", border: "none", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}>
                     <FaEdit size={12} /> {t.blog.editArticle}
                   </button>
@@ -1550,7 +1552,7 @@ export default function App() {
                     </select>
                   )}
                   {isAdmin && (
-                    <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "" }); }} className="btn-primary">
+                    <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro" }); }} className="btn-primary">
                       <FaPlus size={12} /> {t.blog.newArticle}
                     </button>
                   )}
@@ -1563,6 +1565,20 @@ export default function App() {
                   <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#0d1b2a", marginBottom: "20px" }}>
                     {editingPost ? t.blog.editArticle : t.blog.newArticle}
                   </h3>
+
+                  <div style={{ marginBottom: "20px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#475569", marginBottom: "6px" }}>{t.blog.contentLangLabel}</label>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      {["ro", "en"].map(l => (
+                        <button key={l} type="button" onClick={() => setPostForm(p => ({ ...p, lang: l }))}
+                          style={{ padding: "8px 16px", borderRadius: "8px", border: `1.5px solid ${postForm.lang === l ? "#0277bd" : "#e2e8f0"}`, background: postForm.lang === l ? "#e3f2fd" : "white", color: postForm.lang === l ? "#0277bd" : "#475569", fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "inherit" }}>
+                          {l === "ro" ? "🇷🇴 Română" : "🇬🇧 English"}
+                        </button>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: "11px", color: "#94a3b8", marginTop: "6px" }}>{t.blog.contentLangHint}</p>
+                  </div>
+
                   {[
                     { label: t.blog.titleLabel, key: "title", type: "input" },
                     { label: t.blog.excerptLabel, key: "excerpt", type: "textarea", rows: 2 },

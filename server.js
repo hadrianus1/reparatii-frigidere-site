@@ -170,17 +170,17 @@ app.get('/api/admin/verify', (req, res) => {
   try { jwt.verify(auth.slice(7), JWT_SECRET); res.json({ valid: true }); } catch { res.json({ valid: false }); }
 });
 
-// ===== TRANSLATION (DeepL, RO → EN, used when a blog post is saved) =====
+// ===== TRANSLATION (DeepL, RO ⇄ EN, used when a blog post is saved) =====
 
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 const DEEPL_API_URL = DEEPL_API_KEY && DEEPL_API_KEY.endsWith(':fx')
   ? 'https://api-free.deepl.com/v2/translate'
   : 'https://api.deepl.com/v2/translate';
 
-if (!DEEPL_API_KEY) console.warn('⚠️  DEEPL_API_KEY not set — posts will save without an English translation');
+if (!DEEPL_API_KEY) console.warn('⚠️  DEEPL_API_KEY not set — posts will save without an automatic translation');
 
-// texts: string[] (RO) -> Promise<string[]> (EN), same order, '' preserved as ''
-async function translateToEnglish(texts) {
+// texts: string[] (sourceLang) -> Promise<string[]> (targetLang), same order, '' preserved as ''
+async function translateText(texts, sourceLang, targetLang) {
   if (!DEEPL_API_KEY) return texts.map(() => null);
   const toTranslate = texts.map((t, i) => ({ i, t })).filter(x => x.t && x.t.trim());
   const out = texts.map(t => (t && t.trim() ? null : ''));
@@ -188,12 +188,36 @@ async function translateToEnglish(texts) {
   const res = await fetch(DEEPL_API_URL, {
     method: 'POST',
     headers: { 'Authorization': `DeepL-Auth-Key ${DEEPL_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: toTranslate.map(x => x.t), source_lang: 'RO', target_lang: 'EN-US' }),
+    body: JSON.stringify({ text: toTranslate.map(x => x.t), source_lang: sourceLang, target_lang: targetLang }),
   });
   if (!res.ok) throw new Error(`DeepL ${res.status}: ${await res.text()}`);
   const data = await res.json();
   data.translations.forEach((tr, idx) => { out[toTranslate[idx].i] = tr.text; });
   return out;
+}
+
+// The `posts` table's title/excerpt/content columns are always Romanian; title_en/excerpt_en/
+// content_en are the English overlay used when the site is switched to EN. When an admin writes
+// a post in English (lang: 'en'), what they typed becomes the _en columns and gets translated
+// EN→RO to fill the primary columns, instead of the usual RO→EN direction.
+async function resolvePostTranslation(title, excerpt, content, lang) {
+  const exc = excerpt || '';
+  if (lang === 'en') {
+    let finalTitle = title, finalExcerpt = exc, finalContent = content, translated = false;
+    try {
+      const [ro_t, ro_e, ro_c] = await translateText([title, exc, content], 'EN', 'RO');
+      if (ro_t !== null) { finalTitle = ro_t; translated = true; }
+      if (ro_e !== null) finalExcerpt = ro_e;
+      if (ro_c !== null) { finalContent = ro_c; translated = true; }
+    } catch (err) { console.error('Translation error:', err.message); }
+    return { title: finalTitle, excerpt: finalExcerpt, content: finalContent, title_en: title, excerpt_en: exc, content_en: content, translated };
+  }
+  let title_en = null, excerpt_en = null, content_en = null, translated = false;
+  try {
+    [title_en, excerpt_en, content_en] = await translateText([title, exc, content], 'RO', 'EN-US');
+    translated = !!(title_en || content_en);
+  } catch (err) { console.error('Translation error:', err.message); }
+  return { title, excerpt: exc, content, title_en, excerpt_en, content_en, translated };
 }
 
 // ===== BLOG POSTS =====
@@ -230,45 +254,41 @@ app.get('/api/posts/:id', async (req, res) => {
 
 app.post('/api/posts', requireAdmin, async (req, res) => {
   try {
-    const { title, excerpt, content, category, image_url } = req.body;
+    const { title, excerpt, content, category, image_url, lang } = req.body;
     if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
-    const slug = makeSlug(title);
-    let title_en = null, excerpt_en = null, content_en = null;
-    try { [title_en, excerpt_en, content_en] = await translateToEnglish([title, excerpt || '', content]); }
-    catch (err) { console.error('Translation error:', err.message); }
+    const r = await resolvePostTranslation(title, excerpt, content, lang);
+    const slug = makeSlug(r.title);
     if (db.isReal) {
       const result = await db.query(
         'INSERT INTO posts (title, slug, excerpt, content, category, image_url, title_en, excerpt_en, content_en) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
-        [title, slug, excerpt || '', content, category || 'General', image_url || null, title_en, excerpt_en, content_en]
+        [r.title, slug, r.excerpt, r.content, category || 'General', image_url || null, r.title_en, r.excerpt_en, r.content_en]
       );
-      return res.status(201).json(result.rows[0]);
+      return res.status(201).json({ ...result.rows[0], translated: r.translated });
     }
     const id = db.nextPostId();
     const ts = new Date().toISOString();
-    const post = { id, title, slug, excerpt: excerpt || '', content, category: category || 'General', image_url: image_url || null, published: false, created_at: ts, updated_at: ts, title_en, excerpt_en, content_en };
+    const post = { id, title: r.title, slug, excerpt: r.excerpt, content: r.content, category: category || 'General', image_url: image_url || null, published: false, created_at: ts, updated_at: ts, title_en: r.title_en, excerpt_en: r.excerpt_en, content_en: r.content_en };
     db.posts.set(id, post);
-    res.status(201).json(post);
+    res.status(201).json({ ...post, translated: r.translated });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.patch('/api/posts/:id', requireAdmin, async (req, res) => {
   try {
-    const { title, excerpt, content, category, image_url } = req.body;
-    let title_en = null, excerpt_en = null, content_en = null;
-    try { [title_en, excerpt_en, content_en] = await translateToEnglish([title, excerpt || '', content]); }
-    catch (err) { console.error('Translation error:', err.message); }
+    const { title, excerpt, content, category, image_url, lang } = req.body;
+    const r = await resolvePostTranslation(title, excerpt, content, lang);
     if (db.isReal) {
       const result = await db.query(
         'UPDATE posts SET title=$1, excerpt=$2, content=$3, category=$4, image_url=$5, title_en=$6, excerpt_en=$7, content_en=$8, updated_at=NOW() WHERE id=$9 RETURNING *',
-        [title, excerpt, content, category, image_url, title_en, excerpt_en, content_en, req.params.id]
+        [r.title, r.excerpt, r.content, category, image_url, r.title_en, r.excerpt_en, r.content_en, req.params.id]
       );
       if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
-      return res.json(result.rows[0]);
+      return res.json({ ...result.rows[0], translated: r.translated });
     }
     const post = db.posts.get(Number(req.params.id));
     if (!post) return res.status(404).json({ error: 'Not found' });
-    Object.assign(post, { title, excerpt, content, category, image_url, title_en, excerpt_en, content_en, updated_at: new Date().toISOString() });
-    res.json(post);
+    Object.assign(post, { title: r.title, excerpt: r.excerpt, content: r.content, category, image_url, title_en: r.title_en, excerpt_en: r.excerpt_en, content_en: r.content_en, updated_at: new Date().toISOString() });
+    res.json({ ...post, translated: r.translated });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
