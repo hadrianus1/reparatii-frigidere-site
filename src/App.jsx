@@ -1483,7 +1483,7 @@ export default function App() {
               <p style={{ fontSize: "18px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
               <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
                 <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#29b6f6", color: "#0d3158", padding: "16px 32px", borderRadius: "10px", fontWeight: "700", fontSize: "16px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
-                  <FaPhone size={16} /> {t.hero.cta1}: {t.contact.phone} / 07 FRIGIDER
+                  <FaPhone size={16} /> {t.hero.cta1}: <span style={{ whiteSpace: "nowrap" }}>{t.contact.phone}</span> / 07 FRIGIDER
                 </a>
                 <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#25d366", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
                   <FaWhatsapp size={20} />
