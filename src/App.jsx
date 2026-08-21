@@ -456,14 +456,26 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
 // The brand name renders as a colored "nameplate" pill on the door, driven by whichever
 // brand chip was last clicked, like a real appliance badge.
 function FridgeIllustration({ brand }) {
-  const fontSize = brand.length > 14 ? 15 : brand.length > 9 ? 19 : 24;
-  const plateWidth = Math.min(200, brand.length * fontSize * 0.62 + 40);
+  // Nameplate stays left of the door handle (a vertical bar at x=192) — long,
+  // multi-word names (e.g. "Hotpoint Ariston") wrap onto a second line instead
+  // of growing the plate wide enough to run under the handle.
+  const words = brand.split(" ");
+  const isTwoLine = words.length > 1 && brand.length > 10;
+  const mid = Math.ceil(words.length / 2);
+  const line1 = isTwoLine ? words.slice(0, mid).join(" ") : brand;
+  const line2 = isTwoLine ? words.slice(mid).join(" ") : null;
+  const longestLine = Math.max(line1.length, line2?.length || 0);
+  const fontSize = longestLine > 10 ? 14 : longestLine > 7 ? 18 : 22;
+  const plateCx = 108;
+  const plateWidth = Math.min(150, longestLine * fontSize * 0.62 + 36);
+  const plateHeight = isTwoLine ? fontSize * 2 + 28 : fontSize + 20;
+  const plateY = 182;
   return (
     <svg viewBox="0 0 240 340" style={{ width: "100%", maxWidth: "220px", display: "block", margin: "0 auto" }}>
       <defs>
         <linearGradient id="fridgeBody" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#eaf6ff" />
-          <stop offset="100%" stopColor="#cfe9fb" />
+          <stop offset="0%" stopColor="#cfe8fb" />
+          <stop offset="100%" stopColor="#9cd2f0" />
         </linearGradient>
         <linearGradient id="fridgePlate" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="#0d9488" />
@@ -471,19 +483,30 @@ function FridgeIllustration({ brand }) {
         </linearGradient>
       </defs>
       <ellipse cx="120" cy="330" rx="88" ry="9" fill="rgba(15,23,42,0.08)" />
-      <rect x="20" y="10" width="200" height="312" rx="26" fill="url(#fridgeBody)" stroke="#7fb8e0" strokeWidth="3" />
+      <rect x="20" y="10" width="200" height="312" rx="26" fill="url(#fridgeBody)" stroke="#5fa8dd" strokeWidth="3" />
       <rect x="20" y="10" width="200" height="14" rx="7" fill="#0277bd" />
       <path d="M 34 30 L 34 60" stroke="rgba(255,255,255,0.7)" strokeWidth="10" strokeLinecap="round" />
-      <line x1="24" y1="104" x2="216" y2="104" stroke="#7fb8e0" strokeWidth="3" strokeLinecap="round" />
+      <line x1="24" y1="104" x2="216" y2="104" stroke="#5fa8dd" strokeWidth="3" strokeLinecap="round" />
       <rect x="192" y="34" width="11" height="46" rx="5.5" fill="#0277bd" />
       <rect x="192" y="140" width="11" height="120" rx="5.5" fill="#0277bd" />
       <circle cx="40" cy="120" r="6" fill="#f59e0b" />
-      <rect x={118 - plateWidth / 2} y={182} width={plateWidth} height={fontSize + 20} rx={(fontSize + 20) / 2} fill="url(#fridgePlate)" />
-      <text x="118" y={182 + (fontSize + 20) / 2 + 1} textAnchor="middle" dominantBaseline="middle"
-        fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1.5"
-        fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>
-        {brand}
-      </text>
+      <rect x={plateCx - plateWidth / 2} y={plateY} width={plateWidth} height={plateHeight} rx={plateHeight / 2} fill="url(#fridgePlate)" />
+      {isTwoLine ? (
+        <>
+          <text x={plateCx} y={plateY + plateHeight * 0.38} textAnchor="middle" dominantBaseline="middle"
+            fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1"
+            fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>{line1}</text>
+          <text x={plateCx} y={plateY + plateHeight * 0.74} textAnchor="middle" dominantBaseline="middle"
+            fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1"
+            fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>{line2}</text>
+        </>
+      ) : (
+        <text x={plateCx} y={plateY + plateHeight / 2 + 1} textAnchor="middle" dominantBaseline="middle"
+          fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1.5"
+          fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>
+          {brand}
+        </text>
+      )}
     </svg>
   );
 }
@@ -603,7 +626,7 @@ export default function App() {
   const [replyTo, setReplyTo] = useState(null);
   const [commentUsername, setCommentUsername] = useState("");
   const [commentText, setCommentText] = useState("");
-  const [postsPage, setPostsPage] = useState(1);
+  const [postsVisible, setPostsVisible] = useState(2);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [reviewsVisible, setReviewsVisible] = useState(5);
   const [commentsVisible, setCommentsVisible] = useState(5);
@@ -1011,7 +1034,7 @@ export default function App() {
         submit: "Trimite", pending: "În așteptare de aprobare",
         replyTo: "Răspunde la:", cancelReply: "Anulează",
         noComments: "Fii primul care comentează!", noArticles: "Momentan nu există articole publicate.",
-        page: "Pagina", prevPage: "Pagina anterioară", nextPage: "Pagina următoare",
+        loadMore: "Mai multe articole", loadLess: "Mai puține articole", articles: "articole",
         loadMoreComments: "Mai multe comentarii", loadLessComments: "Mai puține comentarii",
         showOf: "Se afișează", of: "din",
         allCategories: "Toate categoriile",
@@ -1173,7 +1196,7 @@ export default function App() {
         submit: "Submit", pending: "Pending approval",
         replyTo: "Replying to:", cancelReply: "Cancel",
         noComments: "Be the first to comment!", noArticles: "No published articles yet.",
-        page: "Page", prevPage: "Previous page", nextPage: "Next page",
+        loadMore: "More articles", loadLess: "Fewer articles", articles: "articles",
         loadMoreComments: "More comments", loadLessComments: "Fewer comments",
         showOf: "Showing", of: "of",
         allCategories: "All categories",
@@ -1263,15 +1286,9 @@ export default function App() {
   const publishedPosts = isAdmin ? posts : posts.filter(p => p.published);
   const postCategories = [...new Set(publishedPosts.map(p => p.category || "General"))];
   const filteredPosts = categoryFilter === "all" ? publishedPosts : publishedPosts.filter(p => (p.category || "General") === categoryFilter);
-  const POSTS_PER_PAGE = 6;
+  const POSTS_PER_PAGE = 2;
   const totalPosts = filteredPosts.length;
-  const totalPostPages = Math.max(1, Math.ceil(totalPosts / POSTS_PER_PAGE));
-  const currentPostsPage = Math.min(postsPage, totalPostPages);
-  const visiblePosts = filteredPosts.slice((currentPostsPage - 1) * POSTS_PER_PAGE, currentPostsPage * POSTS_PER_PAGE);
-  const goToPostsPage = (p) => {
-    setPostsPage(p);
-    document.getElementById("blog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const visiblePosts = filteredPosts.slice(0, postsVisible);
   const reviewItems = t.reviews.items;
   const reviewsRating = reviewItems.reduce((sum, r) => sum + r.rating, 0) / reviewItems.length;
   const reviewsSub = t.reviews.sub;
@@ -1678,7 +1695,7 @@ export default function App() {
 
           {/* Brand spotlight — generic fridge illustration with a turquoise nameplate for the selected brand (SEO-friendly per-brand copy) */}
           <div id="marca-frigider" style={{ marginTop: "40px", scrollMarginTop: "84px", background: "white", borderRadius: "20px", padding: "32px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: "32px", flexWrap: "wrap" }}>
-            <div style={{ flex: "0 0 220px", margin: "0 auto", position: "sticky", top: "84px" }}>
+            <div style={{ flex: "0 0 220px", margin: "0 auto" }}>
               <FridgeIllustration brand={selectedBrand} />
             </div>
             <div style={{ flex: "1 1 320px", minWidth: 0 }}>
@@ -1989,7 +2006,7 @@ export default function App() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                   {postCategories.length > 1 && (
-                    <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPostsPage(1); }}
+                    <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPostsVisible(2); }}
                       style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid #e2e8f0", fontFamily: "inherit", fontSize: "13px", fontWeight: "600", color: "#01579b", background: "white", cursor: "pointer", outline: "none" }}>
                       <option value="all">{t.blog.allCategories}</option>
                       {postCategories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -2106,24 +2123,12 @@ export default function App() {
                       </div>
                     ))}
                   </div>
-                  {totalPostPages > 1 && (
+                  {totalPosts > POSTS_PER_PAGE && (
                     <div style={{ marginTop: "32px", textAlign: "center" }}>
-                      <p style={{ fontSize: "13px", color: "#01579b", marginBottom: "12px" }}>{t.blog.page} {currentPostsPage} {t.blog.of} {totalPostPages}</p>
-                      <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
-                        <button onClick={() => goToPostsPage(currentPostsPage - 1)} disabled={currentPostsPage === 1} aria-label={t.blog.prevPage}
-                          style={{ width: "38px", height: "38px", borderRadius: "8px", border: "1.5px solid #e2e8f0", background: "white", color: "#01579b", fontSize: "14px", cursor: currentPostsPage === 1 ? "not-allowed" : "pointer", opacity: currentPostsPage === 1 ? 0.4 : 1, fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                          <FaChevronLeft size={12} />
-                        </button>
-                        {Array.from({ length: totalPostPages }, (_, i) => i + 1).map(p => (
-                          <button key={p} onClick={() => goToPostsPage(p)}
-                            style={{ width: "38px", height: "38px", borderRadius: "8px", border: `1.5px solid ${p === currentPostsPage ? "#0277bd" : "#e2e8f0"}`, background: p === currentPostsPage ? "#0277bd" : "white", color: p === currentPostsPage ? "white" : "#01579b", fontWeight: "700", fontSize: "14px", cursor: "pointer", fontFamily: "inherit" }}>
-                            {p}
-                          </button>
-                        ))}
-                        <button onClick={() => goToPostsPage(currentPostsPage + 1)} disabled={currentPostsPage === totalPostPages} aria-label={t.blog.nextPage}
-                          style={{ width: "38px", height: "38px", borderRadius: "8px", border: "1.5px solid #e2e8f0", background: "white", color: "#01579b", fontSize: "14px", cursor: currentPostsPage === totalPostPages ? "not-allowed" : "pointer", opacity: currentPostsPage === totalPostPages ? 0.4 : 1, fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                          <FaChevronRight size={12} />
-                        </button>
+                      <p style={{ fontSize: "13px", color: "#01579b", marginBottom: "12px" }}>{t.blog.showOf} {Math.min(postsVisible, totalPosts)} {t.blog.of} {totalPosts} {t.blog.articles}</p>
+                      <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+                        {postsVisible < totalPosts && <button onClick={() => setPostsVisible(v => v + POSTS_PER_PAGE)} className="btn-primary">{t.blog.loadMore} ↓</button>}
+                        {postsVisible > POSTS_PER_PAGE && <button onClick={() => setPostsVisible(POSTS_PER_PAGE)} className="btn-secondary">{t.blog.loadLess} ↑</button>}
                       </div>
                     </div>
                   )}
