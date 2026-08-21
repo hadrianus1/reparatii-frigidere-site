@@ -1,17 +1,16 @@
 {
   "brands": [
-    { "slug": "bosch", "name": "Bosch" },
-    { "slug": "samsung", "name": "Samsung" },
-    { "slug": "whirlpool", "name": "Whirlpool" },
-    { "slug": "electrolux", "name": "Electrolux" },
-    { "slug": "indesit", "name": "Indesit" },
-    { "slug": "gorenje", "name": "Gorenje" },
-    { "slug": "beko", "name": "Beko" },
     { "slug": "arctic", "name": "Arctic" },
-    { "slug": "zanussi", "name": "Zanussi" },
+    { "slug": "beko", "name": "Beko" },
+    { "slug": "bosch", "name": "Bosch" },
+    { "slug": "electrolux", "name": "Electrolux" },
+    { "slug": "gorenje", "name": "Gorenje" },
     { "slug": "grundig", "name": "Grundig" },
     { "slug": "hotpoint-ariston", "name": "Hotpoint Ariston" },
-    { "slug": "lg", "name": "LG" }
+    { "slug": "indesit", "name": "Indesit" },
+    { "slug": "samsung", "name": "Samsung" },
+    { "slug": "whirlpool", "name": "Whirlpool" },
+    { "slug": "zanussi", "name": "Zanussi" }
   ],
   "zones": [
     { "slug": "sector-1", "name": "Sector 1" },
@@ -26,7 +25,6 @@
     { "slug": "grivita", "name": "Grivița" },
     { "slug": "dorobanti", "name": "Dorobanți" },
     { "slug": "floreasca", "name": "Floreasca" },
-    { "slug": "otopeni", "name": "Otopeni" },
     { "slug": "colentina", "name": "Colentina" },
     { "slug": "obor", "name": "Obor" },
     { "slug": "iancului", "name": "Iancului" },
@@ -38,19 +36,16 @@
     { "slug": "vacaresti", "name": "Văcărești" },
     { "slug": "berceni", "name": "Berceni" },
     { "slug": "rahova", "name": "Rahova" },
-    { "slug": "ferentari", "name": "Ferentari" },
     { "slug": "crangasi", "name": "Crângași" },
     { "slug": "giulesti", "name": "Giulești" },
     { "slug": "drumul-taberei", "name": "Drumul Taberei" },
     { "slug": "militari", "name": "Militari" },
-    { "slug": "voluntari", "name": "Voluntari" },
     { "slug": "chiajna", "name": "Chiajna" },
     { "slug": "militari-residence", "name": "Militari Residence" },
     { "slug": "rosu", "name": "Roșu" },
     { "slug": "domnesti", "name": "Domnești" },
     { "slug": "clinceni", "name": "Clinceni" },
     { "slug": "bragadiru", "name": "Bragadiru" },
-    { "slug": "cornetu", "name": "Cornetu" },
     { "slug": "magurele", "name": "Măgurele" },
     { "slug": "popesti-leordeni", "name": "Popești-Leordeni" }
   ]

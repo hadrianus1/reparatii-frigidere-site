@@ -2,7 +2,7 @@
 
 body {
   font-family: 'Inter', 'Segoe UI', sans-serif;
-  color: #1e293b;
+  color: #0d3158;
   background: #f8faff;
 }
 
@@ -43,8 +43,8 @@ body {
 .mobile-nav-overlay.open { display: flex; }
 .mobile-nav-overlay a {
   text-decoration: none;
-  color: #1e293b;
-  font-size: 16px;
+  color: #0d3158;
+  font-size: 17px;
   font-weight: 500;
   padding: 12px 16px;
   border-radius: 8px;
@@ -74,13 +74,13 @@ body {
 .star.empty { color: #d1d5db; }
 
 /* ===== BLOG ===== */
-.prose { line-height: 1.8; font-size: 15px; color: #475569; }
+.prose { line-height: 1.8; font-size: 16px; color: #01579b; }
 .prose p { margin-bottom: 16px; text-indent: 28px; }
-.prose h2 { font-size: 22px; font-weight: 700; color: #1e293b; margin: 28px 0 12px; }
-.prose h3 { font-size: 18px; font-weight: 600; color: #1e293b; margin: 20px 0 8px; }
+.prose h2 { font-size: 22px; font-weight: 700; color: #0d3158; margin: 28px 0 12px; }
+.prose h3 { font-size: 18px; font-weight: 600; color: #0d3158; margin: 20px 0 8px; }
 .prose ul, .prose ol { margin: 0 0 16px 24px; }
 .prose li { margin-bottom: 6px; }
-.prose strong { color: #1e293b; font-weight: 600; }
+.prose strong { color: #0d3158; font-weight: 600; }
 
 /* ===== PRICE TABLE ===== */
 .price-row:nth-child(even) { background: #f0f7ff; }

@@ -44,6 +44,261 @@ const GALLERY = [
 
 // ===== HELPERS =====
 
+// ===== BRAND SPOTLIGHT CONTENT (RO + EN) =====
+// Longer, brand-specific write-ups (first person singular — one technician, not a team).
+// Hand-translated rather than auto-translated like blog posts, so RO and EN must be kept
+// structurally parallel by hand if either is edited.
+const BRAND_CONTENT = {
+  ro: {
+  Bosch: [
+    { p: "Despre frigiderele Bosch am numai cuvinte de bine. Față de alte mărci, din punctul meu de vedere, Bosch a reușit să păstreze o calitate constructivă bună, atât la partea electronică, cât și la circuitul frigorific — materialele folosite pentru conducte, inclusiv sistemul de degivrare, sunt de calitate." },
+    { p: "La modelele cu răcire statică și ușă de congelator în partea superioară, comanda este fie printr-o placă electronică (la sistemele frigorifice de tip „No Frost”), fie printr-un termostat electromecanic montat în interiorul frigiderului, la cele cu autodezghețare." },
+    { p: "La combinele frigorifice, sistemul de comandă este exclusiv electronic, indiferent de tipul sistemului de răcire." },
+    { list: ["înlocuire senzori și siguranțe de temperatură", "montaj, demontaj ventilatoare interne la nofrost", "verificare rezistențe de degivrare", "încărcare agent refrigerant (freon)", "reparații modul electronic", "înlocuire electrocompresor (motor)"], title: "Reparații frigidere Bosch pe care le execut:" },
+    { p: "La toate lucrările executate pentru service frigidere Bosch ofer garanție 12 luni." },
+  ],
+  Beko: [
+    { p: "Valoarea aparaturii electrocasnice pe care o cumpărăm pentru folosința rezidențială poate fi apreciată acum și prin performanțele energetice și durata îndelungată de folosire pe care le propune această marcă de frigidere. Gama Beko cuprinde frigidere cu două uși sau combine frigorifice cu dezghețare automată, cu termostat electromecanic și cu unul sau două compresoare, sau cu afișaj electronic și electrovalvă cu un compresor. Al doilea sistem de răcire propus, No Frost, este disponibil în variantă cu afișaj electronic, cu două uși sau combină." },
+    { p: "La aceste frigidere, ca și la alte mărci, în timp pot apărea diverse defecte, cum ar fi:" },
+    { list: ["apar pe display diverse erori și frigiderul nu mai răcește corespunzător", "compresorul se aude funcționând câteva secunde, după care se oprește câteva minute", "frigiderul funcționează, dar răcește doar în congelator și insuficient în frigider", "lumina din interior funcționează, dar compresorul nu pornește", "frigiderul funcționează continuu, răcește, dar nu se mai oprește", "în timpul funcționării se aud trosnete și fâsâieli zgomotoase", "se acumulează apă în compartimentul pentru legume", "frigiderul e complet dezghețat, deși îl auziți funcționând"] },
+    { p: "Dacă observați astfel de simptome, este indicat să luați legătura cu service-ul de reprezentanță sau cu un frigotehnist care se ocupă și de reparații frigidere Beko, pentru o constatare sau o eventuală reparație." },
+    { p: "Nivelul de consum este deja o prioritate pentru noi toți, așa că alegeți valori cât mai bune, pe care le găsiți pe eticheta energetică a fiecărui produs. Stabiliți din timp locul pe care îl va ocupa aparatul, ca să nu fiți nevoiți să-l mutați la scurt timp după instalare. Verificați ca acest loc să fie cât mai departe de radiația solară directă, indiferent de anotimp, și de orice sursă de căldură din apropiere. Iarna, nu lăsați camera complet neîncălzită, astfel încât aparatul să funcționeze la mai puțin de 7 grade Celsius. Priza de conectare e bine să aibă împământare, iar frigiderul să fie, pe cât posibil, singurul consumator pe acea priză." },
+    { p: "Pornirea oricărui aparat frigorific se face doar după ce a trecut suficient timp pentru ca structura lui să ajungă la aceeași temperatură cu cea din cameră. La o eventuală relocare, las minimum 15 minute pentru acomodarea fizică a aparatului cu noua locație, indiferent dacă acesta funcționa sau nu în momentul mutării. Este o precauție tehnică legată de egalizarea presiunii agentului frigorific din instalație." },
+    { p: "Nu folosesc niciodată apă în zona radiatorului și a compresorului — doar elimin și aspir praful acumulat, fără să presez în vreun fel instalația. Dacă considerați necesar, mă puteți solicita pentru întreținerea zonei radiatorului și a compresorului, în cazul în care nu aveți suficientă experiență pentru această operațiune." },
+    { p: "Păstrarea interiorului frigiderului fără mirosuri neplăcute se poate face prin acoperirea sau înfolierea alimentelor cu miros specific și persistent, dar și printr-o întreținere curentă. La aparatele cu dezghețare automată, la fiecare 3 luni de utilizare, pregătesc un amestec de 50 ml apă cu oțet, pe care îl torn cu grijă prin orificiul conductei ce preia și elimină apa la dezghețare. Astfel previn apariția mucegaiului și mențin conducta curată și neobturată, care altfel s-ar putea înfunda. Nu în ultimul rând, recomand utilizarea frigiderului la temperaturi medii sau în modul ECO — o măsură simplă de protecție a întregului aparat, care ține la distanță o solicitare prematură, indiferent de marcă." },
+    { p: "Fiecare dintre aceste sfaturi are ca scop menținerea, cu efort minim, a bunei funcționări a oricărui aparat frigorific. Dacă aveți vreo îndoială că aparatul nu lucrează corect, mă puteți întreba sau mă puteți solicita pentru service frigidere Beko în București, atunci când problema este evidentă. Am să încerc să vă ajut și, în general, am la îndemână aparatura, piesele și materialele consumabile de calitate necesare pentru a remedia cât mai curând situația." },
+  ],
+  Zanussi: [
+    { p: "Frigiderele Zanussi se încadrează perfect în aceste cerințe, permițându-i utilizatorului să aleagă între diverse caracteristici, în funcție de nevoile practice de utilizare și de cele economice, pentru folosire pe termen lung." },
+    { p: "Pe piața românească, frigiderele Zanussi sunt disponibile în 3 variante constructive, toate cu autodezghețare: frigidere cu o ușă, frigidere cu două uși și combine frigorifice cu unul sau două compresoare." },
+    { p: "Probleme tehnice care pot apărea la frigiderele Zanussi — simptome pe care le puteți întâlni în cazul unei defecțiuni:" },
+    { list: ["frigiderul funcționează, dar răcește doar în congelator și insuficient în frigider", "compresorul se aude funcționând câteva secunde, după care se oprește câteva minute", "lumina din interior funcționează, dar compresorul nu pornește", "în timpul funcționării se aud trosnete și fâsâieli zgomotoase", "frigiderul funcționează continuu, răcește, dar nu se mai oprește", "se acumulează apă în compartimentul pentru legume", "ușa frigiderului nu se mai închide etanș", "observați apă murdară în spatele frigiderului", "frigiderul e complet dezghețat, deși îl auziți funcționând"] },
+    { p: "Reglarea temperaturii de refrigerare și congelare este bine să rămână în limite rezonabile, undeva în zona valorilor medii sau foarte puțin sub acestea. Nu există niciun motiv să forțez aparatul spre temperaturi foarte scăzute — uzura ar fi mai mare, iar riscul de defecțiuni la fel." },
+    { p: "Combinele frigorifice, frigiderele și lăzile frigorifice Zanussi sunt ușor de întreținut și merită câteva minute pentru proceduri simple care, în timp, extind durata medie de utilizare indicată de producător în manualul aparatului. Curăț toate suprafețele cu o soluție de apă și detergent și șterg imediat pentru uscare — asta păstrează aspectul elegant al aparatului. O singură precizare: în zona radiatorului și a compresorului, în spatele aparatului, apa nu trebuie să ajungă niciodată. Această zonă o curăț cu o pensulă cu fire lungi sau cu aspiratorul, pentru colectarea prafului." },
+    { p: "O metodă simplă, fără niciun pericol, este curățarea periodică a conductei de evacuare a apei rezultate din dezghețarea automată. Această conductă se poate înfunda în timp, iar în frigider pot apărea mirosuri specifice de mucegai. O dată la 3 luni, pregătesc un amestec de apă cu oțet, nu mai mult de 50 ml, pe care îl torn prin orificiul din interiorul frigiderului. Astfel opresc dezvoltarea microorganismelor responsabile de apariția mucegaiului și curăț totodată pereții conductei, pentru o scurgere optimă a apei. Dacă observați că frigiderul nu mai funcționează la parametri optimi, nu ezitați să cereți sfatul unei persoane autorizate, care vă poate lămuri situația sau efectua o reparație frigider Zanussi, dacă este necesar." },
+  ],
+  "Hotpoint Ariston": [
+    { p: "Accesul la o marcă apreciată de frigidere, cum este Ariston, este acum mai la îndemână ca oricând, datorită varietății de modele listate online sau disponibile în magazinele specializate. Alegerea trebuie ghidată în primul rând de rolul pe care aparatul îl va avea în siguranța alimentară — atât pentru păstrarea pe termen scurt, cât și pentru congelarea alimentelor pe termen lung, în condiții de depozitare corespunzătoare. Gabaritul, nivelul de consum energetic, finisajul, tipul de refrigerare și alte caracteristici speciale rămân la alegerea dumneavoastră." },
+    { p: "Gama constructivă cuprinde combine frigorifice cu autodezghețare și No Frost, inclusiv modele încorporabile, și frigidere cu două uși, cu afișaj electronic și sistem No Frost. Frigiderele Hotpoint Ariston fac parte, în general, din gama de vârf, având o fiabilitate ridicată." },
+    { p: "Reparațiile la frigidere Ariston pe care le-am constatat de-a lungul timpului se referă la:" },
+    { list: ["senzori și siguranțe de temperatură", "ventilatoare interne la No Frost", "rezistențe de degivrare", "pierderi de freon", "probleme la modulul electronic", "defectarea electrocompresorului"] },
+    { p: "În cazul unei relocări sau al cumpărării aparatului, nu îl pornesc mai devreme de 15 minute, chiar dacă nu a funcționat, pentru a lăsa timp agentului frigorific să-și egalizeze presiunile." },
+    { p: "Poziționarea frigiderului respectă câteva reguli simple: îl feresc de radiația solară, de căldura din bucătărie și de orice altă sursă de căldură din casă. Totuși, iarna, mă asigur că temperatura din cameră nu scade sub 7 grade Celsius, pentru a permite combinelor cu dezghețare automată să pornească normal." },
+    { p: "Conectarea la sursa de tensiune se face, de preferat, la o priză cu împământare și, pe cât posibil, separată de alți consumatori. Pornirea efectivă se face numai după ce aparatul s-a adaptat la temperatura camerei — niciodată mai devreme de o oră de la transportul lui la temperaturi scăzute. Toate aparatele electrocasnice trebuie protejate împotriva condensului care apare la diferențele de temperatură dintre exterior și interior, iar frigiderul Ariston nu face excepție." },
+    { p: "După aceste precauții, aparatul poate fi pus în funcțiune prin setarea temperaturilor pentru ambele compartimente. Recomand să nu exagerați cu setări apropiate de zero grade sau sub -20 de grade Celsius, ci să alegeți o valoare medie, sau modul ECO ori CARE, dacă combina Ariston are această funcție. Astfel evitați o funcționare la parametri maximi și protejați toate componentele de o uzură prematură." },
+    { p: "Pentru că orice aparat frigorific este folosit des, murdăria la exterior și interior apare inevitabil. Felul și ritmicitatea întreținerii influențează, în timp, atât aspectul aparatului, cât și buna lui funcționare — la fel ca și modul în care depozitați alimentele și cât de încărcate țineți spațiile." },
+    { p: "Acopăr cu folie alimentară produsele desfăcute, mai ales la modelele No Frost, și folosesc vase cu capac pentru a limita răspândirea mirosurilor și a păstra prospețimea. Nu supraîncarc combina Ariston peste o capacitate rezonabilă — altfel accesul la alimente devine dificil, ușa rămâne deschisă mai mult timp, iar consumul de electricitate și uzura componentelor cresc fără rost." },
+    { p: "Curăț aparatul doar cu o soluție simplă de apă și săpun sau detergent, cu lavete curate și moi, și îl usuc imediat după spălare." },
+    { p: "Sunt pregătit să intervin la majoritatea defecțiunilor pentru reparații frigidere Hotpoint Ariston în București — cu experiența acumulată în domeniu, aparatura și piesele necesare pentru înlocuire, precum și materiale consumabile specifice. După fiecare lucrare de reparație, primiți garanție scrisă, atât pentru manoperă, cât și pentru piesele înlocuite." },
+  ],
+  Electrolux: [
+    { p: "Despre frigiderele Electrolux pot spune, din experiența de service, că sunt frigidere de încredere. Au o gamă foarte diversă de modele — de la frigidere cu două uși, la combine frigorifice cu unul sau două compresoare, cu tehnologie No Frost combinată cu dezghețare automată, sau doar cu dezghețare automată la modelele total No Frost. Panoul de comandă poate fi cu termostate electromecanice sau cu senzori și placă electronică." },
+    { p: "Problemele care apar cel mai des la aceste frigidere sunt defectarea termostatelor sau a modulului electronic, a unor senzori de temperatură, blocarea ventilatorului la modelele No Frost și, mai rar, pierderi de freon sau defectarea compresorului." },
+    { p: "Înlocuiesc compresoare, execut încărcări cu freon și schimb termostate și ventilatoare." },
+  ],
+  Gorenje: [
+    { p: "Dacă v-ați hotărât să cumpărați un frigider Gorenje, sunteți în fața unei alegeri variate — gama de modele disponibile pe piață este generoasă. Pentru cine ține neapărat la prospețime în bucătărie, combinele frigorifice Gorenje sunt o alegere bună. Dacă aveți preferințe legate de tehnica de refrigerare, puteți alege între modele cu dezghețare automată sau modele No Frost. Verificați atent eticheta energetică a aparatului, pentru un consum optim de electricitate. Schimbarea sensului de deschidere a ușilor, „pe stânga” sau „pe dreapta”, este disponibilă la majoritatea frigiderelor Gorenje." },
+    { p: "Modelele constructive cele mai des întâlnite sunt combinele frigorifice cu unul sau două compresoare și frigiderele cu două uși, cu dezghețare automată, cu afișaj electronic sau reglaj electromecanic. Pe piață se găsesc și modele cu tehnologie No Frost, cu un design ergonomic și plăcut. Defectele cele mai des întâlnite la această marcă sunt legate de termostat, senzori de temperatură, modulul electronic sau pierderi de freon." },
+    { p: "Investiția într-un frigider Gorenje merită susținută prin felul în care îl întrețineți și îl folosiți încă de la început. Aceste aparate sunt proiectate să fie durabile și să-și mențină caracteristicile tehnice indicate în manual." },
+    { p: "Probleme tehnice care pot apărea la frigiderele Gorenje:" },
+    { list: ["compresorul se aude funcționând câteva secunde, după care se oprește câteva minute", "frigiderul funcționează, dar răcește doar în congelator și insuficient în frigider", "lumina din interior funcționează, dar compresorul nu pornește", "frigiderul funcționează continuu, răcește, dar nu se mai oprește", "în timpul funcționării se aud trosnete și fâsâieli zgomotoase", "se acumulează apă în compartimentul pentru legume", "frigiderul e complet dezghețat, deși îl auziți funcționând"] },
+    { p: "Prin aplicarea unor practici simple în utilizarea curentă, puteți depăși cu ușurință durata medie de utilizare declarată de producător." },
+    { p: "Totul pleacă de la manevrarea și amplasarea frigiderului Gorenje. Îl transport doar în poziție verticală, iar dacă acest lucru nu este posibil, îl așez culcat cu partea din față, cu ușile în jos. Stabiliți din timp locul de amplasare și verificați dacă priza unde va fi conectat este funcțională. Aparatul e bine să fie conectat direct la priză, nu printr-un prelungitor, și cu atât mai puțin pe aceeași linie electrică cu alți consumatori de putere mare. Locul de amplasare trebuie ales cât mai departe de lumina solară directă și de orice sursă de căldură, permanentă sau sezonieră, dar nici în camere unde temperatura poate scădea sub 7 grade Celsius." },
+    { p: "Distanța dintre aparat și peretele din spate trebuie să fie de minimum 10 cm, pentru a păstra un flux normal al aerului. Este o măsură pe care o recomand strict, ca să evit supraîncălzirea compresorului din lipsa ventilării radiatorului care disipă căldura produsă de aparat." },
+    { p: "La mutarea dintr-o cameră în alta, indiferent dacă aparatul funcționa sau nu în momentul mutării, aștept cel puțin 15 minute înainte de repornire, pentru ca sistemul frigorific să-și egalizeze presiunile." },
+    { p: "Pentru întreținere, urmez câteva idei simple care păstrează în bună stare, estetic și funcțional, orice frigider Gorenje — proceduri care, făcute la timp, evită eventuale reparații. Pentru curățarea la exterior și interior, folosesc periodic o lavetă înmuiată în apă cu detergent, fără să presez exagerat suprafețele aparatului. În zona din spate, doar depraf și aspir grila radiatorului, fără să folosesc niciodată lichide în zona compresorului și a conductelor la care este conectat, ca să evit vreo avarie." },
+    { p: "Dacă frigiderul sau combina are sistem automat de dezghețare, la fiecare 3 luni de utilizare torn 50 ml de apă combinată cu puțin oțet pe orificiul de scurgere din interiorul aparatului — previn astfel apariția mucegaiului sau chiar înfundarea conductei, care ar necesita ulterior o intervenție." },
+    { p: "Protejez aparatul și prin setarea unei temperaturi medii de răcire și/sau congelare, ca să nu-l suprasolicit permanent. Pentru orice altă situație în care aparatele frigorifice nu mai performează așa cum ar trebui, nu ezitați să mă contactați pentru service frigidere Gorenje. Am materialele și echipamentele necesare, folosesc piese de schimb de calitate și ofer garanție pentru lucrările realizate și componentele înlocuite." },
+  ],
+  Grundig: [
+    { p: "Valoarea aparaturii electrocasnice pe care o cumpărăm pentru folosința rezidențială poate fi apreciată acum și prin performanțele energetice și durata îndelungată de folosire pe care le propune această marcă de frigidere. Gama Grundig cuprinde frigidere cu două uși sau combine frigorifice cu sistem de răcire tip Dual No Frost." },
+    { p: "La aceste frigidere, ca și la alte mărci, în timp pot apărea diverse defecte, cum ar fi:" },
+    { list: ["apar pe display diverse erori și frigiderul nu mai răcește corespunzător", "compresorul se aude funcționând câteva secunde, după care se oprește câteva minute", "frigiderul funcționează, dar răcește doar în congelator și insuficient în frigider", "lumina din interior funcționează, dar compresorul nu pornește", "frigiderul funcționează continuu, răcește, dar nu se mai oprește", "în timpul funcționării se aud trosnete și fâsâieli zgomotoase", "se acumulează apă în compartimentul pentru legume", "frigiderul e complet dezghețat, deși îl auziți funcționând"] },
+    { p: "Dacă observați astfel de simptome, este indicat să luați legătura cu service-ul de reprezentanță sau cu un frigotehnist care se ocupă și de reparații frigidere Grundig, pentru o constatare sau o eventuală reparație." },
+    { p: "Consumul redus este deja o prioritate pentru toată lumea, așa că alegeți valori cât mai bune, vizibile pe eticheta energetică a fiecărui produs. Stabiliți din timp unde va sta aparatul, ca să nu fiți nevoiți să-l mutați curând după instalare. Alegeți un loc ferit de radiația solară directă, indiferent de anotimp, și departe de orice sursă de căldură din apropiere. Iarna, nu lăsați camera complet neîncălzită, ca aparatul să nu funcționeze la mai puțin de 7 grade Celsius. Priza de conectare e bine să aibă împământare, iar frigiderul să fie, pe cât posibil, singurul consumator pe acea priză." },
+    { p: "Pornirea oricărui aparat frigorific se face doar după ce structura lui a ajuns la aceeași temperatură cu cea din cameră. La o eventuală relocare, las minimum 15 minute pentru acomodarea aparatului cu noua locație, indiferent dacă funcționa sau nu în momentul mutării — o precauție legată de egalizarea presiunii agentului frigorific din instalație." },
+    { p: "Nu folosesc niciodată apă în zona radiatorului și a compresorului — doar elimin și aspir praful acumulat, fără să presez instalația. Dacă e nevoie, mă puteți solicita pentru întreținerea acestei zone, dacă nu aveți experiența necesară." },
+    { p: "Pentru un interior fără mirosuri neplăcute, acopăr sau înfoliez alimentele cu miros specific, alături de o întreținere curentă. La aparatele cu dezghețare automată, la fiecare 3 luni, pregătesc un amestec de 50 ml apă cu oțet, pe care îl torn cu grijă prin orificiul conductei de evacuare a apei — previn astfel mucegaiul și mențin conducta curată. Recomand și utilizarea frigiderului la temperaturi medii sau în modul ECO, o măsură simplă care ține la distanță o solicitare prematură a aparatului." },
+    { p: "Fiecare dintre aceste sfaturi are ca scop menținerea, cu efort minim, a bunei funcționări a aparatului. Dacă aveți vreo îndoială că nu lucrează corect, mă puteți întreba sau solicita pentru reparații frigidere Grundig în București. Am să încerc să vă ajut și am de obicei la îndemână aparatura, piesele și materialele consumabile necesare pentru a remedia rapid situația." },
+  ],
+  Indesit: [
+    { p: "Competența mea în domeniul frigotehnic, ca frigotehnist autorizat, îmi permite să evaluez calitatea funcționării acestor aparate prin prisma intervențiilor de service — inclusiv folosesc piese originale atunci când execut reparații frigidere Indesit." },
+    { p: "În timp, am observat că, în marea lor majoritate, defecțiunile care necesită service la frigidere Indesit sunt:" },
+    { list: ["defectarea modulului electronic", "pierderi de agent frigorific", "probleme la senzorii de degivrare", "arderea rezistenței de degivrare a vaporizatorului sau a tăvii de scurgere", "blocarea ventilatorului", "defectarea termostatului"] },
+    { p: "De aceea, cred că merită să țineți cont de câteva practici de bună utilizare, care nu vă costă timp sau bani în plus. Sunt sfaturi valabile încă de la cumpărarea și aducerea aparatului acasă — cum îl poziționați și îl întrețineți în timp și cum îl folosiți, astfel încât funcționarea lui să dureze mult peste specificațiile producătorului." },
+    { p: "La transport, respect indicațiile producătorului: solicit sau transport aparatul doar în poziție verticală. Doar când nu e posibil altfel, îl așez cu ușile în jos, ca să nu deteriorez instalația frigorifică, radiatorul sau compresorul, montate în spate. Aceste componente se pot fisura sau îndoi, iar în scurt timp poate fi nevoie de o reparație frigider Indesit." },
+    { p: "Aleg pentru frigiderul Indesit un loc ferit de radiația solară directă și de orice sursă de căldură. Nu las o combină cu dezghețare automată într-un spațiu unde temperatura se apropie de 7 grade Celsius — riscă să nu mai funcționeze corect. Las minimum 10 cm între perete și spatele aparatului, ca ventilația naturală a căldurii degajate de radiator (grătarul negru din spate) să răcească bine compresorul." },
+    { p: "Verific starea prizei la care conectez aparatul — ideal, cu împământare, dedicată, fără prelungitoare cu alți consumatori. După amplasare, pun frigiderul în funcțiune abia după ce s-a acomodat cu temperatura camerei. Nu risc niciodată, mai ales iarna, să-l pornesc mai devreme de o oră de acomodare — condensul care se formează altfel devine adesea cauza unei defecțiuni ce necesită reparații combine frigorifice Indesit." },
+    { p: "În utilizarea curentă, setez o temperatură medie, sau foarte apropiată de aceasta. Modurile ECO sunt cele mai avantajoase din toate punctele de vedere — permit aparatului cicluri de funcționare și repaus rezonabile, uzura rămâne în limite normale, alimentele sunt bine refrigerate și congelate, iar consumul se apropie de cel din cartea tehnică." },
+    { p: "Pentru întreținerea curentă a unui frigider Indesit nu sunt necesare intervenții deosebite — curățarea periodică și o încărcare rezonabilă cu alimente sunt suficiente. Spăl aparatul cu un amestec simplu de apă și detergent, la suprafețele exterioare, garnitura ușii, rafturi și sertare. Usuc de fiecare dată după spălare și am grijă să nu presez conductele frigorifice din congelator, ventilatorul la modelele No Frost, becul interior sau comenzile electronice. Spatele aparatului îl întrețin doar prin depraf, fără apă — perii cu atenție aripioarele radiatorului și aspir praful rezultat. Un radiator curat înseamnă eficiență, consum redus și mai puține riscuri de defectare a compresorului, care poate duce la costuri ridicate de reparație." },
+    { p: "Cu aceste sfaturi puse în practică, aveți deschisă calea spre toate beneficiile pe care le oferă un frigider Indesit." },
+    { p: "Sunt disponibil oricând aveți un impas cu funcționarea frigiderului — pentru reparații frigidere Indesit mă bazez pe experiența acumulată, pe aparatura, piesele și materialele consumabile pe care le am la îndemână. După proba de bună funcționare, primiți garanție pentru piesele înlocuite și pentru lucrarea efectuată." },
+  ],
+  Samsung: [
+    { p: "Valoarea aparaturii electrocasnice pe care o cumpărăm pentru folosința rezidențială poate fi apreciată acum și prin performanțele energetice și durata îndelungată de folosire pe care le propune această marcă de frigidere. Gama Samsung cuprinde frigidere cu două uși sau combine frigorifice cu dezghețare automată și termostat electromecanic. Al doilea sistem de răcire propus, No Frost, este disponibil în variantă cu afișaj electronic, cu două uși sau combină." },
+    { p: "La aceste frigidere, ca și la alte mărci, în timp pot apărea diverse defecte, cum ar fi:" },
+    { list: ["apar pe display diverse erori și frigiderul nu mai răcește corespunzător", "compresorul se aude funcționând câteva secunde, după care se oprește câteva minute", "frigiderul funcționează, dar răcește doar în congelator și insuficient în frigider", "lumina din interior funcționează, dar compresorul nu pornește", "frigiderul funcționează continuu, răcește, dar nu se mai oprește", "în timpul funcționării se aud trosnete și fâsâieli zgomotoase", "se acumulează apă în compartimentul pentru legume", "frigiderul e complet dezghețat, deși îl auziți funcționând"] },
+    { p: "Dacă observați astfel de simptome, este indicat să luați legătura cu service-ul de reprezentanță sau cu un frigotehnist care se ocupă și de reparații frigidere Samsung, pentru o constatare sau o eventuală reparație." },
+    { p: "Consumul redus contează pentru toată lumea, așa că urmăriți valorile de pe eticheta energetică a fiecărui produs. Alegeți din timp locul definitiv al aparatului, departe de radiația solară directă și de orice sursă de căldură din apropiere, indiferent de anotimp. Iarna, nu lăsați camera neîncălzită, ca temperatura să nu scadă sub 7 grade Celsius acolo unde stă frigiderul. Priza e bine să aibă împământare, iar frigiderul să fie, pe cât posibil, singurul aparat conectat la ea." },
+    { p: "Pornesc orice aparat frigorific abia după ce structura lui a ajuns la temperatura camerei. La o relocare, las minimum 15 minute de acomodare, indiferent dacă aparatul funcționa sau nu înainte de mutare — pentru echilibrarea presiunii agentului frigorific din instalație." },
+    { p: "Nu folosesc niciodată apă în zona radiatorului și a compresorului — doar elimin praful prin aspirare, fără să presez instalația. Mă puteți solicita pentru întreținerea acestei zone, dacă nu aveți experiența necesară." },
+    { p: "Pentru un interior fără mirosuri neplăcute, acopăr alimentele cu miros persistent și fac o întreținere curentă. La aparatele cu dezghețare automată, la fiecare 3 luni, torn cu grijă un amestec de 50 ml apă cu oțet prin orificiul conductei de evacuare — previn astfel mucegaiul și păstrez conducta curată. Recomand și temperaturi medii sau modul ECO, o măsură simplă care protejează aparatul de o solicitare prematură." },
+    { p: "Fiecare dintre aceste sfaturi ajută la menținerea, cu efort minim, a bunei funcționări a aparatului. Dacă aveți vreo îndoială, mă puteți întreba sau solicita pentru reparații frigidere Samsung în București. Am să încerc să vă ajut și am de obicei la îndemână aparatura, piesele și materialele consumabile de calitate necesare." },
+  ],
+  Whirlpool: [
+    { p: "Ofer diverse servicii de depanare pentru frigidere Whirlpool: înlocuire compresoare, schimbare senzori, termostate, rezistențe de degivrare, vaporizatoare, relee, ventilatoare și alte componente, cu garanție. Dacă este necesar, fac și încărcări cu freon ecologic." },
+    { p: "Vă prezint în continuare criteriile de care merită să țineți cont atunci când cumpărați o combină frigorifică sau orice alt aparat frigorific de această marcă. Modelele constructive includ frigidere cu două uși cu dezghețare automată, combine cu dezghețare automată cu unul sau două compresoare, cu comandă electromecanică sau modul electronic, combine No Frost și, într-o variantă de lux, Side by Side No Frost. Alte criterii importante sunt dimensiunea și compartimentarea. Verificați și adâncimea disponibilă — e nevoie de minimum 10 cm între aparat și perete, ca să nu risc supraîncălzirea radiatorului care elimină căldura produsă în funcționare." },
+    { p: "Volumul necesar pentru alimente în frigider și congelator îl stabiliți în funcție de cantitatea de hrană și lichide necesare pentru o anumită perioadă și de numărul de persoane din casă. Nici prea mult volum, nici prea puțin — orice exagerare într-o direcție sau alta se traduce în consum inutil de electricitate sau într-o sumă prea mare plătită pe un aparat folosit sub capacitatea lui reală." },
+    { p: "Tehnologia de răcire și modul de dezghețare sunt alte criterii de ales. Există frigidere Whirlpool care produc gheață, cu dezghețare manuală, automată sau semiautomată, și modele No Frost, dotate cu ventilatoare de aer rece. Pentru consum redus, alegeți o clasă energetică superioară. Ușile reversibile sunt standard la majoritatea frigiderelor Whirlpool, pentru un confort maxim la utilizare." },
+    { p: "La un service frigidere Whirlpool, cele mai des întâlnite defecte sunt:" },
+    { list: ["blocarea electrocompresorului, arderea bobinajului sau pierderea compresiei", "pierderi de agent frigorific", "decalibrarea termostatului", "defectarea ventilatorului intern la modelele No Frost", "defectarea modulului electronic sau a senzorilor"] },
+    { p: "Fie că aparatul e nou cumpărat, fie că trebuie mutat, am grijă ca în timpul transportului să stea în poziție verticală. Doar dacă nu e posibil altfel, îl așez orizontal, cu ușile în jos. Instalarea se face în spații bine ventilate, departe de orice sursă de căldură, iar conectarea se face la prize cu împământare, funcționale. Nu las în funcțiune un frigider cu dezghețare automată într-o cameră unde temperatura ar putea scădea sub 7 grade Celsius." },
+    { p: "Pornesc primul ciclu de funcționare abia după ce aparatul s-a acomodat cu temperatura camerei — mai ales iarna, nu îl pornesc imediat după ce a fost adus în casă, pentru că apariția condensului pe componente poate cauza direct o defecțiune. La o mutare dintr-o cameră în alta sau într-o altă clădire, las aparatul să se adapteze circa 15 minute, indiferent dacă funcționa sau nu înainte de mutare — pentru reechilibrarea agentului frigorific din instalație." },
+    { p: "În funcție de anotimp și de zona în care locuiți, încerc să mențin o temperatură medie de răcire și/sau congelare la setări. Recomand valori medii, fără să exagerez cu scăderea către maximul pe care aparatul îl poate atinge — o măsură preventivă care reduce nevoia de reparații frigidere Whirlpool și extinde durata medie de utilizare." },
+    { p: "Toate lucrările de service și întreținere le realizez cu piese, materiale și echipamente tehnice performante, iar garanția pentru o reparație este scrisă și valabilă atât pentru manoperă, cât și pentru componentele înlocuite." },
+  ],
+  Arctic: [
+    { p: "Gama de frigidere Arctic este atât de variată, încât puteți alege oricând un aparat potrivit pentru toate cerințele dumneavoastră — preț, capacitate, poziționarea frigiderului și a congelatorului în carcasa unei combine, modele tip vitrină sau ladă frigorifică, frigidere sau congelatoare independente, consum energetic, tip de refrigerare și dezghețare și multe altele." },
+    { p: "Modelele cele mai des întâlnite sunt frigiderele și combinele cu autodezghețare și răcire statică sau ventilată. La combine există varianta cu un singur compresor sau cu două. Comenzile se bazează pe termostate electromecanice sau pe modul electronic cu afișaj." },
+    { p: "Intervențiile cele mai frecvente la aceste modele țin de:" },
+    { list: ["pori în circuitul intern (vaporizatorul), îngropat în carcasă — total la frigiderele cu două uși, sau parțial, doar la frigider, la combine", "comenzile de pornire-oprire, termostatul sau placa electronică", "electrocompresorul", "la combinele cu afișaj — senzorii sau electrovalva"] },
+    { p: "Modelele mai noi folosesc tehnologie No Frost totală sau combinată. Defectele care pot apărea în timp țin de sistemul de degivrare — rezistență, senzori, electrocompresor, siguranță termică sau ventilator." },
+    { p: "Vă arăt în continuare câteva sfaturi practice care, aplicate de la început și apoi constant, prin întreținere și utilizare corectă, extind confortabil durata de utilizare a aparatului, fără să fie nevoie de un service frigidere." },
+    { p: "Imediat după cumpărare, am grijă ca manipularea aparatului să fie atentă, ca să evit deteriorările mecanice. Îl transport în poziție verticală, iar dacă nu e posibil, îl așez cu ușa în jos. Dacă locul de instalare e deja stabilit, verific ca în apropiere să nu existe surse de căldură persistente, directe sau indirecte — radiație solară, aragaz, cuptor, calorifer — dar nici temperaturi sub 7 grade, mai ales la aparatele cu autodezghețare." },
+    { p: "Înainte de a conecta orice frigider la rețeaua electrică, verific starea prizei. Evit, pe cât posibil, prelungitoarele cu mai multe poziții, unde ar fi conectate și alte aparate electrocasnice. Verific și distanța din spatele aparatului față de perete sau orice altă compartimentare — minimum 10 cm, la fel și pe lateral și deasupra." },
+    { p: "Această distanță favorizează buna funcționare a aparatului, permițând o ventilare suficientă a schimbătorului de căldură (grătarul) montat în spate. Radiatorul ajută la disiparea eficientă a căldurii produse în funcționare și reduce timpii de funcționare, uzura și consumul inutil de electricitate. Întreținerea prin curățare a acestei componente evită reparațiile premature." },
+    { p: "Chiar dacă aceste condiții sunt îndeplinite, nu pornesc aparatul înainte să se fi adaptat la temperatura din spațiul unde va funcționa — mai ales iarna, când diferența față de exterior e mare și apare condens pe componentele electrice și electronice. Aceeași măsură se aplică și la mutarea frigiderului dintr-o locație în alta, în aceeași clădire: nu îl pornesc mai devreme de 15 minute, indiferent dacă a funcționat sau nu înainte de mutare — timp necesar ca agentul frigorific să se stabilizeze în instalație." },
+    { p: "Pentru întreținere, curăț frigiderul la exterior și interior cu o lavetă înmuiată în apă cu puțin detergent sau săpun, bine stoarsă. Evit radiatorul din spate și compresorul, unde nu ajunge apă, mai ales cât timp sunt calde — aici doar depraf și aspir, cu multă atenție, ca să nu le deteriorez." },
+    { p: "La frigiderele cu dezghețare automată, la cel mult 6 luni de utilizare, torn în orificiul de scurgere circa 50 ml de soluție din apă și oțet, sau un spray de igienizare — cea mai bună metodă de a preveni depunerile de mucegai pe conductă. Înainte ca aceasta să se înfunde, mirosul din frigider devine neplăcut, din cauza microorganismelor specifice mediului umed, iar în final poate fi nevoie de o intervenție specializată." },
+    { p: "O altă măsură preventivă, valabilă la orice tip de frigider, este setarea unei temperaturi medii pentru frigider sau congelator — fără să exagerez cu scăderea ei, ci folosind valori medii sau modul ECO, oferit de modelele mai noi." },
+  ],
+  },
+  en: {
+  Bosch: [
+    { p: "I can only speak well of Bosch fridges. Compared to other brands, in my experience Bosch has managed to keep good build quality on both the electronics and the refrigeration circuit — the materials used for the tubing, including the defrost system, are solid." },
+    { p: "On static-cooling models with the freezer door on top, the controls are either an electronic board (on „No Frost” refrigeration systems) or an electromechanical thermostat mounted inside the fridge, on auto-defrost models." },
+    { p: "On fridge-freezers, the control system is exclusively electronic, regardless of the cooling system type." },
+    { list: ["replacing temperature sensors and fuses", "fitting and removing internal No Frost fans", "checking defrost heating elements", "recharging refrigerant (freon)", "electronic module repairs", "replacing the compressor (motor)"], title: "Bosch fridge repairs I carry out:" },
+    { p: "All work carried out for Bosch fridge service comes with a 12-month warranty." },
+  ],
+  Beko: [
+    { p: "The value of home appliances we buy for everyday use can now also be judged by the energy performance and long service life this brand of fridges offers. The Beko range includes two-door fridges or fridge-freezers with auto-defrost, an electromechanical thermostat, and one or two compressors, or with an electronic display and a solenoid valve on single-compressor models. The second cooling system on offer, No Frost, is available with an electronic display, on two-door fridges or fridge-freezers." },
+    { p: "Over time, various faults can appear on these fridges, as on other brands, such as:" },
+    { list: ["various error codes appear on the display and the fridge stops cooling properly", "the compressor runs for a few seconds, then stops for a few minutes", "the fridge runs, but only cools in the freezer and not enough in the fridge compartment", "the interior light works, but the compressor doesn't start", "the fridge runs continuously, cooling but never stopping", "cracking and hissing noises during operation", "water builds up in the vegetable drawer", "the fridge is completely defrosted even though you can hear it running"] },
+    { p: "If you notice symptoms like these, it's a good idea to contact the manufacturer's service network or a fridge technician who also handles Beko fridge repairs, for an inspection or a possible repair." },
+    { p: "Low energy consumption already matters to all of us, so look for the best values on each product's energy label. Decide in advance where the appliance will go, so you don't have to move it again shortly after installing it. Make sure that spot is as far as possible from direct sunlight, whatever the season, and from any nearby heat source. In winter, don't leave the room completely unheated, so the appliance never runs below 7°C. The outlet should ideally be earthed, and the fridge should, if possible, be the only appliance plugged into it." },
+    { p: "I only start any fridge or freezer once enough time has passed for its body to reach the same temperature as the room. After a move, I leave a minimum of 15 minutes for the appliance to physically settle into its new spot, whether or not it was running at the time of the move. It's a technical precaution related to letting the refrigerant pressure equalize inside the system." },
+    { p: "I never use water around the radiator and compressor area — I only remove dust by vacuuming it, without pressing on the system in any way. If you'd like, you can ask me to service the radiator and compressor area, if you don't feel confident doing it yourself." },
+    { p: "You can keep the inside of a fridge free of strong odors by covering or wrapping food with a specific, lingering smell, alongside regular upkeep. On auto-defrost appliances, every 3 months of use I prepare a mix of 50 ml of water and vinegar, which I carefully pour through the drain-channel opening that carries away the defrost water. This prevents mold from forming and keeps the channel clean and clear, since it could otherwise clog. Last but not least, I recommend running the fridge at medium temperatures or in ECO mode — a simple way to protect the whole appliance and keep it from needing a repair too soon, regardless of brand." },
+    { p: "Each of these tips is meant to keep any fridge running well with minimal effort. Whenever you're unsure the appliance isn't working properly, feel free to ask me, or call me for Beko fridge service in Bucharest once the problem is obvious. I'll do my best to help, and I generally have the tools, parts, and quality consumables on hand to fix the situation as quickly as possible." },
+  ],
+  Zanussi: [
+    { p: "Zanussi fridges fit these needs perfectly, letting you choose between different features depending on your practical day-to-day needs and your long-term running costs." },
+    { p: "On the Romanian market, Zanussi fridges come in 3 construction types, all auto-defrost: single-door fridges, two-door fridges, and fridge-freezers with one or two compressors." },
+    { p: "Technical issues that can appear on Zanussi fridges — symptoms you might notice if something's wrong:" },
+    { list: ["the fridge runs, but only cools in the freezer and not enough in the fridge compartment", "the compressor runs for a few seconds, then stops for a few minutes", "the interior light works, but the compressor doesn't start", "cracking and hissing noises during operation", "the fridge runs continuously, cooling but never stopping", "water builds up in the vegetable drawer", "the fridge door no longer closes tightly", "you notice dirty water behind the fridge", "the fridge is completely defrosted even though you can hear it running"] },
+    { p: "It's best to keep the fridge and freezer temperature settings within a reasonable range, somewhere around the medium values or just a little below. There's no reason to push the appliance toward very low temperatures — that just means more wear and a higher chance of something breaking." },
+    { p: "Zanussi fridge-freezers, fridges, and chest freezers are easy to maintain and worth a few minutes for some simple routines that, over time, extend the average service life stated by the manufacturer in the appliance's manual. I clean every surface with a mild soap-and-water solution and dry it right away — that keeps the appliance's sleek look. One note: water should never reach the radiator and compressor area at the back of the appliance. I clean that area with a soft, long-bristled brush or a vacuum, to collect the dust." },
+    { p: "A simple, completely safe method is regularly cleaning the drain channel that carries away the water from auto-defrosting. This channel can clog over time, and the fridge can start to smell of mold. Once every 3 months, I prepare a mix of water and vinegar, no more than 50 ml, which I pour through the opening inside the fridge. That stops the growth of the microorganisms behind the mold and also cleans the channel walls, for the water to drain properly. If you notice the fridge isn't running at its best anymore, don't hesitate to ask an authorized technician for advice — they can explain what's going on or carry out a Zanussi fridge repair, if needed." },
+  ],
+  "Hotpoint Ariston": [
+    { p: "Access to a well-regarded fridge brand like Ariston is now more within reach than ever, thanks to the range of models listed online or found in specialty stores. The choice should first be guided by the role the appliance will play in food safety — both short-term storage and long-term freezing, under proper storage conditions. Size, energy consumption, finish, cooling type, and other special features are entirely up to you." },
+    { p: "The range includes auto-defrost and No Frost fridge-freezers, including built-in models, and two-door fridges with an electronic display and No Frost system. Hotpoint Ariston fridges are generally part of the higher-end range, with high reliability." },
+    { p: "Ariston fridge repairs I've come across over time relate to:" },
+    { list: ["temperature sensors and fuses", "internal No Frost fans", "defrost heating elements", "freon leaks", "electronic module issues", "compressor failure"] },
+    { p: "After a move or a new purchase, I don't switch the fridge on any sooner than 15 minutes, even if it wasn't running, to give the refrigerant time to equalize its pressure." },
+    { p: "I position the fridge following a few simple rules: I keep it away from direct sunlight, kitchen heat, and any other heat source in the house. Still, in winter, I make sure the room temperature doesn't drop below 7°C, so auto-defrost fridge-freezers can start up normally." },
+    { p: "I connect the appliance to a preferably earthed outlet, kept separate from other appliances whenever possible. I only actually switch it on once it has adjusted to room temperature — never sooner than an hour after it was transported in cold weather. All home appliances need protecting from the condensation that forms from temperature differences between outside and inside, and the Ariston fridge is no exception." },
+    { p: "Once those precautions are covered, the appliance can be switched on by setting both compartments' temperatures. I'd recommend not going overboard with settings close to zero degrees or below -20°C — pick a medium value instead, or ECO or CARE mode, if your Ariston fridge-freezer has that function. That way you avoid running it at maximum settings and protect every component from premature wear." },
+    { p: "Since any fridge gets used often, dirt inside and out is unavoidable over time. How and how often you maintain it affects both its appearance and how well it runs over the years — the same goes for how you store food and how full you keep the compartments." },
+    { p: "I wrap unpackaged food in cling film, especially on No Frost models, and use containers with lids to limit odors spreading and to keep things fresh. I don't overload an Ariston fridge-freezer beyond a reasonable capacity — otherwise it's harder to reach the food, the door stays open longer, and both electricity use and component wear increase for no good reason." },
+    { p: "I only clean the appliance with a simple soap-and-water or mild detergent solution, using clean, soft cloths, and I dry it right after washing." },
+    { p: "I'm ready to handle most faults for Hotpoint Ariston fridge repairs in Bucharest — backed by the experience I've built up in the field, the tools and parts needed for replacements, and the right consumables. After every repair, you get a written warranty, both for the labor and for any parts replaced." },
+  ],
+  Electrolux: [
+    { p: "From my service experience, I can say Electrolux fridges are dependable. They come in a wide range of models — from two-door fridges to fridge-freezers with one or two compressors, with No Frost technology combined with auto-defrost, or auto-defrost only on fully No Frost models. The control panel can use electromechanical thermostats or sensors with an electronic board." },
+    { p: "The most common problems on these fridges are faulty thermostats or electronic modules, faulty temperature sensors, a jammed fan on No Frost models, and, less often, freon leaks or a failed compressor." },
+    { p: "I replace compressors, recharge refrigerant, and swap out thermostats and fans." },
+  ],
+  Gorenje: [
+    { p: "If you've decided to buy a Gorenje fridge, you're looking at a genuinely wide choice — the range of models on the market is generous. If freshness in the kitchen really matters to you, Gorenje fridge-freezers are a solid pick. If you have a preference for the cooling technology, you can choose between auto-defrost models or No Frost models. Check the appliance's energy label carefully, for the best possible electricity consumption. Switching which side the doors open, \"left\" or \"right\", is available on most Gorenje fridges." },
+    { p: "The most common construction types are fridge-freezers with one or two compressors and two-door fridges with auto-defrost, with an electronic display or electromechanical controls. The market also has No Frost models with an ergonomic, pleasant design. The most common faults on this brand relate to the thermostat, temperature sensors, the electronic module, or freon leaks." },
+    { p: "A Gorenje fridge is worth backing up with how you maintain and use it from day one. These appliances are built to last and to keep the technical specs stated in the manual." },
+    { p: "Technical issues that can appear on Gorenje fridges:" },
+    { list: ["the compressor runs for a few seconds, then stops for a few minutes", "the fridge runs, but only cools in the freezer and not enough in the fridge compartment", "the interior light works, but the compressor doesn't start", "the fridge runs continuously, cooling but never stopping", "cracking and hissing noises during operation", "water builds up in the vegetable drawer", "the fridge is completely defrosted even though you can hear it running"] },
+    { p: "By following a few simple habits in everyday use, you can easily outlast the average service life stated by the manufacturer." },
+    { p: "It all starts with how you handle and place the Gorenje fridge. I only transport it upright, and if that's not possible, I lay it down on its front, doors facing down. Decide on the spot in advance and check that the outlet where it'll be plugged in actually works. It's best for the appliance to be plugged directly into an outlet, not through an extension cord, and definitely not sharing a circuit with other high-power appliances. Pick a spot as far as possible from direct sunlight and any heat source, permanent or seasonal, but also not in a room where the temperature could drop below 7°C." },
+    { p: "Leave at least 10 cm between the appliance and the wall behind it, to keep normal airflow going. It's a rule I strictly recommend, to avoid overheating the compressor from a lack of ventilation for the radiator that dissipates the heat the appliance produces." },
+    { p: "When moving it from one room to another, whether or not the appliance was running at the time, I wait at least 15 minutes before switching it back on, so the refrigeration system can equalize its pressure." },
+    { p: "For upkeep, I follow a few simple habits that keep any Gorenje fridge looking and running well — routines that, done on time, help avoid repairs. To clean the outside and inside, I regularly use a cloth dampened with soapy water, without pressing too hard on the appliance's surfaces. At the back, I only dust and vacuum the radiator grille, and I never use liquids near the compressor or the pipework it's connected to, to avoid any damage." },
+    { p: "If the fridge or fridge-freezer has an auto-defrost system, every 3 months of use I pour 50 ml of water mixed with a little vinegar into the drain opening inside the appliance — that prevents mold from forming or the channel from clogging, which would otherwise need attention later." },
+    { p: "I also protect the appliance by setting a medium cooling and/or freezing temperature, so I'm not overworking it constantly. For any other situation where fridges aren't performing the way they should, don't hesitate to contact me for Gorenje fridge service. I have the materials and equipment needed, I use quality replacement parts, and I offer a warranty for the work done and any components replaced." },
+  ],
+  Grundig: [
+    { p: "The value of home appliances we buy for everyday use can now also be judged by the energy performance and long service life this brand of fridges offers. The Grundig range includes two-door fridges or fridge-freezers with a Dual No Frost cooling system." },
+    { p: "Over time, various faults can appear on these fridges, as on other brands, such as:" },
+    { list: ["various error codes appear on the display and the fridge stops cooling properly", "the compressor runs for a few seconds, then stops for a few minutes", "the fridge runs, but only cools in the freezer and not enough in the fridge compartment", "the interior light works, but the compressor doesn't start", "the fridge runs continuously, cooling but never stopping", "cracking and hissing noises during operation", "water builds up in the vegetable drawer", "the fridge is completely defrosted even though you can hear it running"] },
+    { p: "If you notice symptoms like these, it's a good idea to contact the manufacturer's service network or a fridge technician who also handles Grundig fridge repairs, for an inspection or a possible repair." },
+    { p: "Lower consumption already matters to everyone, so look for the best values shown on each product's energy label. Decide in advance where the appliance will sit, so you don't have to move it again soon after installing it. Pick a spot away from direct sunlight, whatever the season, and away from any nearby heat source. In winter, don't leave the room completely unheated, so the appliance never runs below 7°C. The outlet should ideally be earthed, and the fridge should, if possible, be the only appliance plugged into it." },
+    { p: "I only start any fridge or freezer once its body has reached the same temperature as the room. After a move, I leave a minimum of 15 minutes for the appliance to settle into its new spot, whether or not it was running at the time of the move — a precaution related to letting the refrigerant pressure equalize inside the system." },
+    { p: "I never use water around the radiator and compressor area — I only remove dust by vacuuming it, without pressing on the system. If needed, you can ask me to service that area, if you don't have the experience for it." },
+    { p: "For an odor-free interior, I cover or wrap food with a strong smell, alongside regular upkeep. On auto-defrost appliances, every 3 months I prepare a mix of 50 ml of water and vinegar, which I carefully pour through the drain-channel opening — that prevents mold and keeps the channel clean. I also recommend running the fridge at medium temperatures or in ECO mode, a simple way to keep the appliance from needing a repair too soon." },
+    { p: "Each of these tips is meant to keep the appliance running well with minimal effort. If you're ever unsure it's working properly, feel free to ask me or call me for Grundig fridge repairs in Bucharest. I'll do my best to help, and I usually have the tools, parts, and consumables on hand to fix the situation quickly." },
+  ],
+  Indesit: [
+    { p: "My background in refrigeration, as a certified fridge technician, lets me judge how well these appliances actually perform through my service work — including using original parts whenever I carry out Indesit fridge repairs." },
+    { p: "Over time, I've noticed that the faults that most often need service on Indesit fridges are:" },
+    { list: ["a faulty electronic module", "refrigerant leaks", "issues with defrost sensors", "a burnt-out defrost heater on the evaporator or drip tray", "a jammed fan", "a faulty thermostat"] },
+    { p: "That's why I think it's worth keeping a few good habits in mind — they don't cost you extra time or money. These are tips worth following from the moment you buy and bring the appliance home — how you position and maintain it over time, and how you use it, so it lasts well beyond the manufacturer's specifications." },
+    { p: "For transport, I follow the manufacturer's guidance: I request or transport the appliance upright only. Only when that's not possible do I lay it down with the doors facing down, so I don't damage the refrigeration system, radiator, or compressor mounted at the back. These parts can crack or bend, and before long you may need an Indesit fridge repair." },
+    { p: "For an Indesit fridge, I choose a spot away from direct sunlight and any heat source. I don't leave an auto-defrost fridge-freezer in a space where the temperature gets close to 7°C — it risks not working properly. I leave at least 10 cm between the wall and the back of the appliance, so natural airflow from the heat given off by the radiator (the black grille at the back) can properly cool the compressor." },
+    { p: "I check the condition of the outlet I'll plug the appliance into — ideally earthed, dedicated, without an extension cord shared with other appliances. After placing it, I only switch the fridge on once it's adjusted to room temperature. I never risk it, especially in winter, switching it on any sooner than an hour of settling — the condensation that otherwise forms often ends up causing a fault that needs an Indesit fridge-freezer repair." },
+    { p: "In everyday use, I set a medium temperature, or very close to it. ECO modes are the best choice in every respect — they let the appliance run reasonable on/off cycles, wear stays within normal limits, food stays properly chilled and frozen, and consumption stays close to what's stated in the manual." },
+    { p: "An Indesit fridge doesn't need any special upkeep — regular cleaning and a reasonable amount of food inside are enough. I wash the appliance with a simple soap-and-water mix, on the outer surfaces, the door gasket, shelves, and drawers. I dry it every time after washing and I'm careful not to press on the refrigeration tubing in the freezer, the fan on No Frost models, the interior bulb, or the electronic controls. I only maintain the back of the appliance by dusting, with no water — I carefully brush the radiator fins and vacuum up the dust. A clean radiator means better efficiency, lower consumption, and less risk of the compressor failing, which can otherwise lead to costly repairs." },
+    { p: "Put these tips into practice and you've got a clear path to all the benefits an Indesit fridge has to offer." },
+    { p: "I'm available whenever you run into trouble with your fridge — for Indesit fridge repairs, I rely on the experience I've built up and the tools, parts, and consumables I keep on hand. After testing that everything works properly, you'll get a warranty for the parts replaced and the work carried out." },
+  ],
+  Samsung: [
+    { p: "The value of home appliances we buy for everyday use can now also be judged by the energy performance and long service life this brand of fridges offers. The Samsung range includes two-door fridges or fridge-freezers with auto-defrost and an electromechanical thermostat. The second cooling system on offer, No Frost, is available with an electronic display, on two-door fridges or fridge-freezers." },
+    { p: "Over time, various faults can appear on these fridges, as on other brands, such as:" },
+    { list: ["various error codes appear on the display and the fridge stops cooling properly", "the compressor runs for a few seconds, then stops for a few minutes", "the fridge runs, but only cools in the freezer and not enough in the fridge compartment", "the interior light works, but the compressor doesn't start", "the fridge runs continuously, cooling but never stopping", "cracking and hissing noises during operation", "water builds up in the vegetable drawer", "the fridge is completely defrosted even though you can hear it running"] },
+    { p: "If you notice symptoms like these, it's a good idea to contact the manufacturer's service network or a fridge technician who also handles Samsung fridge repairs, for an inspection or a possible repair." },
+    { p: "Lower consumption matters to everyone, so keep an eye on the values shown on each product's energy label. Decide in advance on the appliance's permanent spot, away from direct sunlight and any nearby heat source, whatever the season. In winter, don't leave the room unheated, so the temperature where the fridge sits doesn't drop below 7°C. The outlet should ideally be earthed, and the fridge should, if possible, be the only appliance plugged into it." },
+    { p: "I only start any fridge or freezer once its body has reached room temperature. After a move, I leave a minimum of 15 minutes to settle in, whether or not the appliance was running before the move — for the refrigerant pressure to balance out in the system." },
+    { p: "I never use water around the radiator and compressor area — I only remove dust by vacuuming, without pressing on the system. You can ask me to service that area, if you don't have the experience for it." },
+    { p: "For an odor-free interior, I cover food with a strong smell and keep up with regular maintenance. On auto-defrost appliances, every 3 months I carefully pour a mix of 50 ml of water and vinegar through the drain-channel opening — that prevents mold and keeps the channel clean. I also recommend medium temperatures or ECO mode, a simple way to protect the appliance from needing a repair too soon." },
+    { p: "Each of these tips helps keep the appliance running well with minimal effort. If you're ever unsure, feel free to ask me or call me for Samsung fridge repairs in Bucharest. I'll do my best to help, and I usually have the tools, parts, and quality consumables on hand." },
+  ],
+  Whirlpool: [
+    { p: "I offer a range of Whirlpool fridge repair services: replacing compressors, swapping sensors, thermostats, defrost heating elements, evaporators, relays, fans, and other components, with a warranty. If needed, I also do eco-friendly refrigerant recharges." },
+    { p: "Here are the things worth considering when you're buying a fridge-freezer or any other fridge from this brand. The construction types include auto-defrost two-door fridges, auto-defrost fridge-freezers with one or two compressors, with electromechanical controls or an electronic module, No Frost fridge-freezers, and, in a premium variant, Side by Side No Frost. Other important factors are size and internal layout. Also check the available depth — you need at least 10 cm between the appliance and the wall, so I don't risk overheating the radiator that removes the heat produced during operation." },
+    { p: "You work out the volume you need for food in the fridge and freezer based on how much food and bottled liquid you need to store over a given period, and how many people it needs to cover. Not too much volume, and not too little — going too far in either direction means either wasted electricity or paying too much for an appliance you're not really using to capacity." },
+    { p: "Cooling technology and defrost type are other things to choose between. There are Whirlpool fridges that make ice, with manual, automatic, or semi-automatic defrosting, and No Frost models fitted with cold-air fans. For lower consumption, go for a higher energy class. Reversible doors are standard on most Whirlpool fridges, for maximum convenience." },
+    { p: "At a Whirlpool fridge service call, the most common faults are:" },
+    { list: ["a jammed compressor, a burnt-out winding, or lost compression", "refrigerant leaks", "a miscalibrated thermostat", "a failed internal fan on No Frost models", "a faulty electronic module or sensors"] },
+    { p: "Whether the appliance is newly bought or needs to be moved, I make sure it stays upright during transport. Only if that's not possible do I lay it down flat, doors facing down. I install it in well-ventilated spaces, away from any heat source, and connect it to a working, earthed outlet. I don't leave an auto-defrost fridge running in a room where the temperature could drop below 7°C." },
+    { p: "I only start the first cycle once the appliance has adjusted to room temperature — especially in winter, I don't switch it on right after bringing it indoors, since the condensation that forms on components can directly cause a fault. When moving it from one room to another, or to a different building, I let the appliance settle for about 15 minutes, whether or not it was running before the move — to let the refrigerant rebalance in the system." },
+    { p: "Depending on the season and where you live, I try to keep a medium cooling and/or freezing temperature at the settings. I recommend medium values, without pushing toward the maximum the appliance can reach — a preventive step that cuts down the need for Whirlpool fridge repairs and extends the average service life." },
+    { p: "I carry out all service and maintenance work with quality parts, materials, and technical equipment, and the warranty for a repair is written and covers both labor and any components replaced." },
+  ],
+  Arctic: [
+    { p: "The Arctic fridge range is so varied that you can always find an appliance that fits all your needs — price, capacity, how the fridge and freezer compartments are arranged inside a fridge-freezer, display-case models, chest freezers, standalone fridges or freezers, energy consumption, cooling and defrost type, and much more." },
+    { p: "The most common models are auto-defrost fridges and fridge-freezers with static or fan-assisted cooling. Fridge-freezers come with either one or two compressors. Controls are based on electromechanical thermostats or an electronic module with a display." },
+    { p: "The most frequent repairs on these models involve:" },
+    { list: ["pinholes in the internal circuit (the evaporator), embedded in the casing — throughout on two-door fridges, or partly, just the fridge side, on fridge-freezers", "the on/off controls, the thermostat, or the electronic board", "the compressor", "on models with a display — the sensors or the solenoid valve"] },
+    { p: "Newer models use full or combined No Frost technology. Faults that can develop over time relate to the defrost system — heating element, sensors, compressor, thermal fuse, or fan." },
+    { p: "Here are a few practical tips that, applied from the start and then kept up consistently through proper maintenance and use, comfortably extend how long the appliance lasts, without needing a fridge repair." },
+    { p: "Right after buying it, I'm careful handling the appliance, to avoid any mechanical damage. I transport it upright, and if that's not possible, I lay it down on its front, doors facing down. If the installation spot is already decided, I check that there's no persistent heat source nearby, direct or indirect — sunlight, a stove, an oven, a radiator — but also no temperatures below 7°C, especially for auto-defrost appliances." },
+    { p: "Before plugging any fridge into the mains, I check the outlet is in good condition. I avoid, as much as possible, multi-socket extension cords with other appliances plugged in. I also check the gap behind the appliance, against the wall or any other divider — at least 10 cm, and the same on the sides and above." },
+    { p: "This spacing helps the appliance run properly, allowing enough airflow around the heat exchanger (the grille) mounted at the back. This radiator helps efficiently dissipate the heat produced during operation and cuts down on running time, wear, and wasted electricity. Keeping this part clean helps avoid premature repairs." },
+    { p: "Even with these conditions met, I don't switch the appliance on before it has adjusted to the temperature of the space it'll run in — especially in winter, when the gap with the outside temperature is large and condensation forms on the electrical and electronic components. The same rule applies when moving the fridge from one location to another, in the same building: I don't switch it on any sooner than 15 minutes, whether or not it was running before the move — time needed for the refrigerant to settle in the system." },
+    { p: "For upkeep, I clean the fridge inside and out with a cloth dampened in water with a little detergent or soap, well wrung out. I avoid the radiator at the back and the compressor, where water shouldn't reach, especially while they're warm — there, I only dust and vacuum, very carefully, so I don't damage them." },
+    { p: "On auto-defrost fridges, at most every 6 months of use, I pour about 50 ml of a water-and-vinegar solution, or a sanitizing spray, into the drain opening — the best way to prevent mold building up in the channel. Before it clogs, the smell inside the fridge turns unpleasant, from the microorganisms that thrive in damp conditions, and eventually it may need a specialist repair." },
+    { p: "Another preventive measure, useful for any type of fridge, is setting a medium temperature for the fridge or freezer — without pushing it too low, and instead using medium values or ECO mode, offered on newer models." },
+  ],
+  },
+};
+
 // ===== ZONES MAP DATA =====
 // Real administrative boundaries (OpenStreetMap / Nominatim, simplified), projected
 // with a single consistent equirectangular transform so the sectors and the
@@ -77,7 +332,6 @@ const ZONE_NEIGHBORHOODS = [
   { id: "grivita", name: "Grivița", sector: 1, x: -325, y: -607.2 },
   { id: "dorobanti", name: "Dorobanți", sector: 1, x: -357.6, y: -682.2 },
   { id: "floreasca", name: "Floreasca", sector: 1, x: -311.4, y: -711.7 },
-  { id: "otopeni", name: "Otopeni", sector: 1, x: -104.0, y: -1138.3 },
   { id: "colentina", name: "Colentina", sector: 2, x: 340.7, y: -392.1 },
   { id: "obor", name: "Obor", sector: 2, x: 309, y: -334.6 },
   { id: "iancului", name: "Iancului", sector: 2, x: 370.1, y: -331.2 },
@@ -89,24 +343,18 @@ const ZONE_NEIGHBORHOODS = [
   { id: "vacaresti", name: "Văcărești", sector: 4, x: 235.8, y: 607.6 },
   { id: "berceni", name: "Berceni", sector: 4, x: 293.5, y: 652.9 },
   { id: "rahova", name: "Rahova", sector: 5, x: -244.4, y: 409 },
-  { id: "ferentari", name: "Ferentari", sector: 5, x: -330.7, y: 400.1 },
   { id: "crangasi", name: "Crângași", sector: 6, x: -621.4, y: -74.2 },
   { id: "giulesti", name: "Giulești", sector: 6, x: -655.1, y: -40.1 },
   { id: "drumul-taberei", name: "Drumul Taberei", sector: 6, x: -692, y: 12.9 },
   { id: "militari", name: "Militari", sector: 6, x: -756.5, y: -17.2 },
 ];
 
-// Real boundaries for the surrounding towns/communes (OSM, simplified). Otopeni is
-// listed under "neighborhoods" above for the chip grouping/text, but renders as a
-// real shape here just like the other towns.
+// Real boundaries for the surrounding towns/communes (OSM, simplified).
 const AREA_PATHS = {
-  otopeni: { name: "Otopeni", path: "M -436.8,-869.0 L -393.7,-811.0 L -292.9,-867.4 L -295.8,-878.3 L -291.1,-880.9 L -286.7,-869.7 L -168.3,-912.7 L -163.9,-953.4 L -139.8,-971.5 L -116.2,-965.6 L -109.8,-933.1 L -71.1,-943.1 L 13.6,-952.1 L 12.1,-962.8 L 19.0,-963.3 L 19.1,-970.1 L 38.2,-971.6 L 39.2,-965.0 L 45.0,-965.2 L 45.4,-955.4 L 62.3,-954.9 L 79.8,-1037.8 L 90.2,-1054.7 L 89.2,-1076.4 L 169.2,-1106.6 L 171.9,-1124.0 L 154.4,-1146.4 L 141.0,-1178.9 L 139.0,-1194.4 L 182.9,-1202.2 L 181.9,-1222.9 L 156.0,-1219.1 L 148.1,-1274.0 L 156.5,-1275.0 L 144.9,-1376.5 L 138.0,-1403.8 L 134.0,-1402.1 L 124.0,-1445.1 L 54.6,-1420.3 L 44.2,-1410.8 L 21.7,-1402.9 L 19.1,-1406.2 L -38.7,-1393.4 L -166.1,-1355.0 L -204.5,-1332.6 L -421.7,-983.2 L -406.9,-990.3 L -388.8,-987.6 L -330.6,-919.6 L -436.8,-869.0 Z", label: [-104.0, -1138.3] },
-  voluntari: { name: "Voluntari", path: "M 51.8,-685.2 L 59.7,-643.5 L 89.7,-652.3 L 96.2,-629.2 L 64.4,-619.5 L 61.8,-613.8 L 79.8,-571.3 L 83.9,-566.6 L 90.8,-570.3 L 108.6,-529.6 L 101.9,-515.6 L 131.1,-484.1 L 579.1,-411.0 L 626.4,-456.2 L 601.7,-479.2 L 633.5,-504.0 L 647.7,-513.2 L 670.9,-491.3 L 715.3,-506.7 L 750.9,-531.2 L 695.3,-599.2 L 705.3,-608.3 L 700.9,-614.1 L 707.3,-619.9 L 703.6,-623.9 L 713.4,-638.5 L 711.0,-656.7 L 697.8,-667.5 L 681.9,-675.9 L 647.9,-655.8 L 563.7,-752.0 L 446.8,-838.0 L 323.7,-915.8 L 201.2,-945.3 L 163.5,-952.3 L 62.3,-954.9 L 54.6,-864.8 L 65.8,-836.8 L 61.6,-777.6 L 65.4,-766.2 L 73.6,-764.7 L 69.1,-738.9 L 64.5,-739.2 L 65.1,-748.7 L 62.2,-748.8 L 51.8,-685.2 Z", label: [347.8, -666.4] },
   chiajna: { name: "Chiajna", path: "M -1170.7,-23.8 L -1101.2,12.4 L -1080.4,6.4 L -1069.5,48.4 L -1027.0,45.2 L -1005.7,53.8 L -932.8,26.8 L -920.8,2.4 L -913.6,3.3 L -900.3,-34.1 L -832.3,-23.9 L -833.3,-14.3 L -839.0,-12.3 L -837.4,9.3 L -831.2,9.0 L -830.3,16.1 L -819.6,15.5 L -823.3,-65.7 L -529.9,-85.6 L -485.4,-113.1 L -481.9,-134.5 L -493.8,-146.0 L -506.5,-141.1 L -514.5,-146.2 L -513.6,-157.5 L -522.1,-167.9 L -524.5,-186.1 L -507.0,-197.6 L -523.1,-221.2 L -567.0,-224.2 L -597.1,-243.3 L -724.2,-302.4 L -762.5,-289.5 L -763.6,-296.7 L -755.1,-303.4 L -761.1,-307.5 L -741.0,-331.4 L -736.7,-343.9 L -752.5,-346.5 L -752.7,-354.0 L -761.4,-357.4 L -769.1,-351.2 L -767.2,-340.3 L -785.0,-334.7 L -806.9,-319.2 L -821.2,-326.8 L -854.1,-330.3 L -871.0,-281.0 L -910.4,-275.1 L -886.8,-200.0 L -909.6,-160.8 L -958.1,-57.2 L -1042.8,-51.5 L -1170.7,-23.8 Z", label: [-786.3, -143.7] },
   domnesti: { name: "Domnești", path: "M -1534.2,491.7 L -1529.6,506.7 L -1532.8,526.1 L -1526.8,548.8 L -1497.6,566.2 L -1470.4,597.9 L -1463.6,594.3 L -1452.1,599.6 L -1447.9,612.5 L -1432.3,617.7 L -1435.9,623.8 L -1428.2,630.7 L -1408.3,606.4 L -1406.1,610.3 L -1378.9,594.5 L -1342.2,558.3 L -1213.6,451.3 L -1194.7,473.4 L -1139.6,428.2 L -1107.8,466.5 L -1078.8,446.9 L -1076.6,436.9 L -1080.2,423.1 L -1074.4,407.7 L -1092.8,388.1 L -1003.4,321.7 L -998.8,328.6 L -992.3,327.6 L -986.2,309.3 L -958.9,289.6 L -932.2,280.6 L -934.4,271.0 L -851.5,268.2 L -761.5,243.5 L -802.5,135.1 L -816.7,15.4 L -830.3,16.1 L -831.2,9.0 L -837.4,9.3 L -839.0,-12.3 L -833.3,-14.3 L -832.3,-23.9 L -900.3,-34.1 L -913.6,3.3 L -920.8,2.4 L -932.8,26.8 L -1005.7,53.8 L -1027.0,45.2 L -1069.5,48.4 L -1080.4,6.4 L -1170.2,34.3 L -1164.9,45.8 L -1215.0,76.6 L -1229.1,62.3 L -1249.1,79.7 L -1250.3,87.6 L -1257.6,89.4 L -1262.2,97.8 L -1260.3,102.1 L -1265.4,106.5 L -1413.4,214.8 L -1402.9,223.6 L -1404.7,212.2 L -1399.3,212.8 L -1397.3,229.5 L -1383.5,226.1 L -1380.8,235.5 L -1383.9,240.7 L -1397.1,240.5 L -1411.6,251.1 L -1416.5,262.3 L -1496.8,298.8 L -1504.9,315.9 L -1498.7,328.9 L -1506.0,347.3 L -1509.6,374.4 L -1534.1,407.7 L -1524.0,415.9 L -1520.5,426.1 L -1528.7,441.0 L -1522.8,455.3 L -1534.2,491.7 Z", label: [-1175.6, 274.0] },
   clinceni: { name: "Clinceni", path: "M -1456.8,651.0 L -1444.3,684.4 L -1427.9,696.0 L -1404.9,702.9 L -1375.4,685.5 L -1315.7,679.9 L -1305.9,691.1 L -1301.0,705.3 L -1304.5,729.6 L -1321.1,773.0 L -1305.9,762.6 L -1293.2,738.1 L -1253.2,685.4 L -1260.9,664.0 L -1168.5,610.1 L -1112.8,664.1 L -1050.2,614.0 L -1041.0,628.3 L -1070.5,653.5 L -1062.7,666.2 L -1106.5,690.3 L -1097.5,707.9 L -995.9,650.9 L -1020.6,623.1 L -1013.1,616.9 L -1030.0,592.5 L -1042.1,598.9 L -1057.4,578.3 L -995.0,533.2 L -981.9,510.2 L -960.2,533.4 L -949.8,565.3 L -927.2,572.3 L -918.8,594.7 L -907.5,595.9 L -802.7,516.1 L -802.0,507.5 L -773.1,482.4 L -780.1,465.6 L -778.2,461.4 L -723.8,461.8 L -693.1,443.9 L -701.4,434.9 L -710.5,438.7 L -727.5,412.6 L -716.7,403.5 L -718.9,395.0 L -708.6,387.5 L -712.2,381.8 L -708.1,379.7 L -744.5,289.0 L -764.4,289.2 L -771.9,270.3 L -767.6,261.3 L -757.8,257.3 L -763.5,243.8 L -851.5,268.2 L -934.4,271.0 L -932.2,280.6 L -958.9,289.6 L -986.2,309.3 L -992.3,327.6 L -998.8,328.6 L -1003.4,321.7 L -1092.8,388.1 L -1074.4,407.7 L -1080.2,423.1 L -1076.6,436.9 L -1078.8,446.9 L -1107.8,466.5 L -1139.6,428.2 L -1194.7,473.4 L -1213.6,451.3 L -1342.2,558.3 L -1378.9,594.5 L -1406.1,610.3 L -1408.3,606.4 L -1428.2,630.7 L -1435.9,623.8 L -1432.3,617.7 L -1447.9,612.5 L -1444.3,624.5 L -1452.2,631.9 L -1456.8,651.0 Z", label: [-1035.2, 488.2] },
   bragadiru: { name: "Bragadiru", path: "M -1057.4,578.3 L -1042.1,598.9 L -1030.0,592.5 L -1013.1,616.9 L -1020.6,623.1 L -971.0,677.7 L -949.2,659.4 L -892.2,691.6 L -889.3,686.4 L -860.6,702.7 L -867.1,709.4 L -855.2,724.0 L -849.9,719.4 L -853.9,715.3 L -837.1,700.4 L -803.6,722.8 L -783.1,690.4 L -779.5,693.8 L -771.5,682.8 L -732.5,682.0 L -736.1,675.2 L -720.3,669.5 L -719.6,647.8 L -729.5,639.5 L -565.7,532.1 L -533.2,567.5 L -355.8,417.1 L -383.9,382.7 L -407.8,405.5 L -419.0,393.1 L -426.1,393.6 L -539.2,249.1 L -587.7,285.7 L -593.2,269.5 L -626.7,275.6 L -637.9,217.5 L -679.8,234.8 L -730.3,235.2 L -763.5,243.8 L -757.8,257.3 L -767.6,261.3 L -771.9,270.3 L -764.4,289.2 L -744.5,289.0 L -708.1,379.7 L -712.2,381.8 L -708.6,387.5 L -718.9,395.0 L -716.7,403.5 L -727.5,412.6 L -710.5,438.7 L -701.4,434.9 L -693.1,443.9 L -723.8,461.8 L -778.2,461.4 L -780.1,465.6 L -773.1,482.4 L -802.0,507.5 L -802.7,516.1 L -905.9,595.3 L -918.8,594.7 L -927.2,572.3 L -949.8,565.3 L -960.2,533.4 L -981.9,510.2 L -995.0,533.2 L -1057.4,578.3 Z", label: [-682.3, 477.8] },
-  cornetu: { name: "Cornetu", path: "M -1343.8,786.5 L -1338.7,801.9 L -1328.2,808.0 L -1298.3,798.6 L -1271.7,802.8 L -1264.1,825.5 L -1254.4,838.4 L -1210.1,880.0 L -1192.6,909.8 L -1182.6,918.1 L -1156.7,916.5 L -1081.3,877.2 L -1041.8,876.9 L -1018.0,889.2 L -964.4,942.9 L -917.4,951.6 L -908.9,975.7 L -897.1,965.5 L -886.9,938.4 L -884.7,916.8 L -855.4,866.8 L -885.3,849.5 L -855.5,788.6 L -821.7,806.4 L -811.8,788.6 L -779.5,800.0 L -753.3,755.3 L -837.1,700.4 L -853.9,715.3 L -849.9,719.4 L -855.2,724.0 L -867.1,709.4 L -860.6,702.7 L -889.3,686.4 L -892.2,691.6 L -949.2,659.4 L -971.0,677.7 L -996.1,651.0 L -1097.5,707.9 L -1106.5,690.3 L -1062.7,666.2 L -1070.5,653.5 L -1041.0,628.3 L -1050.2,614.0 L -1112.8,664.1 L -1168.5,610.1 L -1260.9,664.0 L -1253.2,685.4 L -1270.6,711.4 L -1293.2,738.1 L -1310.0,767.2 L -1341.0,780.5 L -1343.8,786.5 Z", label: [-1053.7, 779.5] },
   magurele: { name: "Măgurele", path: "M -940.9,1031.9 L -935.5,1044.2 L -922.3,1052.7 L -908.3,1050.3 L -898.3,1057.0 L -856.9,1062.4 L -827.5,1053.2 L -800.0,1022.0 L -802.9,1006.4 L -815.8,983.0 L -814.2,967.6 L -807.3,957.2 L -788.7,952.2 L -767.3,959.1 L -757.0,993.9 L -749.8,1001.6 L -718.5,1024.0 L -655.7,1047.8 L -642.5,1070.2 L -634.9,1065.5 L -634.3,1058.2 L -614.9,1028.4 L -578.9,1013.2 L -557.3,1018.5 L -547.0,1027.8 L -541.7,1044.0 L -532.1,1044.8 L -481.2,962.0 L -472.4,966.1 L -462.6,948.6 L -431.7,875.0 L -442.5,874.8 L -429.0,844.4 L -376.9,853.1 L -342.2,836.7 L -327.8,862.6 L -311.7,866.5 L -262.5,911.6 L -253.0,911.3 L -230.0,862.4 L -177.2,794.8 L -166.4,783.2 L -160.6,784.5 L -153.5,769.9 L -157.3,768.1 L -64.1,648.5 L -60.6,624.6 L -57.0,626.9 L -55.8,622.6 L -59.6,620.2 L -55.8,607.7 L -61.5,606.0 L -54.5,595.2 L -55.7,576.6 L -90.0,569.7 L -125.1,553.0 L -114.5,498.2 L -148.6,490.2 L -163.3,515.0 L -166.0,529.1 L -248.7,485.1 L -261.9,516.3 L -306.9,501.7 L -315.1,526.1 L -396.8,452.3 L -533.2,567.5 L -565.7,532.1 L -729.5,639.5 L -720.1,646.8 L -717.8,660.8 L -720.3,669.5 L -736.1,675.2 L -732.5,682.0 L -762.9,679.8 L -771.5,682.8 L -779.5,693.8 L -783.1,690.4 L -803.6,722.8 L -753.3,755.3 L -779.5,800.0 L -811.8,788.6 L -821.7,806.4 L -855.5,788.6 L -885.3,849.5 L -855.4,866.8 L -884.7,916.8 L -886.9,938.4 L -897.1,965.5 L -908.9,975.7 L -905.9,982.1 L -908.8,993.2 L -935.9,1011.7 L -934.8,1025.8 L -940.9,1031.9 Z", label: [-492.1, 755.9] },
   "popesti-leordeni": { name: "Popești-Leordeni", path: "M 293.2,869.1 L 301.7,921.1 L 442.4,895.8 L 471.5,876.4 L 443.7,825.9 L 515.4,791.1 L 521.4,800.1 L 517.5,805.0 L 519.6,809.1 L 535.8,827.4 L 646.4,916.0 L 651.5,917.7 L 680.9,880.1 L 779.8,950.2 L 747.2,996.2 L 1024.2,1217.2 L 1163.3,1046.0 L 876.8,819.1 L 958.0,727.2 L 798.4,608.6 L 802.1,552.2 L 820.4,525.0 L 813.1,516.7 L 814.0,510.5 L 783.3,506.3 L 800.4,494.5 L 798.3,491.4 L 834.0,484.1 L 844.5,471.3 L 850.7,451.1 L 846.6,433.4 L 818.5,386.4 L 814.8,336.5 L 753.7,340.1 L 754.1,345.3 L 556.4,356.7 L 431.5,316.2 L 366.2,448.2 L 362.5,446.2 L 338.8,493.3 L 345.2,497.0 L 313.9,544.6 L 321.9,552.7 L 308.9,575.9 L 314.6,576.7 L 317.8,582.7 L 314.2,585.3 L 320.2,596.4 L 340.3,628.4 L 346.0,629.5 L 360.2,656.0 L 368.9,683.9 L 427.3,790.7 L 447.0,779.7 L 462.8,808.2 L 439.9,816.3 L 444.7,825.1 L 394.4,846.6 L 400.9,862.2 L 396.7,881.1 L 367.4,892.7 L 338.7,864.3 L 330.5,861.6 L 293.2,869.1 Z", label: [694.2, 714.2] },
 };
@@ -115,27 +363,36 @@ const AREA_PATHS = {
 // drawn from AREA_PATHS above; Roșu and Militari Residence get a hand-placed point
 // near Chiajna since they aren't independent administrative units.
 const ZONE_SUBURBS = [
-  { id: "voluntari", name: "Voluntari" },
   { id: "chiajna", name: "Chiajna" },
   { id: "militari-residence", name: "Militari Residence", x: -615, y: -88 },
   { id: "rosu", name: "Roșu", x: -815, y: 55 },
   { id: "domnesti", name: "Domnești" },
   { id: "clinceni", name: "Clinceni" },
   { id: "bragadiru", name: "Bragadiru" },
-  { id: "cornetu", name: "Cornetu" },
   { id: "magurele", name: "Măgurele" },
   { id: "popesti-leordeni", name: "Popești-Leordeni" },
 ];
 
 const ZONE_ALL = [...ZONE_SECTORS, ...ZONE_NEIGHBORHOODS, ...ZONE_SUBURBS];
 
-function ZoneMarker({ id, name, x, y, isActive, onSelect }) {
+// Map color scheme: everything starts on a soft yellow wash; on click, sectors turn
+// red, neighborhoods (cartiere) turn blue, and localities (localități limitrofe) turn
+// orange — three distinct hues so it's obvious which kind of zone is selected.
+const MAP_YELLOW_BG = "#fffbeb";
+const MAP_YELLOW_FILL = "#fef3c7";
+const MAP_YELLOW_PARENT = "#fde68a";
+const MAP_YELLOW_STROKE = "#eab308";
+const MAP_SECTOR_ACTIVE = "#dc2626";
+const MAP_NEIGHBORHOOD_ACTIVE = "#0277bd";
+const MAP_LOCALITY_ACTIVE = "#ea580c";
+
+function ZoneMarker({ id, name, x, y, isActive, onSelect, activeColor = MAP_LOCALITY_ACTIVE }) {
   return (
     <g onClick={() => onSelect(id)} style={{ cursor: "pointer" }}>
       <circle cx={x} cy={y} r={isActive ? 16 : 10}
-        fill={isActive ? "#ea580c" : "white"} stroke={isActive ? "#ea580c" : "#0277bd"} strokeWidth="3.5"
+        fill={isActive ? activeColor : MAP_YELLOW_FILL} stroke={isActive ? activeColor : MAP_YELLOW_STROKE} strokeWidth="3.5"
         style={{ transition: "all 0.2s" }} />
-      {isActive && <text x={x} y={y - 24} textAnchor="middle" fontSize="30" fontWeight="700" fill="#0d1b2a" style={{ pointerEvents: "none" }}>{name}</text>}
+      {isActive && <text x={x} y={y - 24} textAnchor="middle" fontSize="30" fontWeight="700" fill="#0d3158" style={{ pointerEvents: "none" }}>{name}</text>}
     </g>
   );
 }
@@ -143,9 +400,9 @@ function ZoneMarker({ id, name, x, y, isActive, onSelect }) {
 function ZoneArea({ id, name, path, label, isActive, onSelect }) {
   return (
     <g onClick={() => onSelect(id)} style={{ cursor: "pointer" }}>
-      <path d={path} fill={isActive ? "#ea580c" : "#f8fafc"} stroke={isActive ? "#ea580c" : "#94a3b8"} strokeWidth="3" style={{ transition: "all 0.2s" }} />
+      <path d={path} fill={isActive ? MAP_LOCALITY_ACTIVE : MAP_YELLOW_FILL} stroke={isActive ? MAP_LOCALITY_ACTIVE : MAP_YELLOW_STROKE} strokeWidth="3" style={{ transition: "all 0.2s" }} />
       <text x={label[0]} y={label[1]} textAnchor="middle" dominantBaseline="middle" fontSize={isActive ? 20 : 15}
-        fontWeight="700" fill={isActive ? "white" : "#64748b"} style={{ pointerEvents: "none" }}>{name}</text>
+        fontWeight="700" fill={isActive ? "white" : "#01579b"} style={{ pointerEvents: "none" }}>{name}</text>
     </g>
   );
 }
@@ -158,7 +415,7 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
 
   return (
     <svg viewBox="-1615 -1526 2858 2823" style={{ width: "100%", height: "auto", maxWidth: "900px", display: "block", margin: "0 auto" }}>
-      <rect x="-1615" y="-1526" width="2858" height="2823" fill="white" />
+      <rect x="-1615" y="-1526" width="2858" height="2823" fill={MAP_YELLOW_BG} />
       {ZONE_SECTORS.map(s => {
         const n = Number(s.id.split("-")[1]);
         const [lx, ly] = SECTOR_LABEL_POS[n];
@@ -167,10 +424,10 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
         return (
           <g key={s.id} onClick={() => onSelect(s.id)} style={{ cursor: "pointer" }}>
             <path d={SECTOR_PATHS[n]}
-              fill={isActive ? "#0277bd" : isParent ? "#bfe3fb" : "#eef4fb"}
-              stroke="#cbd5e1" strokeWidth="4" style={{ transition: "fill 0.25s" }} />
+              fill={isActive ? MAP_SECTOR_ACTIVE : isParent ? MAP_YELLOW_PARENT : MAP_YELLOW_FILL}
+              stroke={isActive ? MAP_SECTOR_ACTIVE : MAP_YELLOW_STROKE} strokeWidth="4" style={{ transition: "fill 0.25s" }} />
             <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
-              fontSize="46" fontWeight="700" fill={isActive ? "white" : "#94a3b8"} style={{ pointerEvents: "none" }}>{n}</text>
+              fontSize="46" fontWeight="700" fill={isActive ? "white" : "#a16207"} style={{ pointerEvents: "none" }}>{n}</text>
           </g>
         );
       })}
@@ -181,43 +438,78 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
 
       {ZONE_NEIGHBORHOODS.map(nb => (
         AREA_PATHS[nb.id] ? null : (
-          <ZoneMarker key={nb.id} id={nb.id} name={nb.name} x={nb.x} y={nb.y} isActive={highlighted === nb.id} onSelect={onSelect} />
+          <ZoneMarker key={nb.id} id={nb.id} name={nb.name} x={nb.x} y={nb.y} isActive={highlighted === nb.id} onSelect={onSelect} activeColor={MAP_NEIGHBORHOOD_ACTIVE} />
         )
       ))}
 
       {ZONE_SUBURBS.map(sb => (
         AREA_PATHS[sb.id] ? null : (
-          <ZoneMarker key={sb.id} id={sb.id} name={sb.name} x={sb.x} y={sb.y} isActive={highlighted === sb.id} onSelect={onSelect} />
+          <ZoneMarker key={sb.id} id={sb.id} name={sb.name} x={sb.x} y={sb.y} isActive={highlighted === sb.id} onSelect={onSelect} activeColor={MAP_LOCALITY_ACTIVE} />
         )
       ))}
     </svg>
   );
 }
 
-// Simple generic fridge illustration (no stock photo, no competing brand logos) —
-// the brand name renders as a turquoise "nameplate" directly on the door, like a real appliance badge.
+// Generic fridge illustration (no stock photo, no competing brand logos — a real product
+// photo used across every brand would misrepresent whichever brand isn't actually pictured).
+// The brand name renders as a colored "nameplate" pill on the door, driven by whichever
+// brand chip was last clicked, like a real appliance badge.
 function FridgeIllustration({ brand }) {
   const fontSize = brand.length > 14 ? 15 : brand.length > 9 ? 19 : 24;
+  const plateWidth = Math.min(200, brand.length * fontSize * 0.62 + 40);
   return (
     <svg viewBox="0 0 240 340" style={{ width: "100%", maxWidth: "220px", display: "block", margin: "0 auto" }}>
       <defs>
         <linearGradient id="fridgeBody" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="100%" stopColor="#e9eef4" />
+          <stop offset="0%" stopColor="#eaf6ff" />
+          <stop offset="100%" stopColor="#cfe9fb" />
+        </linearGradient>
+        <linearGradient id="fridgePlate" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#0d9488" />
+          <stop offset="100%" stopColor="#14b8a6" />
         </linearGradient>
       </defs>
       <ellipse cx="120" cy="330" rx="88" ry="9" fill="rgba(15,23,42,0.08)" />
-      <rect x="20" y="10" width="200" height="312" rx="26" fill="url(#fridgeBody)" stroke="#cbd5e1" strokeWidth="3" />
-      <path d="M 34 10 L 34 60" stroke="rgba(255,255,255,0.7)" strokeWidth="10" strokeLinecap="round" />
-      <line x1="24" y1="104" x2="216" y2="104" stroke="#cbd5e1" strokeWidth="3" strokeLinecap="round" />
-      <rect x="192" y="34" width="11" height="46" rx="5.5" fill="#94a3b8" />
-      <rect x="192" y="140" width="11" height="120" rx="5.5" fill="#94a3b8" />
-      <text x="118" y="200" textAnchor="middle" dominantBaseline="middle"
+      <rect x="20" y="10" width="200" height="312" rx="26" fill="url(#fridgeBody)" stroke="#7fb8e0" strokeWidth="3" />
+      <rect x="20" y="10" width="200" height="14" rx="7" fill="#0277bd" />
+      <path d="M 34 30 L 34 60" stroke="rgba(255,255,255,0.7)" strokeWidth="10" strokeLinecap="round" />
+      <line x1="24" y1="104" x2="216" y2="104" stroke="#7fb8e0" strokeWidth="3" strokeLinecap="round" />
+      <rect x="192" y="34" width="11" height="46" rx="5.5" fill="#0277bd" />
+      <rect x="192" y="140" width="11" height="120" rx="5.5" fill="#0277bd" />
+      <circle cx="40" cy="120" r="6" fill="#f59e0b" />
+      <rect x={118 - plateWidth / 2} y={182} width={plateWidth} height={fontSize + 20} rx={(fontSize + 20) / 2} fill="url(#fridgePlate)" />
+      <text x="118" y={182 + (fontSize + 20) / 2 + 1} textAnchor="middle" dominantBaseline="middle"
         fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1.5"
-        fontSize={fontSize} fill="#0d9488" style={{ textTransform: "uppercase" }}>
+        fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>
         {brand}
       </text>
     </svg>
+  );
+}
+
+// Renders the hand-written BRAND_CONTENT write-up (RO or EN, per current lang) for the
+// selected brand, falling back to the short generic paragraph (fallbackText) when there's
+// no dedicated write-up for that brand yet.
+function BrandSpotlightText({ blocks, fallbackText }) {
+  if (!blocks) {
+    return <p style={{ fontSize: "14px", lineHeight: "1.7", color: "#01579b", margin: 0 }}>{fallbackText}</p>;
+  }
+  return (
+    <div>
+      {blocks.map((b, i) => b.list ? (
+        <div key={i} style={{ margin: "0 0 14px" }}>
+          {b.title && <p style={{ fontSize: "14px", fontWeight: "700", color: "#0d3158", margin: "0 0 8px" }}>{b.title}</p>}
+          <ul style={{ margin: 0, padding: "0 0 0 20px" }}>
+            {b.list.map((item, j) => (
+              <li key={j} style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.7", marginBottom: "4px" }}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p key={i} style={{ fontSize: "14px", lineHeight: "1.7", color: "#01579b", margin: "0 0 14px" }}>{b.p}</p>
+      ))}
+    </div>
   );
 }
 
@@ -237,7 +529,7 @@ function CategoryBadge({ cat }) {
     "No-Frost": { bg: "#f0fdf4", color: "#16a34a" },
     "Urgențe": { bg: "#fef2f2", color: "#dc2626" },
     "Întreținere": { bg: "#faf5ff", color: "#7c3aed" },
-    "General": { bg: "#f1f5f9", color: "#475569" },
+    "General": { bg: "#f1f5f9", color: "#01579b" },
   };
   const c = colors[cat] || colors["General"];
   return (
@@ -260,7 +552,7 @@ function ReactionBtn({ type, count, active, onClick, size = "md" }) {
       style={{
         display: "inline-flex", alignItems: "center", gap: isSmall ? "3px" : "5px",
         background: active ? (type === "like" ? "#e3f2fd" : type === "love" ? "#fce4ec" : "#fee2e2") : "#f8faff",
-        color: active ? colors[type] : "#94a3b8",
+        color: active ? colors[type] : "#01579b",
         border: `1.5px solid ${active ? colors[type] : "#e2e8f0"}`,
         borderRadius: "20px",
         padding: isSmall ? "3px 8px" : "5px 12px",
@@ -272,7 +564,7 @@ function ReactionBtn({ type, count, active, onClick, size = "md" }) {
         userSelect: "none",
       }}
       onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = colors[type]; e.currentTarget.style.color = colors[type]; } }}
-      onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#94a3b8"; } }}
+      onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#01579b"; } }}
     >
       {React.cloneElement(icons[type], { size: isSmall ? 10 : 12 })} {count > 0 ? count : ""}
     </button>
@@ -311,7 +603,7 @@ export default function App() {
   const [replyTo, setReplyTo] = useState(null);
   const [commentUsername, setCommentUsername] = useState("");
   const [commentText, setCommentText] = useState("");
-  const [postsVisible, setPostsVisible] = useState(6);
+  const [postsPage, setPostsPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [reviewsVisible, setReviewsVisible] = useState(5);
   const [commentsVisible, setCommentsVisible] = useState(5);
@@ -327,6 +619,7 @@ export default function App() {
 
   // FAQ
   const [openFaq, setOpenFaq] = useState(null);
+  const [openGdpr, setOpenGdpr] = useState(null);
 
   // Session ID
   useEffect(() => {
@@ -629,7 +922,7 @@ export default function App() {
 
   const t = {
     ro: {
-      nav: { acasa: "Acasă", despre: "Despre mine", servicii: "Servicii", galerie: "Galerie", zone: "Zone", blog: "Blog", recenzii: "Recenzii", contact: "Contact" },
+      nav: { acasa: "Acasă", despre: "Despre mine", servicii: "Servicii", galerie: "Galerie", zone: "Zone", blog: "Blog", recenzii: "Recenzii", faq: "Întrebări", gdpr: "GDPR", contact: "Contact" },
       hero: {
         badge: "Autorizat AGFR • 16+ ani experiență",
         h1: "Frigiderul s-a defectat?",
@@ -676,9 +969,9 @@ export default function App() {
         title: "Cum funcționează", sub: "Rapid, profesional, fără bătăi de cap",
         steps: [
           { n: "1", title: "Suni sau trimiți WhatsApp", desc: "Descrii problema și stabilim împreună o oră convenabilă.", phone: "0737 444 337" },
-          { n: "2", title: "Venim la tine acasă", desc: "Tehnicianul ajunge la adresa ta în intervalul orar stabilit, cu unelte și piese de schimb." },
-          { n: "3", title: "Diagnosticăm gratuit*", desc: "Identificăm defecțiunea și îți comunicăm costul exact înainte de a începe reparația." },
-          { n: "4", title: "Reparăm pe loc", desc: "Majoritatea intervențiilor se rezolvă la prima vizită, cu piese originale și garantate." },
+          { n: "2", title: "Vin la tine acasă", desc: "Ajung la adresa ta în intervalul orar stabilit, cu unelte și piese de schimb." },
+          { n: "3", title: "Diagnostichez gratuit*", desc: "Identific defecțiunea și îți comunic costul exact înainte de a începe reparația." },
+          { n: "4", title: "Repar pe loc", desc: "Majoritatea intervențiilor se rezolvă la prima vizită, cu piese originale și garantate." },
           { n: "5", title: "12 luni garanție", desc: "Fiecare reparație vine cu garanție de 12 luni și factură fiscală." },
         ],
         note: "* Diagnosticarea este inclusă în tariful de deplasare de 70 lei.",
@@ -687,11 +980,11 @@ export default function App() {
       zones: {
         title: "Zone de intervenție în București", sub: "Acoperim toată capitala și împrejurimile",
         sectors: "Toate sectoarele",
-        sectorsDesc: "Intervenim în toate cele 6 sectoare ale Bucureștiului: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova, Ferentari) și Sector 6 (Militari, Drumul Taberei, Crângași).",
+        sectorsDesc: "Intervenim în toate cele 6 sectoare ale Bucureștiului: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova) și Sector 6 (Militari, Drumul Taberei, Crângași).",
         neighborhoods: "Cartiere principale",
-        neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Ferentari, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa, Otopeni.",
+        neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa.",
         suburbs: "Localități limitrofe",
-        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Cornetu, Popești-Leordeni, Voluntari.",
+        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Popești-Leordeni.",
         seoText: "Serviciile noastre de reparații frigidere acoperă întreaga arie metropolitană a Bucureștiului. Indiferent dacă locuiești în sectorul 1, 2, 3, 4, 5 sau 6, sau în localitățile limitrofe, tehnicianul nostru autorizat ajunge la tine rapid.",
       },
       reviews: {
@@ -718,9 +1011,9 @@ export default function App() {
         submit: "Trimite", pending: "În așteptare de aprobare",
         replyTo: "Răspunde la:", cancelReply: "Anulează",
         noComments: "Fii primul care comentează!", noArticles: "Momentan nu există articole publicate.",
-        loadMore: "Mai multe articole", loadLess: "Mai puține articole",
+        page: "Pagina", prevPage: "Pagina anterioară", nextPage: "Pagina următoare",
         loadMoreComments: "Mai multe comentarii", loadLessComments: "Mai puține comentarii",
-        showOf: "Se afișează", of: "din", articles: "articole",
+        showOf: "Se afișează", of: "din",
         allCategories: "Toate categoriile",
         newArticle: "Articol nou", editArticle: "Editează articolul",
         saveArticle: "Salvează", cancelEdit: "Anulează",
@@ -769,6 +1062,17 @@ export default function App() {
           { q: "De ce se face multă zăpadă în sertarul de sus al congelatorului, la combinele frigorifice?", a: "Este posibil să fi rămas ușa congelatorului deschisă din neatenție, sau garnitura ușii congelatorului etanșează parțial. Mai există și situația în care gheața se adună din cauza traficului frecvent la ușă, ceea ce face ca umiditatea din aer să se depună prioritar în partea de sus a congelatorului." },
         ],
       },
+      gdpr: {
+        title: "Protecția datelor (GDPR)", sub: "Transparent despre ce date colectez și cum le folosesc",
+        items: [
+          { q: "Ce date colectez", a: "Când lași un comentariu la un articol, salvez numele (sau pseudonimul) pe care îl scrii și textul comentariului. Pentru reacții (👍❤️👎) folosesc un identificator anonim, generat automat și salvat în browserul tău (localStorage), doar ca să știu care reacție este a ta — nu conține nume, e-mail sau alte date personale. Dacă mă contactezi prin telefon, WhatsApp sau e-mail, conversația are loc direct prin acele aplicații, nu prin acest site." },
+          { q: "Cum folosesc aceste date", a: "Numele și comentariul le folosesc doar pentru a afișa și modera secțiunea de comentarii a blogului. Identificatorul anonim din browser este folosit exclusiv pentru a preveni reacții multiple de la același vizitator la aceeași postare. Nu vând, nu închiriez și nu folosesc aceste date în scopuri de marketing." },
+          { q: "Cookie-uri și stocare locală", a: "Site-ul nu folosește cookie-uri de reclamă sau de analiză a traficului. Salvez local, în browserul tău, doar ce este strict necesar pentru funcționare: identificatorul anonim pentru reacții. Harta din secțiunea Contact este încărcată direct de la Google (Google Maps) și poate seta propriile cookie-uri, conform politicii de confidențialitate Google." },
+          { q: "Cât timp păstrez datele", a: "Comentariile rămân publicate până când le șterg eu, ca administrator, sau până la solicitarea ta de ștergere. Identificatorul anonim din browser rămâne salvat local până când ștergi datele de navigare din browser." },
+          { q: "Drepturile tale", a: "Ai dreptul de acces, rectificare, ștergere, restricționare, opoziție și portabilitate a datelor tale, conform Regulamentului (UE) 2016/679 (GDPR). Pentru orice solicitare legată de datele tale (de exemplu, ștergerea unui comentariu), scrie-mi la adifrigotehnist@yahoo.com. Ai și dreptul de a depune o plângere la Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP) — dataprotection.ro." },
+          { q: "Operatorul de date", a: "Operator: Opriș Adrian PFA, CUI 26374475, cu sediul în Bd. Timișoara nr. 53, Sector 6, București." },
+        ],
+      },
       contact: {
         title: "Contact", sub: "Sună acum și îți rezolvăm problema rapid",
         phone: "+40 737 444 337", phoneFull: "+40737444337",
@@ -781,7 +1085,7 @@ export default function App() {
       },
     },
     en: {
-      nav: { acasa: "Home", despre: "About Me", servicii: "Services", galerie: "Gallery", zone: "Areas", blog: "Blog", recenzii: "Reviews", contact: "Contact" },
+      nav: { acasa: "Home", despre: "About Me", servicii: "Services", galerie: "Gallery", zone: "Areas", blog: "Blog", recenzii: "Reviews", faq: "FAQ", gdpr: "GDPR", contact: "Contact" },
       hero: {
         badge: "AGFR Authorized • 16+ years experience",
         h1: "Fridge broken down?", h1b: "We repair it at your home.",
@@ -827,8 +1131,8 @@ export default function App() {
         title: "How It Works", sub: "Fast, professional, hassle-free",
         steps: [
           { n: "1", title: "Call or send WhatsApp", desc: "Describe the problem and we'll set a convenient time together.", phone: "0737 444 337" },
-          { n: "2", title: "We come to you", desc: "The technician arrives at your address in the agreed time slot, equipped with tools and spare parts." },
-          { n: "3", title: "Free diagnosis*", desc: "We identify the fault and tell you the exact cost before starting any repair." },
+          { n: "2", title: "I come to you", desc: "I arrive at your address in the agreed time slot, with tools and spare parts." },
+          { n: "3", title: "Free diagnosis*", desc: "I identify the fault and tell you the exact cost before starting any repair." },
           { n: "4", title: "Repaired on the spot", desc: "Most repairs are completed on the first visit, using original and warranted parts." },
           { n: "5", title: "12-month warranty", desc: "Every repair comes with a 12-month warranty and a fiscal invoice." },
         ],
@@ -838,11 +1142,11 @@ export default function App() {
       zones: {
         title: "Service Areas in Bucharest", sub: "We cover the entire capital and surroundings",
         sectors: "All sectors",
-        sectorsDesc: "We serve all 6 sectors of Bucharest: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova, Ferentari) and Sector 6 (Militari, Drumul Taberei, Crângași).",
+        sectorsDesc: "We serve all 6 sectors of Bucharest: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova) and Sector 6 (Militari, Drumul Taberei, Crângași).",
         neighborhoods: "Main neighborhoods",
-        neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Ferentari, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa, Otopeni.",
+        neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa.",
         suburbs: "Surrounding areas",
-        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Cornetu, Popești-Leordeni, Voluntari.",
+        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Popești-Leordeni.",
         seoText: "Our fridge repair services cover the entire Bucharest metropolitan area. Whether you live in sector 1, 2, 3, 4, 5, or 6, or in the surrounding towns, our authorized technician reaches you quickly.",
       },
       reviews: {
@@ -869,9 +1173,9 @@ export default function App() {
         submit: "Submit", pending: "Pending approval",
         replyTo: "Replying to:", cancelReply: "Cancel",
         noComments: "Be the first to comment!", noArticles: "No published articles yet.",
-        loadMore: "More articles", loadLess: "Fewer articles",
+        page: "Page", prevPage: "Previous page", nextPage: "Next page",
         loadMoreComments: "More comments", loadLessComments: "Fewer comments",
-        showOf: "Showing", of: "of", articles: "articles",
+        showOf: "Showing", of: "of",
         allCategories: "All categories",
         newArticle: "New article", editArticle: "Edit article",
         saveArticle: "Save", cancelEdit: "Cancel",
@@ -920,6 +1224,17 @@ export default function App() {
           { q: "Why does a lot of frost build up in the top freezer drawer on fridge-freezers?", a: "The freezer door may have been left ajar by accident, or the door gasket may be sealing only partially. Frequent opening of the door can also cause this, as moisture from the air settles preferentially in the top of the freezer." },
         ],
       },
+      gdpr: {
+        title: "Data Protection (GDPR)", sub: "Transparent about what data I collect and how I use it",
+        items: [
+          { q: "What data I collect", a: "When you leave a comment on an article, I save the name (or nickname) you type and the comment text. For reactions (👍❤️👎) I use an anonymous identifier, generated automatically and stored in your browser (localStorage), just so I know which reaction is yours — it contains no name, email, or other personal data. If you contact me by phone, WhatsApp, or email, that conversation happens directly through those apps, not through this website." },
+          { q: "How I use this data", a: "I use the name and comment only to display and moderate the blog's comment section. The anonymous browser identifier is used only to prevent multiple reactions from the same visitor on the same post. I don't sell, rent, or use this data for marketing purposes." },
+          { q: "Cookies and local storage", a: "This site doesn't use advertising or traffic-analytics cookies. I only store, locally in your browser, what's strictly necessary for the site to work: the anonymous identifier for reactions. The map in the Contact section is loaded directly from Google (Google Maps) and may set its own cookies, per Google's privacy policy." },
+          { q: "How long I keep the data", a: "Comments stay published until I remove them as the administrator, or until you request deletion. The anonymous browser identifier stays stored locally until you clear your browser data." },
+          { q: "Your rights", a: "You have the right to access, rectify, erase, restrict, object to, and port your data, under Regulation (EU) 2016/679 (GDPR). For any request about your data (for example, deleting a comment), email me at adifrigotehnist@yahoo.com. You also have the right to file a complaint with Romania's data protection authority (ANSPDCP) — dataprotection.ro." },
+          { q: "Data controller", a: "Controller: Opriș Adrian PFA, Tax ID (CUI) 26374475, registered office at Bd. Timișoara no. 53, District 6, Bucharest." },
+        ],
+      },
       contact: {
         title: "Contact", sub: "Call now and we'll fix your problem fast",
         phone: "+40 737 444 337", phoneFull: "+40737444337",
@@ -948,8 +1263,15 @@ export default function App() {
   const publishedPosts = isAdmin ? posts : posts.filter(p => p.published);
   const postCategories = [...new Set(publishedPosts.map(p => p.category || "General"))];
   const filteredPosts = categoryFilter === "all" ? publishedPosts : publishedPosts.filter(p => (p.category || "General") === categoryFilter);
-  const visiblePosts = filteredPosts.slice(0, postsVisible);
+  const POSTS_PER_PAGE = 6;
   const totalPosts = filteredPosts.length;
+  const totalPostPages = Math.max(1, Math.ceil(totalPosts / POSTS_PER_PAGE));
+  const currentPostsPage = Math.min(postsPage, totalPostPages);
+  const visiblePosts = filteredPosts.slice((currentPostsPage - 1) * POSTS_PER_PAGE, currentPostsPage * POSTS_PER_PAGE);
+  const goToPostsPage = (p) => {
+    setPostsPage(p);
+    document.getElementById("blog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const reviewItems = t.reviews.items;
   const reviewsRating = reviewItems.reduce((sum, r) => sum + r.rating, 0) / reviewItems.length;
   const reviewsSub = t.reviews.sub;
@@ -1063,7 +1385,7 @@ export default function App() {
   // ===== RENDER =====
 
   return (
-    <div style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif", color: "#1e293b", background: "#f8faff" }}>
+    <div style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif", color: "#0d3158", background: "#f8faff" }}>
 
       {/* ===== HEADER ===== */}
       {/* Note: the blur/background/shadow live on the inner row, not on <header> itself —
@@ -1083,16 +1405,16 @@ export default function App() {
             <img src="/logo_0.png" alt="Reparații frigidere" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
             <div>
               <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1" }}>Reparații frigidere</div>
-              <div style={{ fontSize: "10px", color: "#64748b", letterSpacing: "0.5px", textTransform: "uppercase" }}>Opris Adrian PFA</div>
+              <div style={{ fontSize: "10px", color: "#01579b", letterSpacing: "0.5px", textTransform: "uppercase" }}>Opris Adrian PFA</div>
             </div>
           </a>
 
           <nav className="desktop-nav" style={{ display: "flex", gap: "6px" }}>
             {Object.entries(t.nav).map(([key, label]) => (
               <a key={key} href={`#${key}`} onClick={() => { setActiveNav(key); if (key === "acasa") navigateTo("/"); }}
-                style={{ textDecoration: "none", fontSize: "13px", fontWeight: "500", color: activeNav === key ? "#0277bd" : "#475569", padding: "6px 10px", borderRadius: "6px", background: activeNav === key ? "#e3f2fd" : "transparent", transition: "all 0.2s" }}
+                style={{ textDecoration: "none", fontSize: "13px", fontWeight: "500", color: activeNav === key ? "#0277bd" : "#01579b", padding: "6px 10px", borderRadius: "6px", background: activeNav === key ? "#e3f2fd" : "transparent", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#f0f7ff"; e.currentTarget.style.color = "#0277bd"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = activeNav === key ? "#e3f2fd" : "transparent"; e.currentTarget.style.color = activeNav === key ? "#0277bd" : "#475569"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = activeNav === key ? "#e3f2fd" : "transparent"; e.currentTarget.style.color = activeNav === key ? "#0277bd" : "#01579b"; }}
               >{label}</a>
             ))}
           </nav>
@@ -1108,7 +1430,7 @@ export default function App() {
             )}
             <div style={{ display: "flex", gap: "4px" }}>
               {["ro", "en"].map(l => (
-                <button key={l} onClick={() => setLang(l)} style={{ background: "none", border: "none", fontSize: "12px", fontWeight: lang === l ? "700" : "400", color: lang === l ? "#0277bd" : "#94a3b8", cursor: "pointer", textTransform: "uppercase" }}>{l}</button>
+                <button key={l} onClick={() => setLang(l)} style={{ background: "none", border: "none", fontSize: "12px", fontWeight: lang === l ? "700" : "400", color: lang === l ? "#0277bd" : "#01579b", cursor: "pointer", textTransform: "uppercase" }}>{l}</button>
               ))}
             </div>
             <button className={`hamburger-btn${menuOpen ? " open" : ""}`} onClick={() => setMenuOpen(o => !o)} aria-label={menuOpen ? "Închide meniul" : "Deschide meniul"}><span /><span /><span /></button>
@@ -1141,9 +1463,9 @@ export default function App() {
               </div>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "24px" }}>{t.hero.h1b}</h1>
-              <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
+              <p style={{ fontSize: "18px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
               <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
-                <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#29b6f6", color: "#0d1b2a", padding: "16px 32px", borderRadius: "10px", fontWeight: "700", fontSize: "16px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
+                <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#29b6f6", color: "#0d3158", padding: "16px 32px", borderRadius: "10px", fontWeight: "700", fontSize: "16px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
                   <FaPhone size={16} /> {t.hero.cta1}: {t.contact.phone} / 07 FRIGIDER
                 </a>
                 <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#25d366", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
@@ -1161,7 +1483,7 @@ export default function App() {
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 {t.hero.badges.map((b, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)", padding: "7px 14px", borderRadius: "8px", fontSize: "12px", fontWeight: "500" }}>
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)", padding: "7px 14px", borderRadius: "8px", fontSize: "13px", fontWeight: "500" }}>
                     <FaCheck size={10} color="#4ade80" /> {b}
                   </div>
                 ))}
@@ -1172,7 +1494,7 @@ export default function App() {
       </section>
 
       {/* ===== ABOUT ME ===== */}
-      <section id="despre" className="section-pad" style={{ background: "white" }}>
+      <section id="despre" className="section-pad" style={{ background: "#f8faff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div className="two-col" style={{ display: "flex", alignItems: "flex-start", gap: "56px" }}>
             <div style={{ flexShrink: 0, width: "300px", maxWidth: "100%" }}>
@@ -1183,17 +1505,17 @@ export default function App() {
               <div style={{ marginTop: "20px", border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden" }}>
                 {t.about.facts.map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", padding: "12px 16px", borderBottom: i < t.about.facts.length - 1 ? "1px solid #e2e8f0" : "none", background: i % 2 === 1 ? "#f8faff" : "white" }}>
-                    <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "500" }}>{f.label}</span>
-                    <span style={{ fontSize: "12px", color: "#0d1b2a", fontWeight: "700", textAlign: "right" }}>{f.value}</span>
+                    <span style={{ fontSize: "12px", color: "#01579b", fontWeight: "500" }}>{f.label}</span>
+                    <span style={{ fontSize: "12px", color: "#0d3158", fontWeight: "700", textAlign: "right" }}>{f.value}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div style={{ minWidth: 0 }}>
-              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.about.title}</h2>
-              <p style={{ fontSize: "16px", color: "#64748b", marginBottom: "28px" }}>{t.about.sub}</p>
+              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.about.title}</h2>
+              <p style={{ fontSize: "16px", color: "#01579b", marginBottom: "28px" }}>{t.about.sub}</p>
               {t.about.paragraphs.map((p, i) => (
-                <p key={i} style={{ fontSize: "15px", color: "#334155", lineHeight: "1.8", marginBottom: "16px", textIndent: "28px" }}>{p}</p>
+                <p key={i} style={{ fontSize: "15px", color: "#01579b", lineHeight: "1.8", marginBottom: "16px", textIndent: "28px" }}>{p}</p>
               ))}
             </div>
           </div>
@@ -1204,33 +1526,33 @@ export default function App() {
       <section style={{ padding: "80px 40px", background: "#f0f7ff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.process.title}</h2>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>{t.process.sub}</p>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.process.title}</h2>
+            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.process.sub}</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "24px", marginBottom: "24px" }}>
             {t.process.steps.map((step, i) => (
               <div key={i} style={{ background: "white", borderRadius: "16px", padding: "28px 20px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
                 <div style={{ width: "48px", height: "48px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "white", fontFamily: "'Poppins', sans-serif", fontSize: "20px", fontWeight: "700" }}>{step.n}</div>
-                <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#0d1b2a", marginBottom: "8px", lineHeight: "1.3" }}>{step.title}</h3>
-                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6" }}>{step.desc}</p>
+                <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", marginBottom: "8px", lineHeight: "1.3" }}>{step.title}</h3>
+                <p style={{ fontSize: "15px", color: "#01579b", lineHeight: "1.6" }}>{step.desc}</p>
                 {step.phone && (
-                  <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "10px", fontSize: "14px", fontWeight: "700", color: "#0277bd", textDecoration: "none", whiteSpace: "nowrap" }}>
+                  <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "10px", fontSize: "15px", fontWeight: "700", color: "#0277bd", textDecoration: "none", whiteSpace: "nowrap" }}>
                     <FaPhone size={11} /> {step.phone}
                   </a>
                 )}
               </div>
             ))}
           </div>
-          <p style={{ textAlign: "center", fontSize: "13px", color: "#94a3b8" }}>{t.process.note}</p>
+          <p style={{ textAlign: "center", fontSize: "14px", color: "#01579b" }}>{t.process.note}</p>
         </div>
       </section>
 
       {/* ===== SERVICES ===== */}
-      <section id="servicii" className="section-pad" style={{ background: "white" }}>
+      <section id="servicii" className="section-pad" style={{ background: "#f8faff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.services.title}</h2>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>{t.services.sub}</p>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.services.title}</h2>
+            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.services.sub}</p>
           </div>
           <div style={{ background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "16px", padding: "24px 32px", marginBottom: "40px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -1249,13 +1571,13 @@ export default function App() {
               <div key={i} className="price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: i < t.services.items.length - 1 ? "1px solid #e2e8f0" : "none", transition: "background 0.15s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                   <div style={{ width: "36px", height: "36px", background: "#e3f2fd", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "#0277bd", fontSize: "15px" }}>{item.icon}</div>
-                  <span style={{ fontSize: "15px", color: "#1e293b", fontWeight: "500" }}>{item.name}</span>
+                  <span style={{ fontSize: "15px", color: "#0d3158", fontWeight: "500" }}>{item.name}</span>
                 </div>
                 <span style={{ fontSize: "15px", fontWeight: "700", color: "#0277bd", whiteSpace: "nowrap", marginLeft: "16px" }}>{item.price}</span>
               </div>
             ))}
           </div>
-          <p style={{ fontSize: "12px", color: "#94a3b8", marginTop: "16px", lineHeight: "1.6" }}>{t.services.note}</p>
+          <p style={{ fontSize: "12px", color: "#01579b", marginTop: "16px", lineHeight: "1.6" }}>{t.services.note}</p>
         </div>
       </section>
 
@@ -1263,7 +1585,7 @@ export default function App() {
       <section id="galerie" style={{ padding: "80px 0", background: "#0d1b2a", position: "relative", overflow: "hidden" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 40px" }}>
           <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <div style={{ fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#29b6f6", marginBottom: "12px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#29b6f6", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", padding: "6px 16px", borderRadius: "20px", marginBottom: "12px" }}>
               <FaImages style={{ marginRight: "6px" }} />{lang === "ro" ? "Lucrările noastre" : "Our work"}
             </div>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white" }}>{t.gallery.title}</h2>
@@ -1291,8 +1613,8 @@ export default function App() {
 
               {/* Caption */}
               <div style={{ position: "absolute", bottom: "24px", left: "24px", right: "80px", color: "white", zIndex: 2 }}>
-                <p style={{ margin: 0, fontSize: "15px", fontWeight: "600", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{galleryImages[galleryIndex]?.caption}</p>
-                <p style={{ margin: "4px 0 0", fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>{galleryIndex + 1} / {galleryImages.length}</p>
+                <p style={{ margin: 0, fontSize: "16px", fontWeight: "600", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{galleryImages[galleryIndex]?.caption}</p>
+                <p style={{ margin: "4px 0 0", fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>{galleryIndex + 1} / {galleryImages.length}</p>
               </div>
 
               {/* Arrow buttons */}
@@ -1336,34 +1658,34 @@ export default function App() {
       </section>
 
       {/* ===== BRANDS ===== */}
-      <section style={{ padding: "60px 40px", background: "white" }}>
+      <section style={{ padding: "60px 40px", background: "#f8faff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "40px" }}>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", marginBottom: "8px", color: "#0d1b2a" }}>{t.brands.title}</h2>
-            <p style={{ fontSize: "15px", color: "#64748b" }}>{t.brands.sub}</p>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", marginBottom: "8px", color: "#0d3158" }}>{t.brands.title}</h2>
+            <p style={{ fontSize: "15px", color: "#01579b" }}>{t.brands.sub}</p>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", justifyContent: "center" }}>
             {BRANDS.map(brand => {
               const active = selectedBrand === brand;
               return (
                 <a key={brand} href={`/reparatii-frigidere-${brandSlug(brand)}`} onClick={e => goToBrand(e, brand)}
-                  style={{ background: active ? "#0277bd" : "#f8faff", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}`, padding: "10px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: "600", color: active ? "white" : "#475569", transition: "all 0.2s", textDecoration: "none", cursor: "pointer" }}
+                  style={{ background: active ? "#0277bd" : "white", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}`, padding: "10px 20px", borderRadius: "8px", fontSize: "14px", fontWeight: "600", color: active ? "white" : "#01579b", transition: "all 0.2s", textDecoration: "none", cursor: "pointer" }}
                   onMouseEnter={e => { if (!active) { e.currentTarget.style.background = "#e3f2fd"; e.currentTarget.style.color = "#0277bd"; e.currentTarget.style.borderColor = "#0277bd"; } }}
-                  onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#e2e8f0"; } }}>{brand}</a>
+                  onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "white"; e.currentTarget.style.color = "#01579b"; e.currentTarget.style.borderColor = "#e2e8f0"; } }}>{brand}</a>
               );
             })}
           </div>
 
           {/* Brand spotlight — generic fridge illustration with a turquoise nameplate for the selected brand (SEO-friendly per-brand copy) */}
-          <div id="marca-frigider" style={{ marginTop: "40px", scrollMarginTop: "84px", background: "white", borderRadius: "20px", padding: "32px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0", display: "flex", alignItems: "center", gap: "32px", flexWrap: "wrap" }}>
-            <div style={{ flex: "0 0 220px", margin: "0 auto" }}>
+          <div id="marca-frigider" style={{ marginTop: "40px", scrollMarginTop: "84px", background: "white", borderRadius: "20px", padding: "32px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: "32px", flexWrap: "wrap" }}>
+            <div style={{ flex: "0 0 220px", margin: "0 auto", position: "sticky", top: "84px" }}>
               <FridgeIllustration brand={selectedBrand} />
             </div>
-            <div style={{ flex: "1 1 260px" }}>
-              <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(20px, 3vw, 28px)", fontWeight: "700", margin: "0 0 10px", color: "#0d1b2a" }}>
+            <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+              <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(20px, 3vw, 28px)", fontWeight: "700", margin: "0 0 14px", color: "#0d3158" }}>
                 {lang === "ro" ? "Reparații frigidere " : "Fridge repairs — "}<span style={{ color: "#0d9488" }}>{selectedBrand}</span>
               </h3>
-              <p style={{ fontSize: "14px", lineHeight: "1.7", color: "#64748b", margin: 0 }}>{brandRepairText(selectedBrand)}</p>
+              <BrandSpotlightText blocks={BRAND_CONTENT[lang]?.[selectedBrand]} fallbackText={brandRepairText(selectedBrand)} />
             </div>
           </div>
         </div>
@@ -1373,9 +1695,9 @@ export default function App() {
       <section id="zone" className="section-pad" style={{ background: "#f0f7ff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <div style={{ fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#0277bd", marginBottom: "12px" }}><FaMapMarkerAlt style={{ marginRight: "6px" }} />București & împrejurimi</div>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.zones.title}</h2>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>{t.zones.sub}</p>
+            <div style={{ display: "inline-flex", alignItems: "center", fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#0277bd", background: "#e3f2fd", border: "1px solid #bfdbfe", padding: "6px 16px", borderRadius: "20px", marginBottom: "12px" }}><FaMapMarkerAlt style={{ marginRight: "6px" }} />București & împrejurimi</div>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.zones.title}</h2>
+            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.zones.sub}</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", marginBottom: "32px" }}>
             {[
@@ -1385,14 +1707,14 @@ export default function App() {
             ].map((z, i) => (
               <div key={i} style={{ background: "white", borderRadius: "16px", padding: "28px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
                 <div style={{ fontSize: "28px", marginBottom: "12px" }}>{z.icon}</div>
-                <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d1b2a", marginBottom: "10px" }}>{z.title}</h3>
-                <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.7", marginBottom: "16px" }}>{z.desc}</p>
+                <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", marginBottom: "10px" }}>{z.title}</h3>
+                <p style={{ fontSize: "13px", color: "#01579b", lineHeight: "1.7", marginBottom: "16px" }}>{z.desc}</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                   {z.items.map(zi => {
                     const active = highlightedZone === zi.id;
                     return (
                       <a key={zi.id} href={`/reparatii-frigidere-${zi.id}`} onClick={e => goToZone(e, zi.id)}
-                        style={{ fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : "#f1f5f9", color: active ? "white" : "#475569", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}` }}>
+                        style={{ fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : "#f1f5f9", color: active ? "white" : "#01579b", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}` }}>
                         {zi.name}
                       </a>
                     );
@@ -1405,7 +1727,7 @@ export default function App() {
           {/* Interactive schematic map — click a sector/neighborhood/locality chip above (or a shape below) to highlight it in blue */}
           <div id="harta-zone" style={{ scrollMarginTop: "84px", background: "white", borderRadius: "16px", padding: "28px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginBottom: "32px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
-              <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d1b2a", margin: 0 }}>
+              <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", margin: 0 }}>
                 {lang === "ro" ? "Hartă interactivă a zonelor deservite" : "Interactive map of the areas we cover"}
               </h3>
               {highlightedZone && (
@@ -1415,23 +1737,23 @@ export default function App() {
               )}
             </div>
             <InteractiveZoneMap highlighted={highlightedZone} onSelect={selectZone} />
-            <p style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", marginTop: "12px", marginBottom: 0 }}>
+            <p style={{ fontSize: "12px", color: "#01579b", textAlign: "center", marginTop: "12px", marginBottom: 0 }}>
               {lang === "ro"
                 ? "Click pe un sector, un cartier sau o localitate pentru a-l evidenția pe hartă."
                 : "Click a sector, a neighborhood, or a locality to highlight it on the map."}
             </p>
           </div>
 
-          <p style={{ fontSize: "14px", color: "#475569", lineHeight: "1.8", background: "white", padding: "20px 24px", borderRadius: "12px", borderLeft: "4px solid #0277bd" }}>{t.zones.seoText}</p>
+          <p style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.8", background: "white", padding: "20px 24px", borderRadius: "12px", borderLeft: "4px solid #0277bd" }}>{t.zones.seoText}</p>
         </div>
       </section>
 
       {/* ===== REVIEWS ===== */}
-      <section id="recenzii" className="section-pad" style={{ background: "white" }}>
+      <section id="recenzii" className="section-pad" style={{ background: "#f0f7ff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.reviews.title}</h2>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>{reviewsSub}</p>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.reviews.title}</h2>
+            <p style={{ fontSize: "16px", color: "#01579b" }}>{reviewsSub}</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: reviewItems.length > 5 ? "16px" : "48px" }}>
             {reviewItems.slice(0, reviewsVisible).map((r, i) => (
@@ -1440,14 +1762,14 @@ export default function App() {
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
                   <Stars rating={r.rating} />
-                  <span style={{ fontSize: "11px", color: "#94a3b8" }}>{r.date}</span>
+                  <span style={{ fontSize: "11px", color: "#01579b" }}>{r.date}</span>
                 </div>
-                <p style={{ fontSize: "14px", color: "#475569", lineHeight: "1.7", marginBottom: "16px", fontStyle: "italic" }}>"{r.text}"</p>
+                <p style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.7", marginBottom: "16px", fontStyle: "italic" }}>"{r.text}"</p>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <div style={{ width: "36px", height: "36px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: "700", fontSize: "14px" }}>{r.name.charAt(0)}</div>
                   <div>
-                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#1e293b" }}>{r.name}</div>
-                    <div style={{ fontSize: "11px", color: "#94a3b8" }}>{r.zone}</div>
+                    <div style={{ fontSize: "13px", fontWeight: "600", color: "#0d3158" }}>{r.name}</div>
+                    <div style={{ fontSize: "11px", color: "#01579b" }}>{r.zone}</div>
                   </div>
                 </div>
               </div>
@@ -1455,7 +1777,7 @@ export default function App() {
           </div>
           {reviewItems.length > 5 && (
             <div style={{ marginBottom: "48px" }}>
-              <p style={{ fontSize: "13px", color: "#94a3b8", textAlign: "center", margin: "0 0 12px" }}>
+              <p style={{ fontSize: "13px", color: "#01579b", textAlign: "center", margin: "0 0 12px" }}>
                 {t.blog.showOf} {Math.min(reviewsVisible, reviewItems.length)} {t.blog.of} {reviewItems.length} {lang === "ro" ? "recenzii" : "reviews"}
               </p>
               <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
@@ -1472,7 +1794,7 @@ export default function App() {
               onMouseEnter={e => e.currentTarget.style.background = "#e3f2fd"}
               onMouseLeave={e => e.currentTarget.style.background = "#f0f7ff"}>
               <div style={{ fontSize: "48px", marginBottom: "16px" }}>⭐</div>
-              <h3 style={{ fontSize: "20px", fontWeight: "700", color: "#0d1b2a", marginBottom: "8px" }}>{reviewsRating.toFixed(1)} / 5.0</h3>
+              <h3 style={{ fontSize: "20px", fontWeight: "700", color: "#0d3158", marginBottom: "8px" }}>{reviewsRating.toFixed(1)} / 5.0</h3>
               <p style={{ fontSize: "14px", color: "#0277bd", fontWeight: "600", margin: 0, lineHeight: "1.6" }}>{lang === "ro" ? "Bazat pe recenziile Google Maps" : "Based on the Google Maps reviews"}</p>
             </a>
           </div>
@@ -1496,15 +1818,15 @@ export default function App() {
                 )}
                 <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "16px" }}>
                   <CategoryBadge cat={activeBlogPost.category} />
-                  <span style={{ fontSize: "13px", color: "#94a3b8" }}>{formatDate(activeBlogPost.created_at)}</span>
+                  <span style={{ fontSize: "13px", color: "#01579b" }}>{formatDate(activeBlogPost.created_at)}</span>
                   {isAdmin && !activeBlogPost.published && <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: "11px", padding: "2px 8px", borderRadius: "6px", fontWeight: "600" }}>Nepublicat</span>}
                 </div>
-                <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", color: "#0d1b2a", marginBottom: "24px", lineHeight: "1.2" }}>{postTitle(activeBlogPost)}</h1>
+                <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", color: "#0d3158", marginBottom: "24px", lineHeight: "1.2" }}>{postTitle(activeBlogPost)}</h1>
                 <div className="prose" dangerouslySetInnerHTML={{ __html: postContentHtml(activeBlogPost) }} />
                 {activeBlogPost.tags?.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "28px" }}>
                     {activeBlogPost.tags.map(tag => (
-                      <span key={tag} style={{ background: "#f1f5f9", color: "#475569", fontSize: "12px", fontWeight: "500", padding: "4px 12px", borderRadius: "20px" }}>#{tag}</span>
+                      <span key={tag} style={{ background: "#f1f5f9", color: "#01579b", fontSize: "12px", fontWeight: "500", padding: "4px 12px", borderRadius: "20px" }}>#{tag}</span>
                     ))}
                   </div>
                 )}
@@ -1515,7 +1837,7 @@ export default function App() {
                 const rx = postReactions[activeBlogPost.id] || { like: 0, love: 0, dislike: 0, mine: null };
                 return (
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "32px", padding: "18px 20px", background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", flexWrap: "wrap" }}>
-                    <span style={{ fontSize: "13px", color: "#64748b", fontWeight: "500", marginRight: "4px" }}>{t.blog.reactions.label}</span>
+                    <span style={{ fontSize: "13px", color: "#01579b", fontWeight: "500", marginRight: "4px" }}>{t.blog.reactions.label}</span>
                     {(["like", "love", "dislike"]).map(type => (
                       <ReactionBtn key={type} type={type} count={rx[type] || 0} active={rx.mine === type} onClick={() => handlePostReaction(activeBlogPost.id, type)} />
                     ))}
@@ -1542,12 +1864,12 @@ export default function App() {
 
               {/* Comments */}
               <div style={{ marginTop: "56px" }}>
-                <h3 style={{ fontSize: "22px", fontWeight: "700", color: "#0d1b2a", marginBottom: "28px", paddingBottom: "12px", borderBottom: "2px solid #e2e8f0" }}>
+                <h3 style={{ fontSize: "22px", fontWeight: "700", color: "#0d3158", marginBottom: "28px", paddingBottom: "12px", borderBottom: "2px solid #e2e8f0" }}>
                   {t.blog.comments} ({commentsForPost(activeBlogPost.id).filter(c => c.approved || isAdmin).length})
                 </h3>
 
                 {approvedRootComments(activeBlogPost.id).length === 0 ? (
-                  <p style={{ color: "#94a3b8", fontStyle: "italic", marginBottom: "32px" }}>{t.blog.noComments}</p>
+                  <p style={{ color: "#01579b", fontStyle: "italic", marginBottom: "32px" }}>{t.blog.noComments}</p>
                 ) : (
                   approvedRootComments(activeBlogPost.id).slice(0, commentsVisible).map(c => {
                     const crx = commentReactions[c.id] || { like: 0, love: 0, dislike: 0, mine: null };
@@ -1560,12 +1882,12 @@ export default function App() {
                               <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "8px" }}>
                                 <div style={{ width: "32px", height: "32px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: "700", fontSize: "13px" }}>{c.username.charAt(0).toUpperCase()}</div>
                                 <div>
-                                  <span style={{ fontWeight: "600", fontSize: "14px", color: "#0d1b2a" }}>{c.username}</span>
-                                  <span style={{ fontSize: "11px", color: "#94a3b8", marginLeft: "8px" }}>{formatDate(c.created_at)}</span>
+                                  <span style={{ fontWeight: "600", fontSize: "14px", color: "#0d3158" }}>{c.username}</span>
+                                  <span style={{ fontSize: "11px", color: "#01579b", marginLeft: "8px" }}>{formatDate(c.created_at)}</span>
                                   {!c.approved && <span style={{ marginLeft: "8px", fontSize: "10px", background: "#fef2f2", color: "#dc2626", padding: "2px 6px", borderRadius: "4px" }}>{t.blog.pending}</span>}
                                 </div>
                               </div>
-                              <p style={{ fontSize: "14px", color: "#475569", lineHeight: "1.7", marginLeft: "42px", marginBottom: "10px" }}>{c.text}</p>
+                              <p style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.7", marginLeft: "42px", marginBottom: "10px" }}>{c.text}</p>
                               {/* Comment reactions */}
                               <div style={{ display: "flex", gap: "6px", marginLeft: "42px", flexWrap: "wrap" }}>
                                 {(["like", "love", "dislike"]).map(type => (
@@ -1598,10 +1920,10 @@ export default function App() {
                                   <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "6px" }}>
                                     <div style={{ width: "26px", height: "26px", background: "#0277bd", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: "700", fontSize: "11px" }}>{r.username.charAt(0).toUpperCase()}</div>
                                     <span style={{ fontWeight: "600", fontSize: "13px", color: "#0277bd" }}>{r.username}</span>
-                                    <span style={{ fontSize: "11px", color: "#94a3b8" }}>{formatDate(r.created_at)}</span>
+                                    <span style={{ fontSize: "11px", color: "#01579b" }}>{formatDate(r.created_at)}</span>
                                     {!r.approved && <span style={{ fontSize: "10px", background: "#fef2f2", color: "#dc2626", padding: "2px 6px", borderRadius: "4px" }}>{t.blog.pending}</span>}
                                   </div>
-                                  <p style={{ fontSize: "13px", color: "#475569", lineHeight: "1.6", marginLeft: "34px", marginBottom: "8px" }}>{r.text}</p>
+                                  <p style={{ fontSize: "13px", color: "#01579b", lineHeight: "1.6", marginLeft: "34px", marginBottom: "8px" }}>{r.text}</p>
                                   <div style={{ display: "flex", gap: "6px", marginLeft: "34px" }}>
                                     {(["like", "love", "dislike"]).map(type => (
                                       <ReactionBtn key={type} type={type} count={rrx[type] || 0} active={rrx.mine === type} onClick={() => handleCommentReaction(r.id, type)} size="sm" />
@@ -1625,7 +1947,7 @@ export default function App() {
 
                 {approvedRootComments(activeBlogPost.id).length > 5 && (
                   <div style={{ marginTop: "4px" }}>
-                    <p style={{ fontSize: "12px", color: "#94a3b8", textAlign: "center", margin: "0 0 10px" }}>
+                    <p style={{ fontSize: "12px", color: "#01579b", textAlign: "center", margin: "0 0 10px" }}>
                       {t.blog.showOf} {Math.min(commentsVisible, approvedRootComments(activeBlogPost.id).length)} {t.blog.of} {approvedRootComments(activeBlogPost.id).length} {lang === "ro" ? "comentarii" : "comments"}
                     </p>
                     <div style={{ display: "flex", gap: "10px" }}>
@@ -1641,7 +1963,7 @@ export default function App() {
 
                 {/* Add comment form */}
                 <div id="comment-form" style={{ background: "white", borderRadius: "16px", padding: "24px", border: "1px solid #e2e8f0", marginTop: "32px" }}>
-                  <h4 style={{ fontSize: "16px", fontWeight: "700", color: "#0d1b2a", marginBottom: "16px" }}>{t.blog.addComment}</h4>
+                  <h4 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", marginBottom: "16px" }}>{t.blog.addComment}</h4>
                   {replyTo && (
                     <div style={{ background: "#e3f2fd", borderRadius: "8px", padding: "8px 14px", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: "#0277bd" }}>
                       <span>{t.blog.replyTo} <strong>{commentsForPost(activeBlogPost.id).find(c => c.id === replyTo)?.username}</strong></span>
@@ -1661,14 +1983,14 @@ export default function App() {
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "48px", flexWrap: "wrap", gap: "16px" }}>
                 <div>
-                  <div style={{ fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#0277bd", marginBottom: "12px" }}>Sfaturi utile</div>
-                  <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "8px", color: "#0d1b2a" }}>{t.blog.title}</h2>
-                  <p style={{ fontSize: "16px", color: "#64748b" }}>{t.blog.sub}</p>
+                  <div style={{ display: "inline-flex", alignItems: "center", fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#0277bd", background: "#e3f2fd", border: "1px solid #bfdbfe", padding: "6px 16px", borderRadius: "20px", marginBottom: "12px" }}>Sfaturi utile</div>
+                  <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "8px", color: "#0d3158" }}>{t.blog.title}</h2>
+                  <p style={{ fontSize: "16px", color: "#01579b" }}>{t.blog.sub}</p>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                   {postCategories.length > 1 && (
-                    <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPostsVisible(6); }}
-                      style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid #e2e8f0", fontFamily: "inherit", fontSize: "13px", fontWeight: "600", color: "#475569", background: "white", cursor: "pointer", outline: "none" }}>
+                    <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value); setPostsPage(1); }}
+                      style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid #e2e8f0", fontFamily: "inherit", fontSize: "13px", fontWeight: "600", color: "#01579b", background: "white", cursor: "pointer", outline: "none" }}>
                       <option value="all">{t.blog.allCategories}</option>
                       {postCategories.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -1684,21 +2006,21 @@ export default function App() {
               {/* Article editor */}
               {showNewPostForm && (
                 <div style={{ background: "white", borderRadius: "16px", padding: "32px", border: "1px solid #e2e8f0", marginBottom: "40px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
-                  <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#0d1b2a", marginBottom: "20px" }}>
+                  <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#0d3158", marginBottom: "20px" }}>
                     {editingPost ? t.blog.editArticle : t.blog.newArticle}
                   </h3>
 
                   <div style={{ marginBottom: "20px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#475569", marginBottom: "6px" }}>{t.blog.contentLangLabel}</label>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#01579b", marginBottom: "6px" }}>{t.blog.contentLangLabel}</label>
                     <div style={{ display: "flex", gap: "8px" }}>
                       {["ro", "en"].map(l => (
                         <button key={l} type="button" onClick={() => setPostForm(p => ({ ...p, lang: l }))}
-                          style={{ padding: "8px 16px", borderRadius: "8px", border: `1.5px solid ${postForm.lang === l ? "#0277bd" : "#e2e8f0"}`, background: postForm.lang === l ? "#e3f2fd" : "white", color: postForm.lang === l ? "#0277bd" : "#475569", fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "inherit" }}>
+                          style={{ padding: "8px 16px", borderRadius: "8px", border: `1.5px solid ${postForm.lang === l ? "#0277bd" : "#e2e8f0"}`, background: postForm.lang === l ? "#e3f2fd" : "white", color: postForm.lang === l ? "#0277bd" : "#01579b", fontWeight: "600", fontSize: "13px", cursor: "pointer", fontFamily: "inherit" }}>
                           {l === "ro" ? t.blog.langRo : t.blog.langEn}
                         </button>
                       ))}
                     </div>
-                    <p style={{ fontSize: "11px", color: "#94a3b8", marginTop: "6px" }}>{t.blog.contentLangHint}</p>
+                    <p style={{ fontSize: "11px", color: "#01579b", marginTop: "6px" }}>{t.blog.contentLangHint}</p>
                   </div>
 
                   {[
@@ -1707,7 +2029,7 @@ export default function App() {
                     { label: t.blog.contentLabel, key: "content", type: "textarea", rows: 10 },
                   ].map(f => (
                     <div key={f.key} style={{ marginBottom: "16px" }}>
-                      <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#475569", marginBottom: "6px" }}>{f.label}</label>
+                      <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#01579b", marginBottom: "6px" }}>{f.label}</label>
                       {f.type === "textarea" ? (
                         <textarea value={postForm[f.key]} onChange={e => setPostForm(p => ({ ...p, [f.key]: e.target.value }))} rows={f.rows || 4}
                           style={{ width: "100%", padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", resize: "vertical", outline: "none", boxSizing: "border-box" }} />
@@ -1719,14 +2041,14 @@ export default function App() {
                   ))}
 
                   <div style={{ marginBottom: "16px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#475569", marginBottom: "6px" }}>{t.blog.tagsLabel}</label>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#01579b", marginBottom: "6px" }}>{t.blog.tagsLabel}</label>
                     <input type="text" value={postForm.tags} onChange={e => setPostForm(p => ({ ...p, tags: e.target.value }))} placeholder={t.blog.tagsHint}
                       style={{ width: "100%", padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
                   </div>
 
                   {/* Image: URL + upload */}
                   <div style={{ marginBottom: "16px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#475569", marginBottom: "6px" }}>{t.blog.imageLabel}</label>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#01579b", marginBottom: "6px" }}>{t.blog.imageLabel}</label>
                     <div style={{ display: "flex", gap: "8px" }}>
                       <input type="text" value={postForm.image_url} onChange={e => setPostForm(p => ({ ...p, image_url: e.target.value }))} placeholder="https://..."
                         style={{ flex: 1, padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", outline: "none" }} />
@@ -1741,7 +2063,7 @@ export default function App() {
                   </div>
 
                   <div style={{ marginBottom: "20px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#475569", marginBottom: "6px" }}>{t.blog.categoryLabel}</label>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#01579b", marginBottom: "6px" }}>{t.blog.categoryLabel}</label>
                     <select value={postForm.category} onChange={e => setPostForm(p => ({ ...p, category: e.target.value }))}
                       style={{ width: "100%", padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", outline: "none", background: "white" }}>
                       {["General", "Sfaturi", "No-Frost", "Urgențe", "Întreținere"].map(c => <option key={c}>{c}</option>)}
@@ -1755,7 +2077,7 @@ export default function App() {
               )}
 
               {totalPosts === 0 ? (
-                <div style={{ textAlign: "center", padding: "60px 20px", color: "#94a3b8" }}>
+                <div style={{ textAlign: "center", padding: "60px 20px", color: "#01579b" }}>
                   <div style={{ fontSize: "48px", marginBottom: "16px" }}>📝</div>
                   <p style={{ fontSize: "16px" }}>{t.blog.noArticles}</p>
                 </div>
@@ -1774,22 +2096,34 @@ export default function App() {
                             <CategoryBadge cat={post.category} />
                             {isAdmin && !post.published && <span style={{ fontSize: "10px", background: "#fef2f2", color: "#dc2626", padding: "2px 6px", borderRadius: "4px", fontWeight: "600" }}>Draft</span>}
                           </div>
-                          <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#0d1b2a", marginBottom: "10px", lineHeight: "1.3" }}>{postTitle(post)}</h3>
-                          {postExcerpt(post) && <p style={{ fontSize: "13px", color: "#64748b", lineHeight: "1.6", marginBottom: "16px" }}>{postExcerpt(post)}</p>}
+                          <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#0d3158", marginBottom: "10px", lineHeight: "1.3" }}>{postTitle(post)}</h3>
+                          {postExcerpt(post) && <p style={{ fontSize: "13px", color: "#01579b", lineHeight: "1.6", marginBottom: "16px" }}>{postExcerpt(post)}</p>}
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span style={{ fontSize: "11px", color: "#94a3b8" }}>{formatDate(post.created_at)}</span>
+                            <span style={{ fontSize: "11px", color: "#01579b" }}>{formatDate(post.created_at)}</span>
                             <span style={{ fontSize: "13px", color: "#0277bd", fontWeight: "600" }}>{t.blog.readMore} →</span>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  {totalPosts > 6 && (
+                  {totalPostPages > 1 && (
                     <div style={{ marginTop: "32px", textAlign: "center" }}>
-                      <p style={{ fontSize: "13px", color: "#94a3b8", marginBottom: "12px" }}>{t.blog.showOf} {Math.min(postsVisible, totalPosts)} {t.blog.of} {totalPosts} {t.blog.articles}</p>
-                      <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                        {postsVisible < totalPosts && <button onClick={() => setPostsVisible(v => v + 6)} className="btn-primary">{t.blog.loadMore} ↓</button>}
-                        {postsVisible > 6 && <button onClick={() => setPostsVisible(6)} className="btn-secondary">{t.blog.loadLess} ↑</button>}
+                      <p style={{ fontSize: "13px", color: "#01579b", marginBottom: "12px" }}>{t.blog.page} {currentPostsPage} {t.blog.of} {totalPostPages}</p>
+                      <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
+                        <button onClick={() => goToPostsPage(currentPostsPage - 1)} disabled={currentPostsPage === 1} aria-label={t.blog.prevPage}
+                          style={{ width: "38px", height: "38px", borderRadius: "8px", border: "1.5px solid #e2e8f0", background: "white", color: "#01579b", fontSize: "14px", cursor: currentPostsPage === 1 ? "not-allowed" : "pointer", opacity: currentPostsPage === 1 ? 0.4 : 1, fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          <FaChevronLeft size={12} />
+                        </button>
+                        {Array.from({ length: totalPostPages }, (_, i) => i + 1).map(p => (
+                          <button key={p} onClick={() => goToPostsPage(p)}
+                            style={{ width: "38px", height: "38px", borderRadius: "8px", border: `1.5px solid ${p === currentPostsPage ? "#0277bd" : "#e2e8f0"}`, background: p === currentPostsPage ? "#0277bd" : "white", color: p === currentPostsPage ? "white" : "#01579b", fontWeight: "700", fontSize: "14px", cursor: "pointer", fontFamily: "inherit" }}>
+                            {p}
+                          </button>
+                        ))}
+                        <button onClick={() => goToPostsPage(currentPostsPage + 1)} disabled={currentPostsPage === totalPostPages} aria-label={t.blog.nextPage}
+                          style={{ width: "38px", height: "38px", borderRadius: "8px", border: "1.5px solid #e2e8f0", background: "white", color: "#01579b", fontSize: "14px", cursor: currentPostsPage === totalPostPages ? "not-allowed" : "pointer", opacity: currentPostsPage === totalPostPages ? 0.4 : 1, fontFamily: "inherit", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          <FaChevronRight size={12} />
+                        </button>
                       </div>
                     </div>
                   )}
@@ -1801,23 +2135,49 @@ export default function App() {
       </section>
 
       {/* ===== FAQ ===== */}
-      <section style={{ padding: "80px 40px", background: "white" }}>
+      <section id="faq" style={{ padding: "80px 40px", background: "#f0f7ff" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d1b2a" }}>{t.faq.title}</h2>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>{t.faq.sub}</p>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.faq.title}</h2>
+            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.faq.sub}</p>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {t.faq.items.map((item, i) => (
               <div key={i} style={{ background: "#f8faff", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden" }}>
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: "16px" }}>
-                  <span style={{ fontSize: "15px", fontWeight: "600", color: "#0d1b2a", lineHeight: "1.4" }}>{item.q}</span>
+                  <span style={{ fontSize: "15px", fontWeight: "600", color: "#0d3158", lineHeight: "1.4" }}>{item.q}</span>
                   <span style={{ color: "#0277bd", flexShrink: 0, transition: "transform 0.2s", transform: openFaq === i ? "rotate(180deg)" : "none" }}><FaChevronDown size={14} /></span>
                 </button>
                 {openFaq === i && (
                   <div style={{ padding: "0 20px 18px", animation: "fadeIn 0.2s ease" }}>
-                    <p style={{ fontSize: "14px", color: "#475569", lineHeight: "1.8", borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}>{item.a}</p>
+                    <p style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.8", borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}>{item.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== GDPR ===== */}
+      <section id="gdpr" style={{ padding: "80px 40px", background: "#f8faff", scrollMarginTop: "84px" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.gdpr.title}</h2>
+            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.gdpr.sub}</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {t.gdpr.items.map((item, i) => (
+              <div key={i} style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden" }}>
+                <button onClick={() => setOpenGdpr(openGdpr === i ? null : i)}
+                  style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 20px", background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: "16px" }}>
+                  <span style={{ fontSize: "15px", fontWeight: "600", color: "#0d3158", lineHeight: "1.4" }}>{item.q}</span>
+                  <span style={{ color: "#0277bd", flexShrink: 0, transition: "transform 0.2s", transform: openGdpr === i ? "rotate(180deg)" : "none" }}><FaChevronDown size={14} /></span>
+                </button>
+                {openGdpr === i && (
+                  <div style={{ padding: "0 20px 18px", animation: "fadeIn 0.2s ease" }}>
+                    <p style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.8", borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}>{item.a}</p>
                   </div>
                 )}
               </div>
@@ -1830,7 +2190,7 @@ export default function App() {
       <section id="contact" style={{ padding: "80px 40px", background: "linear-gradient(135deg, #0d1b2a 0%, #01579b 100%)", color: "white" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white" }}>{t.contact.title}</h2>
-          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", marginBottom: "56px" }}>{t.contact.sub}</p>
+          <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.7)", marginBottom: "56px" }}>{t.contact.sub}</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "12px" }}>
             {[
               { icon: <FaWhatsapp />, href: "https://wa.me/40737444337" },
@@ -1854,7 +2214,7 @@ export default function App() {
               return (
                 <Tag key={i}
                   {...(item.href ? { href: item.href, target: item.href.startsWith("http") ? "_blank" : undefined, rel: "noopener noreferrer" } : {})}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)", color: item.href ? "white" : "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "13px", fontWeight: "500" }}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", background: "rgba(255,255,255,0.06)", borderRadius: "12px", padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)", color: item.href ? "white" : "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: "14px", fontWeight: "500" }}
                   onMouseEnter={item.href ? (e => e.currentTarget.style.color = "#29b6f6") : undefined}
                   onMouseLeave={item.href ? (e => e.currentTarget.style.color = "white") : undefined}>
                   <span style={{ color: "#29b6f6", display: "flex", fontSize: "16px" }}>{item.icon}</span> {item.value}
@@ -1862,14 +2222,17 @@ export default function App() {
               );
             })}
           </div>
-          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: "1.8", marginBottom: "24px" }}>
+          <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", lineHeight: "1.8", marginBottom: "24px" }}>
             <p style={{ margin: 0 }}>{t.contact.legalAddress}</p>
             <p style={{ margin: 0 }}>
               {t.contact.consumerProtection}{" "}
               <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.6)" }}>anpc.ro</a>
             </p>
+            <p style={{ margin: 0 }}>
+              <a href="#gdpr" style={{ color: "rgba(255,255,255,0.6)" }}>{t.gdpr.title}</a>
+            </p>
           </div>
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px", margin: 0, userSelect: "none" }}>
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px", margin: 0, userSelect: "none" }}>
             © <span onClick={() => (isAdmin ? handleAdminLogout() : setShowAdminLogin(true))} style={{ cursor: "default" }}>2026</span> {t.contact.copyright}
           </p>
         </div>
@@ -1886,7 +2249,7 @@ export default function App() {
       {/* ===== TOAST ===== */}
       {toast && (
         <div key={toast.id} style={{ position: "fixed", bottom: "104px", right: "28px", zIndex: 200, background: "#0d1b2a", color: "white", padding: "14px 18px 10px", borderRadius: "10px", boxShadow: "0 4px 24px rgba(0,0,0,0.3)", minWidth: "220px", maxWidth: "300px", animation: "slideIn 0.2s ease" }}>
-          <p style={{ margin: "0 0 10px 0", fontSize: "14px", fontWeight: "500" }}>{toast.message}</p>
+          <p style={{ margin: "0 0 10px 0", fontSize: "15px", fontWeight: "500" }}>{toast.message}</p>
           <div style={{ height: "3px", background: "#1e293b", borderRadius: "2px", overflow: "hidden" }}>
             <div style={{ height: "100%", animation: "toastProgress 5s linear forwards" }} />
           </div>
@@ -1900,7 +2263,7 @@ export default function App() {
             <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "#dcfce7", margin: "0 auto 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <FaCheck size={22} color="#16a34a" />
             </div>
-            <p style={{ margin: "0 0 24px", fontSize: "15px", lineHeight: "1.7", color: "#1e293b" }}>{submissionAlert}</p>
+            <p style={{ margin: "0 0 24px", fontSize: "15px", lineHeight: "1.7", color: "#0d3158" }}>{submissionAlert}</p>
             <button onClick={() => setSubmissionAlert(null)} className="btn-primary">OK</button>
           </div>
         </div>
@@ -1911,7 +2274,7 @@ export default function App() {
         <div onClick={() => { setShowAdminLogin(false); setAdminPassword(""); setAdminError(""); }}
           style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div onClick={e => e.stopPropagation()} style={{ background: "white", padding: "40px", borderRadius: "16px", width: "340px", boxShadow: "0 24px 64px rgba(0,0,0,0.3)" }}>
-            <h3 style={{ margin: "0 0 24px 0", fontSize: "18px", fontWeight: "700", color: "#0d1b2a" }}>Admin Login</h3>
+            <h3 style={{ margin: "0 0 24px 0", fontSize: "18px", fontWeight: "700", color: "#0d3158" }}>Admin Login</h3>
             <input type="password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleAdminLogin()} placeholder="Parolă" autoFocus
               style={{ width: "100%", padding: "10px 14px", marginBottom: "12px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", boxSizing: "border-box", outline: "none" }} />
             {adminError && <p style={{ margin: "0 0 12px 0", fontSize: "13px", color: "#ef4444" }}>{adminError}</p>}
