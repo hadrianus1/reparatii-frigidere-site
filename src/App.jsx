@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "./App.css";
 import seoData from "./seo-data.json";
 import {
@@ -700,10 +700,16 @@ export default function App() {
       .catch(() => localStorage.removeItem("fridgeAdminToken"));
   }, []);
 
-  // Gallery auto-advance
+  // Gallery — shown 4 photos per slide
+  const galleryGroups = useMemo(() => {
+    const groups = [];
+    for (let i = 0; i < galleryImages.length; i += 4) groups.push(galleryImages.slice(i, i + 4));
+    return groups;
+  }, [galleryImages]);
+
   const advanceGallery = useCallback(() => {
-    setGalleryIndex(i => (i + 1) % galleryImages.length);
-  }, [galleryImages.length]);
+    setGalleryIndex(i => (i + 1) % galleryGroups.length);
+  }, [galleryGroups.length]);
 
   useEffect(() => {
     galleryTimer.current = setInterval(advanceGallery, 4500);
@@ -712,7 +718,7 @@ export default function App() {
 
   const gallerNav = (dir) => {
     clearInterval(galleryTimer.current);
-    setGalleryIndex(i => (i + dir + galleryImages.length) % galleryImages.length);
+    setGalleryIndex(i => (i + dir + galleryGroups.length) % galleryGroups.length);
     galleryTimer.current = setInterval(advanceGallery, 4500);
   };
 
@@ -1482,21 +1488,28 @@ export default function App() {
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "24px" }}>{t.hero.h1b}</h1>
               <p style={{ fontSize: "18px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
               <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
-                <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "#29b6f6", color: "#0d3158", padding: "16px 32px", borderRadius: "10px", fontWeight: "700", fontSize: "16px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
-                  <FaPhone size={16} /> {t.hero.cta1}: <span style={{ whiteSpace: "nowrap" }}>{t.contact.phone}</span> / 07 FRIGIDER
+                <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "#29b6f6", color: "#0d3158", padding: "12px 26px", borderRadius: "10px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
+                  <FaPhone size={20} />
+                  <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.25" }}>
+                    <span style={{ fontSize: "12px", fontWeight: "600", opacity: 0.75 }}>{t.hero.cta1}</span>
+                    <span style={{ fontSize: "17px", fontWeight: "800", whiteSpace: "nowrap" }}>{t.contact.phone}</span>
+                    <span style={{ fontSize: "11px", fontWeight: "700", opacity: 0.7, whiteSpace: "nowrap" }}>07 FRIGIDER</span>
+                  </span>
                 </a>
-                <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#25d366", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
-                  <FaWhatsapp size={20} />
-                </a>
-                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#ff0000", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
-                  <FaYoutube size={20} />
-                </a>
-                <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#1877f2", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
-                  <FaFacebook size={20} />
-                </a>
-                <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Maps" title="Google Maps" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "#ea4335", color: "white", width: "52px", borderRadius: "10px", textDecoration: "none" }}>
-                  <FaMapMarkerAlt size={20} />
-                </a>
+                <div style={{ display: "flex", alignItems: "stretch", gap: "10px" }}>
+                  <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#25d366", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                    <FaWhatsapp size={20} />
+                  </a>
+                  <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#ff0000", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                    <FaYoutube size={20} />
+                  </a>
+                  <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#1877f2", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                    <FaFacebook size={20} />
+                  </a>
+                  <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Maps" title="Google Maps" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#ea4335", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                    <FaMapMarkerAlt size={20} />
+                  </a>
+                </div>
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 {t.hero.badges.map((b, i) => (
@@ -1609,29 +1622,50 @@ export default function App() {
             <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.6)" }}>{t.gallery.sub}</p>
           </div>
 
-          {/* Carousel */}
+          {/* Carousel — 4 photos per slide, in a 2x2 grid */}
           <div style={{ position: "relative", borderRadius: "20px", overflow: "hidden", boxShadow: "0 24px 64px rgba(0,0,0,0.5)", maxWidth: "860px", margin: "0 auto" }}>
             <div style={{ position: "relative", height: "480px", background: "#0a1520" }}>
-              {galleryImages.map((img, i) => (
-                <div key={i} style={{
-                  position: "absolute", inset: 0,
-                  opacity: i === galleryIndex ? 1 : 0,
-                  transition: "opacity 0.7s ease",
-                  pointerEvents: i === galleryIndex ? "auto" : "none",
-                }}>
-                  <img
-                    src={img.url} alt={img.caption}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    onError={e => { e.currentTarget.style.display = "none"; }}
-                  />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)" }} />
-                </div>
-              ))}
+              {galleryGroups.map((group, gi) => {
+                const rows = Math.ceil(group.length / 2);
+                return (
+                  <div key={gi} style={{
+                    position: "absolute", inset: 0,
+                    opacity: gi === galleryIndex ? 1 : 0,
+                    transition: "opacity 0.7s ease",
+                    pointerEvents: gi === galleryIndex ? "auto" : "none",
+                  }}>
+                    <div style={{
+                      position: "absolute", inset: 0,
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, 1fr)",
+                      gridTemplateRows: `repeat(${rows}, 1fr)`,
+                      gap: "3px",
+                    }}>
+                      {group.map((img, ii) => {
+                        const spanFull = group.length % 2 === 1 && ii === group.length - 1;
+                        return (
+                          <div key={ii} style={{ position: "relative", overflow: "hidden", gridColumn: spanFull ? "1 / -1" : undefined }}>
+                            <img
+                              src={img.url} alt={img.caption}
+                              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                              onError={e => { e.currentTarget.style.display = "none"; }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
 
-              {/* Caption */}
-              <div style={{ position: "absolute", bottom: "24px", left: "24px", right: "80px", color: "white", zIndex: 2 }}>
-                <p style={{ margin: 0, fontSize: "16px", fontWeight: "600", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{galleryImages[galleryIndex]?.caption}</p>
-                <p style={{ margin: "4px 0 0", fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>{galleryIndex + 1} / {galleryImages.length}</p>
+                    {/* One label for the whole group of 4 */}
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "32px 20px 14px", background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)", pointerEvents: "none" }}>
+                      <p style={{ margin: 0, color: "white", fontSize: "15px", fontWeight: "600", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{group[0]?.caption}</p>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Counter */}
+              <div style={{ position: "absolute", top: "12px", left: "12px", zIndex: 2, background: "rgba(0,0,0,0.5)", color: "white", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "600" }}>
+                {galleryIndex + 1} / {galleryGroups.length}
               </div>
 
               {/* Arrow buttons */}
@@ -1655,7 +1689,7 @@ export default function App() {
                   onClick={() => {
                     const url = window.prompt("URL imagine:");
                     const caption = url && window.prompt("Descriere:");
-                    if (url && caption) { setGalleryImages(g => [...g, { url, caption }]); setGalleryIndex(galleryImages.length); }
+                    if (url && caption) { setGalleryImages(g => [...g, { url, caption }]); setGalleryIndex(Math.floor(galleryImages.length / 4)); }
                   }}
                   style={{ position: "absolute", top: "12px", right: "12px", zIndex: 3, background: "rgba(41,182,246,0.8)", color: "white", border: "none", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "12px", fontWeight: "600" }}>
                   <FaPlus size={10} /> {lang === "ro" ? "Adaugă" : "Add"}
@@ -1663,9 +1697,9 @@ export default function App() {
               )}
             </div>
 
-            {/* Dots */}
+            {/* Dots — one per group of 4 */}
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", padding: "16px", background: "#111827" }}>
-              {galleryImages.map((_, i) => (
+              {galleryGroups.map((_, i) => (
                 <button key={i} onClick={() => { clearInterval(galleryTimer.current); setGalleryIndex(i); galleryTimer.current = setInterval(advanceGallery, 4500); }}
                   style={{ width: i === galleryIndex ? "24px" : "8px", height: "8px", borderRadius: "4px", background: i === galleryIndex ? "#29b6f6" : "rgba(255,255,255,0.25)", border: "none", cursor: "pointer", padding: 0, transition: "all 0.3s" }} />
               ))}
