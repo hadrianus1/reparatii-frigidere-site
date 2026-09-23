@@ -4,12 +4,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0277bd" />
-    <link rel="icon" href="/logo_0.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/logo_0.png" />
+
+    <!-- Google Search Console ownership verification (same token as the previous site — keep it) -->
+    <meta name="google-site-verification" content="rme9MsYnz7bQeo-aGbd-AsV7N3F6WpJ5Z8BFz_9gryk" />
+
+    <!-- Google tag (GA4 G-SJH515Q150, same as the previous site) in Consent Mode v2:
+         everything starts "denied" (no cookies) and is only granted when the visitor
+         picks "Accept tot" in the cookie banner (stored as localStorage.cookieConsent). -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      var granted = false;
+      try { granted = localStorage.getItem('cookieConsent') === 'all'; } catch (e) {}
+      gtag('consent', 'default', {
+        ad_storage: granted ? 'granted' : 'denied',
+        ad_user_data: granted ? 'granted' : 'denied',
+        ad_personalization: granted ? 'granted' : 'denied',
+        analytics_storage: granted ? 'granted' : 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-SJH515Q150');
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJH515Q150"></script>
+
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="icon" href="/logo-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.json" />
 
     <!-- SEO Primary -->
-    <title>Reparații frigidere București | Opris Adrian PFA | +40 737 444 337</title>
+    <title>Reparații frigidere București | Adrian Opris | +40 737 444 337</title>
     <meta name="description" content="Reparații frigidere, combine frigorifice și congelatoare la domiciliu în București. Tehnician autorizat AGFR, 16+ ani experiență, garanție 12 luni. Sună: +40 737 444 337." />
     <meta name="keywords" content="reparatii frigidere bucuresti, service frigidere, reparatii combine frigorifice, incarcare freon, schimb compresor frigider, reparatii frigidere la domiciliu, service frigidere sector 6, reparatii frigidere militari, reparatii frigidere drumul taberei" />
     <meta name="robots" content="index, follow" />
@@ -18,13 +42,13 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.frigidere-reparatii.ro/" />
-    <meta property="og:title" content="Reparații frigidere București | Opris Adrian PFA" />
+    <meta property="og:title" content="Reparații frigidere București | Adrian Opris" />
     <meta property="og:description" content="Reparații frigidere la domiciliu în București. Autorizat AGFR, 16+ ani experiență, garanție 12 luni. +40 737 444 337" />
     <meta property="og:image" content="https://www.frigidere-reparatii.ro/poza-profil.jpg" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Reparații frigidere București | Opris Adrian PFA" />
+    <meta name="twitter:title" content="Reparații frigidere București | Adrian Opris" />
     <meta name="twitter:description" content="Reparații frigidere la domiciliu în București. Autorizat AGFR, 16+ ani experiență, garanție 12 luni. +40 737 444 337" />
     <meta name="twitter:image" content="https://www.frigidere-reparatii.ro/poza-profil.jpg" />
 
@@ -33,7 +57,8 @@
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      "name": "Reparații frigidere — Opris Adrian PFA",
+      "name": "Reparații frigidere — Adrian Opris",
+      "legalName": "Opriș Adrian PFA",
       "image": "https://www.frigidere-reparatii.ro/poza-profil.jpg",
       "url": "https://www.frigidere-reparatii.ro",
       "telephone": "+40737444337",
@@ -45,32 +70,35 @@
       "openingHours": "Mo-Sa 09:00-18:00",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Bulevardul Timișoara 53",
         "addressLocality": "București",
-        "postalCode": "061344",
-        "addressRegion": "Sector 6",
         "addressCountry": "RO"
       },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 44.4268,
-        "longitude": 26.0100
-      },
+      "description": "Reparații frigidere exclusiv la domiciliul clienților — fără atelier sau punct de lucru fix.",
       "areaServed": [
         {"@type": "City", "name": "București"},
         {"@type": "Place", "name": "Sector 1, București"},
-        {"@type": "Place", "name": "Sector 2, București"},
+        {"@type": "Place", "name": "Obor"},
+        {"@type": "Place", "name": "Calea Moșilor"},
         {"@type": "Place", "name": "Sector 3, București"},
         {"@type": "Place", "name": "Sector 4, București"},
         {"@type": "Place", "name": "Sector 5, București"},
         {"@type": "Place", "name": "Sector 6, București"},
-        {"@type": "Place", "name": "Bragadiru"},
         {"@type": "Place", "name": "Militari"},
         {"@type": "Place", "name": "Drumul Taberei"},
-        {"@type": "Place", "name": "Voluntari"},
-        {"@type": "Place", "name": "Popești-Leordeni"},
+        {"@type": "Place", "name": "Crângași"},
+        {"@type": "Place", "name": "Ghencea"},
+        {"@type": "Place", "name": "Rahova"},
+        {"@type": "Place", "name": "Berceni"},
+        {"@type": "Place", "name": "Titan"},
+        {"@type": "Place", "name": "Dristor"},
+        {"@type": "Place", "name": "Floreasca"},
+        {"@type": "Place", "name": "Bucureștii Noi"},
         {"@type": "Place", "name": "Chiajna"},
-        {"@type": "Place", "name": "Măgurele"}
+        {"@type": "Place", "name": "Bragadiru"},
+        {"@type": "Place", "name": "Clinceni"},
+        {"@type": "Place", "name": "Domnești"},
+        {"@type": "Place", "name": "Măgurele"},
+        {"@type": "Place", "name": "Popești-Leordeni"}
       ],
       "aggregateRating": {
         "@type": "AggregateRating",
@@ -91,10 +119,9 @@
     }
     </script>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
+    <!-- Fonts are self-hosted (public/fonts) so no visitor IP is sent to Google -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin-1.woff2" crossorigin />
+    <link rel="stylesheet" href="/fonts/fonts.css" />
   </head>
   <body>
     <noscript>Activați JavaScript pentru a folosi acest site.</noscript>

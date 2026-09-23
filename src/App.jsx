@@ -8,7 +8,7 @@ import {
   FaMapMarkerAlt, FaShieldAlt, FaTools,
   FaThermometerHalf, FaWind, FaBolt, FaMicrochip, FaSnowflake,
   FaThumbsUp, FaThumbsDown, FaHeart, FaUpload, FaImages, FaYoutube,
-  FaEnvelope, FaClock, FaFacebook,
+  FaEnvelope, FaClock, FaFacebook, FaExclamationTriangle,
 } from "react-icons/fa";
 
 const YOUTUBE_URL = "https://www.youtube.com/channel/UC3UWS-FoCuzUIGZrlb4HQqA";
@@ -17,29 +17,16 @@ const GOOGLE_REVIEWS_URL = "https://maps.app.goo.gl/4DwxLKT5YEjaiYXb8";
 const SITE_URL = "https://www.frigidere-reparatii.ro";
 
 // ===== GALLERY IMAGES (served locally from /public) =====
+// Each entry is one pre-rendered collage of 8 work photos, with the watermark burned into the
+// image itself so the individual photos cannot be lifted clean from the site.
 
 const GALLERY = [
-  { url: "/reparatii_frigidere_opris_adrian_1.jpeg", caption: "Opriș Adrian — tehnician autorizat AGFR" },
-  { url: "/img_20200401_211609.jpg", caption: "Reparație combină frigorifică" },
-  { url: "/reparatii_module_electronice_frigidere.jpeg", caption: "Reparații module electronice frigidere" },
-  { url: "/img_20191017_212608.jpg", caption: "Reparație frigider la domiciliu" },
-  { url: "/reparatii_frigidere_ariston_1.jpeg", caption: "Reparații frigidere Ariston" },
-  { url: "/img_20200619_050005.jpg", caption: "Schimb compresor frigider" },
-  { url: "/opris_adrian_pfa_reparatii_frigidere.jpeg", caption: "Opriș Adrian PFA — reparații frigidere" },
-  { url: "/reparatii_placi_electronice_domiciliu.jpeg", caption: "Reparații plăci electronice la domiciliu" },
-  { url: "/img_20200519_142720.jpg", caption: "Intervenție tehnică la fața locului" },
-  { url: "/reparatii_frigidere_indesit.jpeg", caption: "Reparații frigidere Indesit" },
-  { url: "/img_20200712_234828.jpg", caption: "Reparație frigider Side-by-Side cu dozator de apă" },
-  { url: "/reparatii_frigidere_ariston_2.jpeg", caption: "Service frigidere Ariston" },
-  { url: "/img_20200924_040848.jpg", caption: "Service frigider No-Frost" },
-  { url: "/reparatii_frigidere_opris_adrian_2.jpeg", caption: "Reparații frigidere la domiciliu" },
-  { url: "/inlocuire_vaporizator_frigider_arctic.jpeg", caption: "Înlocuire vaporizator frigider Arctic" },
-  { url: "/frigider.jpg", caption: "Reparație frigider" },
-  { url: "/img_20200401_211511.jpg", caption: "Diagnosticare defecțiune frigider" },
-  { url: "/frigider1.jpeg", caption: "Diagnosticare și reparare frigider" },
-  { url: "/reparatii_frigidere_bucuresti.jpeg", caption: "Reparații frigidere București" },
-  { url: "/frigider2.jpeg", caption: "Intervenție rapidă la domiciliu" },
-  { url: "/frigotehnist.jpeg", caption: "Frigotehnist autorizat la lucru" },
+  { url: "/galerie/placi-electronice-cablaje.jpg", caption: { ro: "Plăci electronice, termostate și cablaje", en: "Control boards, thermostats and wiring" } },
+  { url: "/galerie/interior-evaporator-ventilator.jpg", caption: { ro: "În interiorul frigiderului — evaporatoare și ventilatoare", en: "Inside the fridge — evaporators and fans" } },
+  { url: "/galerie/inlocuire-compresor.jpg", caption: { ro: "Înlocuire compresor", en: "Compressor replacement" } },
+  { url: "/galerie/incarcare-freon-vidare.jpg", caption: { ro: "Vidare și încărcare cu freon", en: "Vacuuming and refrigerant recharge" } },
+  { url: "/galerie/lucrari-la-domiciliu.jpg", caption: { ro: "Intervenții la domiciliul clientului", en: "Repairs at the customer's home" } },
+  { url: "/galerie/adrian-la-lucru.jpg", caption: { ro: "Adrian Opris la lucru", en: "Adrian Opris at work" } },
 ];
 
 // ===== HELPERS =====
@@ -321,32 +308,94 @@ const SECTOR_LABEL_POS = {
   4: [182.0, 459.6], 5: [-209.5, 278.9], 6: [-494.3, -40.1],
 };
 
-const ZONE_SECTORS = [1, 2, 3, 4, 5, 6].map(n => ({ id: `sector-${n}`, name: `Sector ${n}` }));
+// Sector 2 is only partly served (just the neighborhoods listed under it): it has a zone
+// page so it shows up in search, but on the map the sector itself stays grey and is never
+// colored — only its neighborhood markers highlight. Iancului / Cartierul Armenesc straddle
+// the Sector 2/3 border and are listed under both (alsoIn).
+const SERVED_SECTORS = [1, 3, 4, 5, 6];
+const PARTIAL_SECTOR = 2;
+const ZONE_SECTORS = SERVED_SECTORS.map(n => ({ id: `sector-${n}`, name: `Sector ${n}` }));
+const CARD_SECTORS = [1, 2, 3, 4, 5, 6];
 
-// x/y are fitted so every point actually falls inside its sector's real shape above
-// (verified with isPointInFill, not just eyeballed against a bounding box).
+// Geocoded with OpenStreetMap/Nominatim and projected with the same transform as the
+// sector paths (x = 6426.48·lon − 167697.63, y = −9000.04·lat + 399902.67). Points whose
+// real location sits on a sector border were moved to the nearest spot fully inside the
+// sector the technician assigned them to (verified with isPointInFill, 14-unit margin).
+// Militari Residence and Roșu are really in Chiajna commune, just north of Sector 6 —
+// they stay at their true location but are listed under Sector 6, as requested.
 const ZONE_NEIGHBORHOODS = [
-  { id: "baneasa", name: "Băneasa", sector: 1, x: -382.2, y: -797.8 },
-  { id: "pipera", name: "Pipera", sector: 1, x: -301.7, y: -816.5 },
-  { id: "aviatiei", name: "Aviației", sector: 1, x: -425.1, y: -723.9 },
-  { id: "grivita", name: "Grivița", sector: 1, x: -325, y: -607.2 },
-  { id: "dorobanti", name: "Dorobanți", sector: 1, x: -357.6, y: -682.2 },
-  { id: "floreasca", name: "Floreasca", sector: 1, x: -311.4, y: -711.7 },
-  { id: "colentina", name: "Colentina", sector: 2, x: 340.7, y: -392.1 },
-  { id: "obor", name: "Obor", sector: 2, x: 309, y: -334.6 },
-  { id: "iancului", name: "Iancului", sector: 2, x: 370.1, y: -331.2 },
-  { id: "pantelimon", name: "Pantelimon", sector: 2, x: 433.8, y: -377.5 },
-  { id: "dristor", name: "Dristor", sector: 3, x: 606.2, y: 104.9 },
-  { id: "vitan", name: "Vitan", sector: 3, x: 634.9, y: 167.1 },
-  { id: "titan", name: "Titan", sector: 3, x: 690.5, y: 139.4 },
-  { id: "tineretului", name: "Tineretului", sector: 4, x: 265.5, y: 543.2 },
-  { id: "vacaresti", name: "Văcărești", sector: 4, x: 235.8, y: 607.6 },
-  { id: "berceni", name: "Berceni", sector: 4, x: 293.5, y: 652.9 },
-  { id: "rahova", name: "Rahova", sector: 5, x: -244.4, y: 409 },
-  { id: "crangasi", name: "Crângași", sector: 6, x: -621.4, y: -74.2 },
-  { id: "giulesti", name: "Giulești", sector: 6, x: -655.1, y: -40.1 },
-  { id: "drumul-taberei", name: "Drumul Taberei", sector: 6, x: -692, y: 12.9 },
-  { id: "militari", name: "Militari", sector: 6, x: -756.5, y: -17.2 },
+  { id: "calea-mosilor", name: "Calea Moșilor", sector: 2, x: 129.9, y: -59 },
+  { id: "obor", name: "Obor", sector: 2, x: 191.6, y: -143.7 },
+  { id: "mihai-bravu", name: "Șoseaua Mihai Bravu", sector: 2, x: 288.6, y: -3.3 },
+  { id: "iancului", name: "Iancului", sector: 2, x: 301.9, y: -75.1, alsoIn: [3] },
+  { id: "cartier-armenesc", name: "Cartierul Armenesc", sector: 2, x: 90.7, y: -24.3, alsoIn: [3] },
+  { id: "bucurestii-noi", name: "Bucureștii Noi", sector: 1, x: -401.9, y: -511.4 },
+  { id: "pajura", name: "Pajura", sector: 1, x: -281.2, y: -438.7 },
+  { id: "soseaua-chitilei", name: "Șoseaua Chitilei", sector: 1, x: -323.1, y: -388.5 },
+  { id: "aviatiei", name: "Aviației", sector: 1, x: 15, y: -443 },
+  { id: "baneasa", name: "Băneasa", sector: 1, x: -103.6, y: -549.5 },
+  { id: "banu-manta", name: "Banu Manta", sector: 1, x: -95.5, y: -203.3 },
+  { id: "ion-mihalache", name: "Bulevardul Ion Mihalache", sector: 1, x: -170.6, y: -285.4 },
+  { id: "turda", name: "Turda", sector: 1, x: -144.8, y: -254.9 },
+  { id: "calea-grivitei", name: "Calea Griviței", sector: 1, x: -36.9, y: -97.7 },
+  { id: "nicolae-titulescu", name: "Șoseaua Nicolae Titulescu", sector: 1, x: -113, y: -168.9 },
+  { id: "stefan-cel-mare", name: "Șoseaua Ștefan cel Mare", sector: 1, x: 41.3, y: -133.9 },
+  { id: "dorobanti", name: "Dorobanți", sector: 1, x: -23.3, y: -217.3 },
+  { id: "piata-romana", name: "Piața Romană", sector: 1, x: 18.7, y: -107.2 },
+  { id: "piata-victoriei", name: "Piața Victoriei", sector: 1, x: -54.3, y: -171 },
+  { id: "floreasca", name: "Floreasca", sector: 1, x: 29.1, y: -261.4 },
+  { id: "vitan", name: "Vitan", sector: 3, x: 207.5, y: 173.9 },
+  { id: "dudesti", name: "Dudești", sector: 3, x: 229.9, y: 124.9 },
+  { id: "dristor", name: "Dristor", sector: 3, x: 293, y: 133.8 },
+  { id: "camil-ressu", name: "Bulevardul Camil Ressu", sector: 3, x: 370.4, y: 162.4 },
+  { id: "theodor-pallady", name: "Bulevardul Theodor Pallady", sector: 3, x: 548.1, y: 210.9 },
+  { id: "ozana", name: "Ozana", sector: 3, x: 529.5, y: 186.1 },
+  { id: "trapezului", name: "Trapezului", sector: 3, x: 494.1, y: 232.4 },
+  { id: "nicolae-grigorescu", name: "Bulevardul Nicolae Grigorescu", sector: 3, x: 446.7, y: 216.7 },
+  { id: "calea-calarasilor", name: "Calea Călărașilor", sector: 3, x: 192.5, y: 20.7 },
+  { id: "vatra-luminoasa", name: "Vatra Luminoasă", sector: 3, x: 288.6, y: 25.9 },
+  { id: "piata-alba-iulia", name: "Piața Alba Iulia", sector: 3, x: 222.8, y: 70.8 },
+  { id: "timpuri-noi", name: "Timpuri Noi", sector: 3, x: 128.9, y: 136.8 },
+  { id: "salajan", name: "Sălăjan", sector: 3, x: 415.8, y: 215.6 },
+  { id: "titan", name: "Titan", sector: 3, x: 436.6, y: 68.9 },
+  { id: "berceni", name: "Berceni", sector: 4, x: 149.2, y: 402.7 },
+  { id: "soseaua-oltenitei", name: "Șoseaua Oltenitei", sector: 4, x: 72.4, y: 304 },
+  { id: "aparatorii-patriei", name: "Apărătorii Patriei", sector: 4, x: 258.8, y: 486.5 },
+  { id: "tineretului", name: "Tineretului", sector: 4, x: 104.9, y: 214.3 },
+  { id: "calea-vacaresti", name: "Calea Văcărești", sector: 4, x: 115.3, y: 165.1 },
+  { id: "bulevardul-metalurgiei", name: "Bulevardul Metalurgiei", sector: 4, x: 273, y: 580.5 },
+  { id: "alexandru-obregia", name: "Bulevardul Alexandru Obregia", sector: 4, x: 147.9, y: 485 },
+  { id: "constantin-brancoveanu", name: "Bulevardul Constantin Brâncoveanu", sector: 4, x: 101.4, y: 445.2 },
+  { id: "soseaua-giurgiului", name: "Șoseaua Giurgiului", sector: 4, x: -3.5, y: 395 },
+  { id: "progresului", name: "Progresul", sector: 4, x: 6.9, y: 361.2 },
+  { id: "rahova", name: "Rahova", sector: 5, x: -202.7, y: 242.7 },
+  { id: "petre-ispirescu", name: "Strada Petre Ispirescu", sector: 5, x: -186.5, y: 177.2 },
+  { id: "soseaua-alexandriei", name: "Șoseaua Alexandriei", sector: 5, x: -434.8, y: 359.7 },
+  { id: "margeanului", name: "Mărgeanului", sector: 5, x: -233, y: 237.1 },
+  { id: "strada-sebastian", name: "Strada Sebastian", sector: 5, x: -192.4, y: 104.1 },
+  { id: "piata-unirii", name: "Piața Unirii", sector: 5, x: -4, y: 29.4 },
+  { id: "salaj", name: "Sălaj", sector: 5, x: -108.3, y: 226.5 },
+  { id: "13-septembrie", name: "Calea 13 Septembrie", sector: 5, x: -119.7, y: 79.9 },
+  { id: "panduri", name: "Panduri", sector: 5, x: -148.8, y: 90.8 },
+  { id: "tudor-vladimirescu", name: "Tudor Vladimirescu", sector: 5, x: -124.4, y: 119.1 },
+  { id: "centrul-civic", name: "Centrul Civic", sector: 5, x: -46.8, y: 53.5 },
+  { id: "drumul-taberei", name: "Drumul Taberei", sector: 6, x: -434.6, y: 120.3 },
+  { id: "iuliu-maniu", name: "Bulevardul Iuliu Maniu", sector: 6, x: -571.6, y: -2.9 },
+  { id: "militari", name: "Militari", sector: 6, x: -476.4, y: -13.6 },
+  { id: "crangasi", name: "Crângași", sector: 6, x: -299.9, y: -177.3 },
+  { id: "ghencea", name: "Ghencea", sector: 6, x: -299.8, y: 162.2 },
+  { id: "prelungirea-ghencea", name: "Prelungirea Ghencea", sector: 6, x: -594, y: 209.6 },
+  { id: "cartier-latin", name: "Cartier Latin", sector: 6, x: -685.7, y: 220.4 },
+  { id: "strada-lujerului", name: "Strada Lujerului", sector: 6, x: -395, y: 13.2 },
+  { id: "strandul-drumul-taberei", name: "Ștrandul Drumul Taberei", sector: 6, x: -405, y: 129.5 },
+  { id: "soseaua-virtutii", name: "Șoseaua Virtuții", sector: 6, x: -378.1, y: -88 },
+  { id: "bulevardul-uverturii", name: "Bulevardul Uverturii", sector: 6, x: -386, y: -27.2 },
+  { id: "giulesti", name: "Giulești", sector: 6, x: -361.8, y: -267.6 },
+  { id: "cotroceni", name: "Cotroceni", sector: 6, x: -200.4, y: -34.3 },
+  { id: "cartier-brancusi", name: "Cartier Brâncuși", sector: 6, x: -592.6, y: 129.7 },
+  { id: "valea-cascadelor", name: "Valea Cascadelor", sector: 6, x: -587.9, y: 28.7 },
+  { id: "militari-residence", name: "Militari Residence", sector: 6, x: -692.9, y: -107.8 },
+  { id: "rosu", name: "Roșu", sector: 6, x: -556.4, y: -157.5 },
 ];
 
 // Real boundaries for the surrounding towns/communes (OSM, simplified).
@@ -359,21 +408,48 @@ const AREA_PATHS = {
   "popesti-leordeni": { name: "Popești-Leordeni", path: "M 293.2,869.1 L 301.7,921.1 L 442.4,895.8 L 471.5,876.4 L 443.7,825.9 L 515.4,791.1 L 521.4,800.1 L 517.5,805.0 L 519.6,809.1 L 535.8,827.4 L 646.4,916.0 L 651.5,917.7 L 680.9,880.1 L 779.8,950.2 L 747.2,996.2 L 1024.2,1217.2 L 1163.3,1046.0 L 876.8,819.1 L 958.0,727.2 L 798.4,608.6 L 802.1,552.2 L 820.4,525.0 L 813.1,516.7 L 814.0,510.5 L 783.3,506.3 L 800.4,494.5 L 798.3,491.4 L 834.0,484.1 L 844.5,471.3 L 850.7,451.1 L 846.6,433.4 L 818.5,386.4 L 814.8,336.5 L 753.7,340.1 L 754.1,345.3 L 556.4,356.7 L 431.5,316.2 L 366.2,448.2 L 362.5,446.2 L 338.8,493.3 L 345.2,497.0 L 313.9,544.6 L 321.9,552.7 L 308.9,575.9 L 314.6,576.7 L 317.8,582.7 L 314.2,585.3 L 320.2,596.4 L 340.3,628.4 L 346.0,629.5 L 360.2,656.0 L 368.9,683.9 L 427.3,790.7 L 447.0,779.7 L 462.8,808.2 L 439.9,816.3 L 444.7,825.1 L 394.4,846.6 L 400.9,862.2 L 396.7,881.1 L 367.4,892.7 L 338.7,864.3 L 330.5,861.6 L 293.2,869.1 Z", label: [694.2, 714.2] },
 };
 
-// Grouping for the "Localități limitrofe" chip list — items with a real shape are
-// drawn from AREA_PATHS above; Roșu and Militari Residence get a hand-placed point
-// near Chiajna since they aren't independent administrative units.
+// Nearby towns — deliberately no generic "Ilfov" zone/heading, only these specific towns.
 const ZONE_SUBURBS = [
   { id: "chiajna", name: "Chiajna" },
-  { id: "militari-residence", name: "Militari Residence", x: -615, y: -88 },
-  { id: "rosu", name: "Roșu", x: -815, y: 55 },
-  { id: "domnesti", name: "Domnești" },
-  { id: "clinceni", name: "Clinceni" },
   { id: "bragadiru", name: "Bragadiru" },
+  { id: "clinceni", name: "Clinceni" },
+  { id: "domnesti", name: "Domnești" },
   { id: "magurele", name: "Măgurele" },
   { id: "popesti-leordeni", name: "Popești-Leordeni" },
 ];
 
-const ZONE_ALL = [...ZONE_SECTORS, ...ZONE_NEIGHBORHOODS, ...ZONE_SUBURBS];
+const ZONE_ALL = [...ZONE_SECTORS, { id: `sector-${PARTIAL_SECTOR}`, name: `Sector ${PARTIAL_SECTOR}` }, ...ZONE_NEIGHBORHOODS, ...ZONE_SUBURBS];
+const inSector = (nb, n) => nb.sector === n || nb.alsoIn?.includes(n);
+
+// Brands are listed alphabetically; this one is pre-selected when the page loads.
+const FEATURED_BRAND = "Hotpoint Ariston";
+
+// A short, zone-specific paragraph so every area URL (/reparatii-frigidere-<zone>) has its
+// own text, not just a highlighted map.
+function zoneBlurb(zoneId, lang) {
+  const ro = lang !== "en";
+  const tail = ro
+    ? "diagnostic la fața locului, piese originale, factură și garanție 12 luni. Deplasare și diagnostic: 70 lei. Sună la 0737 444 337."
+    : "on-site diagnosis, original parts, invoice and a 12-month warranty. Call-out and diagnosis: 70 RON. Call 0737 444 337.";
+  if (zoneId.startsWith("sector-")) {
+    const n = Number(zoneId.split("-")[1]);
+    const names = ZONE_NEIGHBORHOODS.filter(nb => inSector(nb, n)).map(nb => nb.name).join(", ");
+    if (n === PARTIAL_SECTOR) return ro
+      ? `În Sectorul ${n} fac reparații de frigidere la domiciliu în zonele ${names} — ${tail}`
+      : `In Sector ${n} I repair fridges at your home in ${names} — ${tail}`;
+    return ro
+      ? `Fac reparații de frigidere la domiciliu în tot Sectorul ${n}, inclusiv în ${names} — ${tail}`
+      : `I repair fridges at your home anywhere in Sector ${n}, including ${names} — ${tail}`;
+  }
+  const nb = ZONE_NEIGHBORHOODS.find(z => z.id === zoneId);
+  const name = ZONE_ALL.find(z => z.id === zoneId)?.name || "";
+  const where = !nb ? "" : ["militari-residence", "rosu"].includes(nb.id)
+    ? (ro ? ", lângă Sectorul 6" : ", next to Sector 6")
+    : `, Sector ${nb.sector}`;
+  return ro
+    ? `Fac reparații de frigidere și combine frigorifice la domiciliu în ${name}${where} — ${tail}`
+    : `I repair fridges and fridge-freezers at your home in ${name}${where} — ${tail}`;
+}
 
 // Map color scheme: everything starts on a soft yellow wash; on click, sectors turn
 // red, neighborhoods (cartiere) turn blue, and localities (localități limitrofe) turn
@@ -385,11 +461,14 @@ const MAP_YELLOW_STROKE = "#eab308";
 const MAP_SECTOR_ACTIVE = "#dc2626";
 const MAP_NEIGHBORHOOD_ACTIVE = "#0277bd";
 const MAP_LOCALITY_ACTIVE = "#ea580c";
+const MAP_UNSERVED_FILL = "#eef0f3";
+const MAP_UNSERVED_STROKE = "#c3c9d1";
 
 function ZoneMarker({ id, name, x, y, isActive, onSelect, activeColor = MAP_LOCALITY_ACTIVE }) {
   return (
     <g onClick={() => onSelect(id)} style={{ cursor: "pointer" }}>
-      <circle cx={x} cy={y} r={isActive ? 16 : 10}
+      <title>{name}</title>
+      <circle cx={x} cy={y} r={isActive ? 16 : 9}
         fill={isActive ? activeColor : MAP_YELLOW_FILL} stroke={isActive ? activeColor : MAP_YELLOW_STROKE} strokeWidth="3.5"
         style={{ transition: "all 0.2s" }} />
       {isActive && <text x={x} y={y - 24} textAnchor="middle" fontSize="30" fontWeight="700" fill="#0d3158" style={{ pointerEvents: "none" }}>{name}</text>}
@@ -416,6 +495,10 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
   return (
     <svg viewBox="-1615 -1526 2858 2823" style={{ width: "100%", height: "auto", maxWidth: "900px", display: "block", margin: "0 auto" }}>
       <rect x="-1615" y="-1526" width="2858" height="2823" fill={MAP_YELLOW_BG} />
+      <g style={{ pointerEvents: "none" }}>
+        <path d={SECTOR_PATHS[2]} fill={MAP_UNSERVED_FILL} stroke={MAP_UNSERVED_STROKE} strokeWidth="4" />
+        <text x={SECTOR_LABEL_POS[2][0]} y={SECTOR_LABEL_POS[2][1]} textAnchor="middle" dominantBaseline="middle" fontSize="46" fontWeight="700" fill={MAP_UNSERVED_STROKE}>2</text>
+      </g>
       {ZONE_SECTORS.map(s => {
         const n = Number(s.id.split("-")[1]);
         const [lx, ly] = SECTOR_LABEL_POS[n];
@@ -594,14 +677,394 @@ function ReactionBtn({ type, count, active, onClick, size = "md" }) {
   );
 }
 
+// ===== FRIDGE-DOOR INTRO =====
+
+// Shown on every load of the homepage, of an area page (sector / neighborhood / town) and
+// of the old-site URLs still promoted in paid articles, and on a reload of any page — but
+// not when someone lands directly on a brand page or blog post from search.
+function shouldShowFridgeIntro() {
+  if (/bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent)) return false;
+  const path = window.location.pathname.replace(/\/$/, "") || "/";
+  if (path === "/") return true;
+  if (seoData.pages.some(p => p.intro !== false && path === `/${p.path}`)) return true;
+  if (seoData.zones.some(z => path === `/reparatii-frigidere-${z.slug}`)) return true;
+  return performance.getEntriesByType?.("navigation")?.[0]?.type === "reload";
+}
+
+const WRENCH_FLY_MS = 550;
+const WRENCH_TWIST_MS = 1300;
+const FIXED_PAUSE_MS = 700;
+const FRIDGE_DOOR_OPEN_MS = 1100;
+const FRIDGE_HOLD_MS = 3000;
+
+const FRIDGE_COPY = {
+  ro: {
+    aria: "Bun venit — repară frigiderul și deschide-i ușa ca să intri pe site",
+    handle: "Deschide ușa frigiderului", wrench: "Repară frigiderul cu cheia",
+    skip: "Sari peste", language: "Limba",
+    welcome: "Bine ai venit!", sub: "Reparații frigidere la domiciliu",
+    fridge: "FRIGIDER", freezer: "CONGELATOR",
+    note: "Reparații la domiciliu", noteArea: "București și împrejurimi",
+    hintBroken: "Frigiderul s-a stricat! Apasă pe cheie ca să-l repari.",
+    hintRepairing: "Se repară…", hintFixed: "Reparat! Se deschide ușa…",
+    entering: s => `Intri pe site în ${s}s…`, enterNow: "Intră acum",
+    milk: "LAPTE", juice: "SUC", butter: "UNT", jam: "GEM", yogurt: "IAURT", water: "APĂ",
+  },
+  en: {
+    aria: "Welcome — fix the fridge and open its door to enter the site",
+    handle: "Open the fridge door", wrench: "Fix the fridge with the wrench",
+    skip: "Skip", language: "Language",
+    welcome: "Welcome!", sub: "Fridge repairs at your home",
+    fridge: "FRIDGE", freezer: "FREEZER",
+    note: "Home repairs", noteArea: "Bucharest & nearby",
+    hintBroken: "The fridge broke down! Tap the wrench to fix it.",
+    hintRepairing: "Repairing…", hintFixed: "Fixed! Opening the door…",
+    entering: s => `Entering the site in ${s}s…`, enterNow: "Enter now",
+    milk: "MILK", juice: "JUICE", butter: "BUTTER", jam: "JAM", yogurt: "YOGURT", water: "WATER",
+  },
+};
+
+// 3D groceries: sizes/positions are in --u units (1% of the fridge width) inside the cavity;
+// y is the shelf line as a % of the cavity height, z how far back from the front they sit.
+const FRIDGE_ITEMS = [
+  { kind: "milk", label: "milk", x: 7, y: "44%", z: 20, w: 11, h: 18, d: 11, ry: -14 },
+  { kind: "juice", label: "juice", x: 25, y: "44%", z: 27, w: 10, h: 15, d: 7, ry: 12 },
+  { kind: "cheese", x: 44, y: "44%", z: 18, w: 16, h: 8, d: 12, ry: -8 },
+  { kind: "yogurt", label: "yogurt", x: 66, y: "44%", z: 24, w: 9, h: 9, d: 9, ry: 6 },
+  { kind: "yogurt", x: 78, y: "44%", z: 15, w: 9, h: 9, d: 9, ry: -10 },
+  { kind: "eggs", x: 6, y: "72%", z: 18, w: 26, h: 6, d: 13, ry: 5 },
+  { kind: "butter", label: "butter", x: 38, y: "72%", z: 22, w: 13, h: 6, d: 8, ry: -16 },
+  { kind: "jam", label: "jam", x: 57, y: "72%", z: 20, w: 11, h: 13, d: 11, ry: 9 },
+  { kind: "water", label: "water", x: 77, y: "72%", z: 25, w: 9, h: 26, d: 9, ry: 0 },
+  { kind: "crate", x: 5, y: "100%", z: 28, w: 84, h: 15, d: 30, ry: 0 },
+];
+const FRIDGE_CRATE_FRUIT = ["🍎", "🥕", "🍇", "🍋", "🥒"];
+const FRIDGE_SHELF_YS = ["44%", "72%"];
+// Door bins (top in --u from the top of the door); items sit on the bin floor, z < 0 = towards the bin's lip.
+const FRIDGE_DOOR_BINS = [
+  { top: 20, items: [
+    { kind: "butter", label: "butter", x: 6, y: "100%", z: -6.5, w: 14, h: 6, d: 8, ry: 0 },
+    { kind: "eggs", x: 26, y: "100%", z: -6.5, w: 26, h: 6, d: 10, ry: 0 },
+    { kind: "cheese", x: 60, y: "100%", z: -6.5, w: 16, h: 7, d: 9, ry: 0 },
+  ] },
+  { top: 56, items: [
+    { kind: "jam", label: "jam", x: 6, y: "100%", z: -6.5, w: 11, h: 13, d: 10, ry: 0 },
+    { kind: "juice", label: "juice", x: 24, y: "100%", z: -6.5, w: 10, h: 16, d: 7, ry: 0 },
+    { kind: "yogurt", label: "yogurt", x: 42, y: "100%", z: -6.5, w: 10, h: 10, d: 9, ry: 0 },
+    { kind: "yogurt", x: 58, y: "100%", z: -6.5, w: 10, h: 10, d: 9, ry: 0 },
+  ] },
+  { top: 94, items: [
+    { kind: "water", label: "water", x: 6, y: "100%", z: -6.5, w: 10, h: 30, d: 10, ry: 0 },
+    { kind: "milk", label: "milk", x: 24, y: "100%", z: -6.5, w: 11, h: 22, d: 11, ry: 0 },
+    { kind: "juice", label: "juice", x: 43, y: "100%", z: -6.5, w: 11, h: 22, d: 8, ry: 0 },
+    { kind: "water", x: 62, y: "100%", z: -6.5, w: 10, h: 30, d: 10, ry: 0 },
+  ] },
+];
+
+function FridgeItem({ item, label, index }) {
+  const style = {
+    "--x": item.x, "--y": item.y, "--z": item.z, "--w": item.w, "--h": item.h, "--d": item.d,
+    "--ry": `${item.ry}deg`, "--delay": `${150 + index * 70}ms`,
+  };
+  return (
+    <div className={`fx-box fx-${item.kind}`} style={style}>
+      <div className="fx-f fx-front">{label && <span>{label}</span>}</div>
+      <div className="fx-f fx-back" />
+      <div className="fx-f fx-left" />
+      <div className="fx-f fx-right" />
+      <div className="fx-f fx-top" />
+    </div>
+  );
+}
+
+function WrenchArt() {
+  return (
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <g transform="rotate(45 50 50)" fill="none" stroke="#01579b" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M46 88 L46 31.31 A12 12 0 0 1 46 8.69 L46 17 L54 17 L54 8.69 A12 12 0 0 1 54 31.31 L54 88 A4 4 0 0 1 46 88 Z" />
+        <circle cx="50" cy="81" r="2.2" />
+      </g>
+    </svg>
+  );
+}
+
+function FridgeIntro({ lang, setLang, onDone }) {
+  const [phase, setPhaseState] = useState("broken"); // broken → repairing → fixed → opening → open → entering
+  const phaseRef = useRef("broken");
+  const setPhase = p => { phaseRef.current = p; setPhaseState(p); };
+  const [secondsLeft, setSecondsLeft] = useState(FRIDGE_HOLD_MS / 1000);
+  const [wrench, setWrench] = useState({ x: 0, y: 0, dragging: false });
+  const wrenchOffset = useRef({ x: 0, y: 0 });
+  const drag = useRef(null);
+  const wrenchRef = useRef(null);
+  const displayRef = useRef(null);
+  const rigRef = useRef(null);
+  const timers = useRef([]);
+  const c = FRIDGE_COPY[lang] || FRIDGE_COPY.ro;
+
+  const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
+  const moveWrench = (x, y, dragging) => { wrenchOffset.current = { x, y }; setWrench({ x, y, dragging }); };
+
+  const enter = (delay) => {
+    setPhase("entering");
+    later(onDone, delay);
+  };
+
+  const startRepair = () => {
+    if (phaseRef.current !== "broken") return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { enter(350); return; }
+
+    // Fly the wrench so its jaw (70%/30% of its box) lands on the fridge's display.
+    const w = wrenchRef.current?.getBoundingClientRect();
+    const d = displayRef.current?.getBoundingClientRect();
+    if (w && d) {
+      const baseLeft = w.left - wrenchOffset.current.x, baseTop = w.top - wrenchOffset.current.y;
+      moveWrench(d.left + d.width / 2 - (baseLeft + w.width * 0.7), d.top + d.height / 2 - (baseTop + w.height * 0.3), false);
+    }
+    setPhase("repairing");
+    const fixedAt = WRENCH_FLY_MS + WRENCH_TWIST_MS;
+    later(() => setPhase("fixed"), fixedAt);
+    later(() => setPhase("opening"), fixedAt + FIXED_PAUSE_MS);
+    later(() => setPhase("open"), fixedAt + FIXED_PAUSE_MS + FRIDGE_DOOR_OPEN_MS);
+    later(() => enter(850), fixedAt + FIXED_PAUSE_MS + FRIDGE_DOOR_OPEN_MS + FRIDGE_HOLD_MS);
+  };
+
+  const skip = () => {
+    if (phaseRef.current === "entering") return;
+    timers.current.forEach(clearTimeout);
+    timers.current.length = 0;
+    enter(700);
+  };
+
+  const onWrenchPointerDown = e => {
+    if (phaseRef.current !== "broken" || e.button > 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = { sx: e.clientX - wrenchOffset.current.x, sy: e.clientY - wrenchOffset.current.y, moved: false };
+    setWrench(w => ({ ...w, dragging: true }));
+  };
+  const onWrenchPointerMove = e => {
+    const g = drag.current;
+    if (!g) return;
+    const x = e.clientX - g.sx, y = e.clientY - g.sy;
+    if (Math.hypot(x - wrenchOffset.current.x, y - wrenchOffset.current.y) > 2) g.moved = true;
+    moveWrench(x, y, true);
+  };
+  const onWrenchPointerUp = e => {
+    const g = drag.current;
+    drag.current = null;
+    if (!g) return;
+    const r = rigRef.current?.getBoundingClientRect();
+    const overFridge = r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (!g.moved || overFridge) startRepair();
+    else moveWrench(0, 0, false);
+  };
+
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const pending = timers.current;
+    return () => { document.body.style.overflow = prevOverflow; pending.forEach(clearTimeout); };
+  }, []);
+
+  useEffect(() => {
+    if (phase !== "open") return;
+    const end = Date.now() + FRIDGE_HOLD_MS;
+    setSecondsLeft(FRIDGE_HOLD_MS / 1000);
+    const id = setInterval(() => setSecondsLeft(Math.max(1, Math.ceil((end - Date.now()) / 1000))), 150);
+    return () => clearInterval(id);
+  }, [phase]);
+
+  useEffect(() => {
+    const onKey = e => { if (e.key === "Escape") skip(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  const broken = phase === "broken" || phase === "repairing";
+  const unlatched = ["opening", "open", "entering"].includes(phase);
+  const showToast = phase === "open" || phase === "entering";
+  const hint = { broken: c.hintBroken, repairing: c.hintRepairing, fixed: c.hintFixed }[phase];
+
+  return (
+    <div className={`fridge-intro is-${phase}${unlatched ? " is-unlatched" : ""}${broken ? " is-broken-state" : ""}`} role="dialog" aria-modal="true" aria-label={c.aria}>
+      {!showToast && (
+        <>
+          <div className="fridge-lang" role="group" aria-label={c.language}>
+            {["ro", "en"].map(l => (
+              <button key={l} type="button" className={lang === l ? "is-active" : ""} aria-pressed={lang === l} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
+            ))}
+          </div>
+          <button type="button" className="fridge-skip" onClick={skip}>{c.skip} <FaChevronRight size={10} /></button>
+        </>
+      )}
+
+      {showToast && (
+        <div className="fridge-toast" role="status">
+          <div className="fridge-toast-row">
+            <img src="/logo-white.svg" alt="" className="fridge-toast-icon" />
+            <div className="fridge-toast-text">
+              <strong>{c.welcome}</strong>
+              <span>{c.entering(secondsLeft)}</span>
+            </div>
+            <button type="button" className="fridge-toast-btn" onClick={skip}>{c.enterNow}</button>
+          </div>
+          <div className="fridge-toast-track">
+            <div className="fridge-toast-bar" style={{ animationDuration: `${FRIDGE_HOLD_MS}ms` }} />
+          </div>
+        </div>
+      )}
+
+      <div className="fridge-scene">
+        <div className="fridge-smoke" aria-hidden="true">
+          {[0, 1, 2, 3, 4, 5, 6, 7].map(i => <span key={i} style={{ "--i": i }} />)}
+          {["-6%", "8%", "92%", "106%"].map((x, i) => <span key={x} className="is-low" style={{ "--i": i + 2, "--lx": x }} />)}
+        </div>
+
+        <div className="fridge-shake">
+        <div className="fridge-rig" ref={rigRef}>
+          <div className="fridge">
+            <div className="fc-side fc-side-left" aria-hidden="true" />
+            <div className="fc-side fc-side-right" aria-hidden="true" />
+            <div className="fc-top" aria-hidden="true" />
+            <div className="fc-frame" aria-hidden="true" />
+            <div className="fc-frame-lower" aria-hidden="true" />
+
+            <div className="fridge-cavity" aria-hidden="true">
+              <div className="fcv-back">
+                <div className="fridge-welcome">
+                  <img src="/logo.svg" alt="" className="fridge-welcome-logo" />
+                  <div className="fridge-welcome-title">{c.welcome}</div>
+                  <div className="fridge-welcome-sub">Adrian Opris · {c.sub}</div>
+                </div>
+              </div>
+              <div className="fcv-left" />
+              <div className="fcv-right" />
+              <div className="fcv-top"><div className="fcv-led" /></div>
+              <div className="fcv-bottom" />
+              {FRIDGE_SHELF_YS.map(y => <div key={y} className="fcv-shelf" style={{ "--y": y }} />)}
+              {FRIDGE_ITEMS.map((item, i) => <FridgeItem key={i} item={item} index={i} label={item.label && c[item.label]} />)}
+              <div className="fcv-items" style={{ "--y": "100%" }}>
+                {FRIDGE_CRATE_FRUIT.map((f, j) => <span key={j}>{f}</span>)}
+              </div>
+              <div className="fcv-dark" />
+            </div>
+
+            <div className="fridge-mist" aria-hidden="true">
+              {[0, 1, 2, 3, 4, 5].map(i => <span key={i} style={{ "--i": i }} />)}
+            </div>
+
+            <div className="fridge-door" onClick={startRepair}>
+              <div className="fd-back" aria-hidden="true" />
+              {/* Inner side of the door: real 3D bins with 3D groceries. The wrapper is turned
+                  180° so its local +z points out of the door's inner face. */}
+              <div className="fd-inner" aria-hidden="true">
+                {FRIDGE_DOOR_BINS.map((bin, i) => (
+                  <div key={i} className="fdb" style={{ "--t": bin.top }}>
+                    <div className="fdb-f fdb-bottom" />
+                    <div className="fdb-f fdb-left" />
+                    <div className="fdb-f fdb-right" />
+                    {bin.items.map((item, j) => <FridgeItem key={j} item={item} index={i * 3 + j} label={item.label && c[item.label]} />)}
+                    <div className="fdb-f fdb-front" />
+                  </div>
+                ))}
+              </div>
+              <div className="fd-edge fd-edge-left" aria-hidden="true" />
+              <div className="fd-edge fd-edge-top" aria-hidden="true" />
+              <div className="fd-edge fd-edge-bottom" aria-hidden="true" />
+              <div className="fd-edge fd-edge-right" aria-hidden="true" />
+              {/* Front face last: with real 3D the depth sort decides anyway, but a browser that
+                  can't do 3D (flattens) then still paints the front over the inner bins. */}
+              <div className="fd-front">
+                <div className="fridge-display" ref={displayRef} aria-hidden="true">
+                  <div className="fridge-display-cell">
+                    <span className="fridge-display-label">{c.fridge}</span>
+                    <span className={`fridge-display-temp${broken ? " is-warn" : ""}`}>{broken ? "12°" : "4°"}</span>
+                  </div>
+                  <div className="fridge-display-divider" />
+                  <div className="fridge-display-cell">
+                    <span className="fridge-display-label">{c.freezer}</span>
+                    {broken
+                      ? <span className="fridge-display-temp is-error"><FaExclamationTriangle className="fridge-display-snow" />E1</span>
+                      : <span className="fridge-display-temp"><FaSnowflake className="fridge-display-snow" />-18°</span>}
+                  </div>
+                </div>
+                <div className="fridge-sparks" aria-hidden="true">
+                  {[0, 1, 2, 3, 4, 5, 6, 7].map(i => <span key={i} style={{ "--i": i }} />)}
+                </div>
+
+                <div className="fridge-magnet-logo" aria-hidden="true">
+                  <img src="/logo.svg" alt="" />
+                </div>
+                <div className="fridge-magnet-note" aria-hidden="true">
+                  <strong>{c.note}</strong>
+                  <span>{c.noteArea}</span>
+                </div>
+                <div className="fridge-magnet-photo" aria-hidden="true">
+                  <img src="/adrian-opris.jpg" alt="" />
+                  <span>Adrian Opris</span>
+                </div>
+                <a href="tel:+40737444337" className="fridge-magnet-phone" onClick={e => e.stopPropagation()}>
+                  <FaPhone className="fridge-magnet-phone-icon" /> 0737 444 337
+                </a>
+                <div className="fridge-brand" aria-hidden="true">ADRIAN OPRIS</div>
+
+                <button type="button" className="fridge-handle" aria-label={c.handle}>
+                  <span className="fridge-handle-bar" />
+                </button>
+              </div>
+
+            </div>
+
+            <div className="fridge-freezer" aria-hidden="true">
+              <div className="fz-front"><span className="fridge-freezer-handle" /></div>
+              <div className="fd-edge fd-edge-left" />
+              <div className="fd-edge fd-edge-top" />
+            </div>
+          </div>
+        </div>
+        </div>
+        <div className="fridge-shadow" aria-hidden="true" />
+
+        {!unlatched && (
+          <button
+            ref={wrenchRef}
+            type="button"
+            className={`fridge-wrench${wrench.dragging ? " is-dragging" : ""}`}
+            style={{ "--wx": `${wrench.x}px`, "--wy": `${wrench.y}px` }}
+            aria-label={c.wrench}
+            onPointerDown={onWrenchPointerDown}
+            onPointerMove={onWrenchPointerMove}
+            onPointerUp={onWrenchPointerUp}
+            onPointerCancel={() => { drag.current = null; moveWrench(0, 0, false); }}
+            onClick={e => { if (e.detail === 0) startRepair(); }}
+          >
+            <span className="fridge-wrench-art"><WrenchArt /></span>
+          </button>
+        )}
+      </div>
+
+      <p className="fridge-hint" aria-live="polite">{hint}</p>
+    </div>
+  );
+}
+
 // ===== MAIN COMPONENT =====
 
 export default function App() {
   const [lang, setLang] = useState("ro");
   const [activeNav, setActiveNav] = useState("acasa");
-  const [selectedBrand, setSelectedBrand] = useState("Bosch");
+  const [selectedBrand, setSelectedBrand] = useState(FEATURED_BRAND);
   const [highlightedZone, setHighlightedZone] = useState(null);
   const [pathname, setPathname] = useState(() => window.location.pathname);
+  const [showIntro, setShowIntro] = useState(shouldShowFridgeIntro);
+  // "all" = Google Maps may load, "necessary" = only strictly-needed local storage, null = not asked yet
+  const [consent, setConsent] = useState(() => { try { return localStorage.getItem("cookieConsent"); } catch { return null; } });
+  const saveConsent = (value) => {
+    try { if (value) localStorage.setItem("cookieConsent", value); else localStorage.removeItem("cookieConsent"); } catch {}
+    const state = value === "all" ? "granted" : "denied";
+    window.gtag?.("consent", "update", { ad_storage: state, ad_user_data: state, ad_personalization: state, analytics_storage: state });
+    setConsent(value);
+  };
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -700,12 +1163,17 @@ export default function App() {
       .catch(() => localStorage.removeItem("fridgeAdminToken"));
   }, []);
 
-  // Gallery — shown 4 photos per slide
-  const galleryGroups = useMemo(() => {
-    const groups = [];
-    for (let i = 0; i < galleryImages.length; i += 4) groups.push(galleryImages.slice(i, i + 4));
-    return groups;
-  }, [galleryImages]);
+  // Gallery — one collage per slide
+  const galleryGroups = useMemo(() => galleryImages.map(img => [img]), [galleryImages]);
+  const [galleryZoom, setGalleryZoom] = useState(null);
+  useEffect(() => {
+    if (!galleryZoom) return;
+    const onKey = e => { if (e.key === "Escape") setGalleryZoom(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [galleryZoom]);
+  const captionText = c => (typeof c === "string" ? c : c?.[lang] || c?.ro);
+  const blockImageCopy = { onContextMenu: e => e.preventDefault(), onDragStart: e => e.preventDefault() };
 
   const advanceGallery = useCallback(() => {
     setGalleryIndex(i => (i + 1) % galleryGroups.length);
@@ -951,22 +1419,22 @@ export default function App() {
 
   const t = {
     ro: {
-      nav: { acasa: "Acasă", despre: "Despre mine", servicii: "Servicii", galerie: "Galerie", zone: "Zone", blog: "Blog", recenzii: "Recenzii", faq: "Întrebări", gdpr: "GDPR", contact: "Contact" },
+      nav: { acasa: "Acasă", galerie: "Galerie", despre: "Despre mine", servicii: "Servicii", zone: "Zone", blog: "Blog", recenzii: "Recenzii", faq: "Întrebări", gdpr: "GDPR", contact: "Contact" },
       hero: {
         badge: "Autorizat AGFR • 16+ ani experiență",
         h1: "Frigiderul s-a defectat?",
         h1b: "Îl reparăm la domiciliul tău.",
         sub: "Tehnician frigotehnist autorizat certificat pentru frigidere, combine frigorifice și congelatoare. Intervenție rapidă în București și împrejurimi.",
-        cta1: "Sună Acum",
+        cta1: "Sună acum · nr. dedicat",
         badges: ["Garanție 12 luni", "Factură fiscală", "Piese originale", "Deplasare 70 lei"],
       },
       about: {
-        title: "Despre mine", sub: "16+ ani de reparații frigidere în București, 1000+ de clienți mulțumiți",
+        title: "Despre mine", sub: "16+ ani de reparații frigidere în București, 10000+ de clienți mulțumiți",
         facts: [
           { label: "Experiență", value: "16+ ani" },
           { label: "Autorizare", value: "AGFR — freon" },
           { label: "PFA", value: "CUI 26374475 / 07.01.2010" },
-          { label: "Intervenții efectuate", value: "1000+" },
+          { label: "Intervenții efectuate", value: "10000+" },
         ],
         paragraphs: [
           "Numele meu este Adrian Opriș și sunt tehnician calificat, autorizat frigotehnist și electronist automatizări, având experiența de peste 16 ani. Efectuez reparații frigidere și combine frigorifice în zona Capitalei ca independent, înregistrat oficial CUI 26374475 / 07.01.2010, autorizat AGFR pentru utilizarea și încărcarea cu freon a instalațiilor frigorifice. Vă stau la dispoziție pentru a vă oferi servicii de reparații frigidere de calitate, la domiciliu, în caz de urgență.",
@@ -975,7 +1443,7 @@ export default function App() {
           "Pentru o informare cât mai apropiată de posibila cauză a defectului, vă rog frumos, pentru a veni pregătit cu piese potrivite și a vă executa reparația frigiderului cât mai rapid, să vă aflați în apropierea frigiderului în momentul discuției telefonice, pentru a vă putea pune câteva scurte întrebări legate de funcționalitatea lui. De asemenea, m-ar ajuta și poze cu frigiderul sau combina frigorifică în cauză, pentru a-mi face o idee cât mai clară despre natura problemei tehnice apărute. Pe baza discuției telefonice, dacă vă pot ajuta cu reparația frigiderului, vom stabili de comun acord o vizită pentru o constatare și eventuala reparație la domiciliul dumneavoastră.",
           "Folosesc scule specifice domeniului frigotehnic, de calitate, care au cele mai bune evaluări, iar în cadrul reparației frigiderului folosesc piese originale de calitate, cu garanție, oferind garanție pentru reparația frigiderului efectuată și piesa înlocuită.",
           "Mentenanța frigiderelor casnice, efectuată de un frigotehnist autorizat, chiar dacă nu este obligatorie prin lege, este necesară după 3-4 ani de folosire. Consider importantă și punerea în funcțiune, inclusiv reglarea setărilor frigiderului în funcție de locație și modul de amplasare. Efectuate corect, acestea ar ajuta mult utilizatorii să se poată bucura cât mai mult de combina frigorifică sau frigider, evitând defecțiunile premature.",
-          "De asemenea, pot efectua revizii profesionale periodice la frigidere și combine frigorifice. Pentru orice problemă legată de service la frigiderul dumneavoastră, vă stau la dispoziție cu profesionalismul și experiența îndelungată acumulată în cele peste 1000 de intervenții efectuate.",
+          "De asemenea, pot efectua revizii profesionale periodice la frigidere și combine frigorifice. Pentru orice problemă legată de service la frigiderul dumneavoastră, vă stau la dispoziție cu profesionalismul și experiența îndelungată acumulată în cele peste 10000 de intervenții efectuate.",
         ],
       },
       gallery: { title: "Galerie Foto", sub: "Lucrări realizate — reparații frigidere la domiciliu în București" },
@@ -1007,29 +1475,32 @@ export default function App() {
       },
       brands: { title: "Mărci deservite", sub: "Reparăm toate brandurile importante de frigidere" },
       zones: {
-        title: "Zone de intervenție în București", sub: "Acoperim toată capitala și împrejurimile",
-        sectors: "Toate sectoarele",
-        sectorsDesc: "Intervenim în toate cele 6 sectoare ale Bucureștiului: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova) și Sector 6 (Militari, Drumul Taberei, Crângași).",
-        neighborhoods: "Cartiere principale",
-        neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa.",
+        badge: "București și împrejurimi",
+        title: "Zone de intervenție în București", sub: "Sectoarele 1, 3, 4, 5, 6, câteva zone din Sectorul 2 și localități din apropiere",
+        partialDesc: "Doar zonele de mai jos.",
+        sectorCard: n => `Sector ${n}`, wholeSector: "Tot sectorul",
         suburbs: "Localități limitrofe",
-        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Popești-Leordeni.",
-        seoText: "Serviciile noastre de reparații frigidere acoperă întreaga arie metropolitană a Bucureștiului. Indiferent dacă locuiești în sectorul 1, 2, 3, 4, 5 sau 6, sau în localitățile limitrofe, tehnicianul nostru autorizat ajunge la tine rapid.",
+        suburbsDesc: "Ajung și în câteva localități aflate imediat lângă București.",
+        mapTitle: "Hartă interactivă a zonelor deservite",
+        mapHint: "Click pe un sector, un cartier sau o localitate pentru a-l evidenția pe hartă. Din Sectorul 2 (gri) acopăr doar zonele marcate.",
+        seoText: "Fac reparații de frigidere la domiciliu în sectoarele 1, 3, 4, 5 și 6 ale Bucureștiului, în Sectorul 2 la Obor, Calea Moșilor, Iancului și Mihai Bravu — de la Militari, Drumul Taberei, Crângași și Ghencea, la Rahova, Berceni, Titan, Dristor, Floreasca sau Bucureștii Noi — și în localitățile Chiajna, Bragadiru, Clinceni, Domnești, Măgurele și Popești-Leordeni.",
       },
       reviews: {
-        title: "Ce spun clienții", sub: "16+ ani de reparații a frigiderelor în București, 1000+ de clienți mulțumiți, 700+ review-uri pe Google Maps",
+        title: "Ce spun clienții", sub: "16+ ani de reparații a frigiderelor în București, 10000+ de clienți mulțumiți, 700+ review-uri pe Google Maps",
         mapTitle: "Locația noastră",
+        homeOnlyTitle: "Lucrez doar la domiciliul clienților",
+        homeOnly: "Nu am atelier și nici punct de lucru fix — așa figurez și la Registrul Comerțului. Nu primesc clienți la sediu: mă suni, stabilim ora și vin eu la tine acasă, cu piesele și sculele necesare.",
         loadMore: "Mai multe recenzii", loadLess: "Mai puține recenzii",
         items: [
-          { name: "Andreea Popa", zone: "Rahova, Sector 5", rating: 5, text: "Combina frigorifică Electrolux a înghețat brusc pe o parte. L-am sunat pe Opriș Adrian dimineața, a venit la prânz, a identificat rapid un senzor de temperatură defect și l-a înlocuit pe loc. Foarte mulțumită de rapiditate și profesionalism.", date: "2026" },
-          { name: "Mara Ionescu", zone: "Obor, Sector 2", rating: 5, text: "Frigiderul Samsung nu mai răcea deloc. Opriș Adrian a venit în aceeași zi, a găsit rapid problema și l-a reparat pe loc. Foarte mulțumită de seriozitate și preț corect.", date: "2025" },
+          { name: "Andreea Popa", zone: "Rahova, Sector 5", rating: 5, text: "Combina frigorifică Electrolux a înghețat brusc pe o parte. L-am sunat pe Adrian Opriș dimineața, a venit la prânz, a identificat rapid un senzor de temperatură defect și l-a înlocuit pe loc. Foarte mulțumită de rapiditate și profesionalism.", date: "2026" },
+          { name: "Mara Ionescu", zone: "Obor, Sector 2", rating: 5, text: "Frigiderul Samsung nu mai răcea deloc. Adrian Opriș a venit în aceeași zi, a găsit rapid problema și l-a reparat pe loc. Foarte mulțumită de seriozitate și preț corect.", date: "2025" },
           { name: "Radu Constantinescu", zone: "Titan, Sector 3", rating: 5, text: "Combina frigorifică Bosch avea o defecțiune la termostat. Diagnostic corect, piesă originală, garanție 12 luni. Recomand cu încredere.", date: "2023" },
           { name: "Elena Vasilescu", zone: "Drumul Taberei", rating: 5, text: "Pierdere de freon la frigiderul Beko, rezolvată rapid și curat. A explicat tot procesul și a lăsat factură fiscală. Al doilea an la rând când apelez la el.", date: "2021" },
           { name: "Cristian Neagu", zone: "Berceni, Sector 4", rating: 4, text: "A întârziat puțin față de ora stabilită, dar odată ajuns a reparat frigiderul Arctic rapid și profesionist. Preț corect, aș apela din nou.", date: "2019" },
           { name: "Simona Barbu", zone: "Militari", rating: 5, text: "Compresorul frigiderului Whirlpool s-a defectat brusc. A venit repede, a schimbat compresorul pe loc și a testat totul înainte să plece. Impecabil.", date: "2017" },
           { name: "Florin Matei", zone: "Floreasca, Sector 1", rating: 5, text: "Frigiderul Indesit avea probleme cu răcirea de câteva săptămâni. A identificat problema din prima vizită și a rezolvat-o cu piese de calitate.", date: "2015" },
           { name: "Ioana Dobre", zone: "Pantelimon", rating: 5, text: "Am apelat pentru un frigider Gorenje vechi care făcea zgomot ciudat. A diagnosticat corect ventilatorul defect și l-a înlocuit rapid. Foarte punctual.", date: "2013" },
-          { name: "Nicolae Stanciu", zone: "Sector 6", rating: 5, text: "Unul dintre primii clienți ai lui Opriș Adrian — frigider Zanussi cu pierdere de freon. De atunci îl chem de fiecare dată când am o problemă cu electrocasnicele.", date: "2011" },
+          { name: "Nicolae Stanciu", zone: "Sector 6", rating: 5, text: "Unul dintre primii clienți ai lui Adrian Opriș — frigider Zanussi cu pierdere de freon. De atunci îl chem de fiecare dată când am o problemă cu electrocasnicele.", date: "2011" },
         ],
       },
       blog: {
@@ -1057,6 +1528,16 @@ export default function App() {
       },
       faq: {
         title: "Întrebări frecvente", sub: "Răspunsuri la cele mai comune întrebări",
+        tipsTitle: "Sfaturi utile înainte să chemi un frigotehnist",
+        tips: [
+          "Dacă nu funcționează nici frigiderul, nici lumina din interior, verifică priza: conectează alt aparat în aceeași priză și vezi dacă merge.",
+          "Dacă se strânge apă în compartimentul de legume la frigiderele cu dezghețare automată, verifică dacă nu s-a înfundat scurgerea condensului.",
+          "La frigiderele No-Frost, când compartimentul frigider nu mai ține temperatura potrivită, fă o dezghețare completă de minimum 24 de ore, cu ușile deschise atât la frigider, cât și la congelator.",
+          "Dacă frigiderul tinde să funcționeze încontinuu, dă-l pe treapta minimă (1) și depărtează-l de pereți, mai ales în spate, unde este condensatorul (la No-Frost, uneori pe pereții laterali).",
+          "Vara, setează termostatul pe o treaptă mică (1–2) sau, la cele cu afișaj electronic, 6–7°C la frigider și -18°C la congelator, ca să protejezi compresorul. Cu cât e mai cald în încăpere, cu atât setarea trebuie să fie mai mică.",
+          "Dacă scade brusc tensiunea (lumina pâlpâie, televizorul se stinge și repornește), scoate frigiderul din priză 15–20 de minute, ca să se egalizeze presiunile și să iasă din protecția termică — altfel există riscul să se blocheze compresorul.",
+          "Nu așeza frigiderul lângă surse de căldură sau în lumina directă a soarelui.",
+        ],
         items: [
           { q: "Cât durează o reparație de frigider?", a: "Majoritatea reparațiilor se rezolvă la prima vizită, în 1-2 ore. Dacă este necesară o piesă de schimb specială, poate dura 1-2 zile suplimentare." },
           { q: "Veniți și în weekend?", a: "Da, lucrăm de luni până sâmbătă, între orele 09:00-18:00. Pentru urgențe, încercăm să găsim soluții și în afara programului normal." },
@@ -1092,43 +1573,54 @@ export default function App() {
         ],
       },
       gdpr: {
-        title: "Protecția datelor (GDPR)", sub: "Transparent despre ce date colectez și cum le folosesc",
+        title: "Politica de confidențialitate (GDPR)", sub: "Transparent despre ce date se colectează și cum sunt folosite",
         items: [
-          { q: "Ce date colectez", a: "Când lași un comentariu la un articol, salvez numele (sau pseudonimul) pe care îl scrii și textul comentariului. Pentru reacții (👍❤️👎) folosesc un identificator anonim, generat automat și salvat în browserul tău (localStorage), doar ca să știu care reacție este a ta — nu conține nume, e-mail sau alte date personale. Dacă mă contactezi prin telefon, WhatsApp sau e-mail, conversația are loc direct prin acele aplicații, nu prin acest site." },
-          { q: "Cum folosesc aceste date", a: "Numele și comentariul le folosesc doar pentru a afișa și modera secțiunea de comentarii a blogului. Identificatorul anonim din browser este folosit exclusiv pentru a preveni reacții multiple de la același vizitator la aceeași postare. Nu vând, nu închiriez și nu folosesc aceste date în scopuri de marketing." },
-          { q: "Cookie-uri și stocare locală", a: "Site-ul nu folosește cookie-uri de reclamă sau de analiză a traficului. Salvez local, în browserul tău, doar ce este strict necesar pentru funcționare: identificatorul anonim pentru reacții. Harta din secțiunea Contact este încărcată direct de la Google (Google Maps) și poate seta propriile cookie-uri, conform politicii de confidențialitate Google." },
-          { q: "Cât timp păstrez datele", a: "Comentariile rămân publicate până când le șterg eu, ca administrator, sau până la solicitarea ta de ștergere. Identificatorul anonim din browser rămâne salvat local până când ștergi datele de navigare din browser." },
-          { q: "Drepturile tale", a: "Ai dreptul de acces, rectificare, ștergere, restricționare, opoziție și portabilitate a datelor tale, conform Regulamentului (UE) 2016/679 (GDPR). Pentru orice solicitare legată de datele tale (de exemplu, ștergerea unui comentariu), scrie-mi la adifrigotehnist@yahoo.com. Ai și dreptul de a depune o plângere la Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP) — dataprotection.ro." },
-          { q: "Operatorul de date", a: "Operator: Opriș Adrian PFA, CUI 26374475, cu sediul în Bd. Timișoara nr. 53, Sector 6, București." },
+          { q: "Cine sunt (operatorul de date)", a: "Operator: Opriș Adrian PFA, CUI 26374475, cu sediul în Bd. Timișoara nr. 53, Sector 6, București. Mă poți contacta pentru orice întrebare despre datele tale la adifrigotehnist@yahoo.com sau la +40 737 444 337." },
+          { q: "Ce date colectez", a: "Pe site nu există formulare de contact sau de comandă. Când lași un comentariu la un articol, salvez numele (sau pseudonimul) pe care îl scrii și textul comentariului. Pentru reacții (👍❤️👎) folosesc un identificator anonim, generat automat și salvat în browserul tău (localStorage), doar ca să știu care reacție este a ta — nu conține nume, e-mail sau alte date personale. Dacă mă contactezi prin telefon, WhatsApp sau e-mail, conversația are loc direct prin acele aplicații, nu prin acest site." },
+          { q: "Date colectate automat (jurnalele serverului)", a: "Ca la orice site, serverul pe care este găzduit (furnizorul de găzduire) înregistrează automat, din motive de securitate și funcționare, date tehnice despre fiecare accesare: adresa IP, data și ora, pagina cerută, tipul de browser și de dispozitiv. Adresa IP este considerată dată cu caracter personal. Aceste jurnale sunt păstrate de furnizorul de găzduire pentru o perioadă limitată și sunt folosite doar pentru funcționarea în siguranță a site-ului (protecție împotriva atacurilor, depanare) — nu le folosesc pentru a te identifica sau în scop de marketing. Temeiul legal este interesul legitim (art. 6 alin. (1) lit. f) GDPR)." },
+          { q: "Cum folosesc aceste date", a: "Numele și comentariul le folosesc doar pentru a afișa și modera secțiunea de comentarii a blogului (temei: consimțământul tău, exprimat prin trimiterea comentariului). Identificatorul anonim din browser este folosit exclusiv pentru a preveni reacții multiple de la același vizitator la aceeași postare. Nu vând, nu închiriez și nu folosesc aceste date în scopuri de marketing." },
+          { q: "Cookie-uri și stocare locală", a: "Fără acordul tău, site-ul nu setează cookie-uri de reclamă sau de analiză a traficului. Salvez local, în browserul tău (localStorage), doar ce este strict necesar: alegerea ta din banner-ul de cookie-uri și identificatorul anonim pentru reacții. Fonturile sunt găzduite chiar pe acest site, așa că afișarea textului nu trimite date către Google. Numai dacă alegi „Accept tot”, activez Google Analytics 4 / Google Ads (etichetele Google, în modul „Consent Mode”), care pot seta cookie-uri pentru statistici de vizitare și pentru măsurarea eficienței reclamelor. Fără acord, eticheta Google trimite doar semnale fără cookie-uri. Îți poți schimba oricând alegerea din linkul „Setări cookie-uri” din subsolul paginii." },
+          { q: "Servicii terțe", a: "Găzduirea site-ului: furnizorul de hosting (jurnalele serverului, descrise mai sus). Google Analytics / Google Ads: doar cu acordul tău (temei: consimțământul, art. 6 alin. (1) lit. a) GDPR); Google poate transfera date în afara UE, în baza mecanismelor legale proprii. DeepL: textele articolelor de blog scrise de mine sunt traduse automat în engleză prin DeepL — nu se trimit date despre vizitatori. Linkurile către Facebook, YouTube, WhatsApp și Google Maps deschid site-urile respective, care au propriile politici de confidențialitate." },
+          { q: "Cât timp păstrez datele", a: "Comentariile rămân publicate până când le șterg eu, ca administrator, sau până la solicitarea ta de ștergere. Identificatorul anonim și alegerea privind cookie-urile rămân salvate local până când ștergi datele de navigare din browser. Jurnalele serverului sunt șterse automat de furnizorul de găzduire după o perioadă scurtă." },
+          { q: "Drepturile tale", a: "Ai dreptul de acces, rectificare, ștergere, restricționare, opoziție și portabilitate a datelor tale, precum și dreptul de a-ți retrage oricând consimțământul, conform Regulamentului (UE) 2016/679 (GDPR). Pentru orice solicitare (de exemplu, ștergerea unui comentariu), scrie-mi la adifrigotehnist@yahoo.com. Ai și dreptul de a depune o plângere la Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP) — dataprotection.ro." },
         ],
+      },
+      cookies: {
+        title: "Cookie-uri și confidențialitate",
+        text: "Folosesc stocare tehnică strict necesară. Doar dacă alegi „Accept tot”, activez Google Analytics / Google Ads (statistici de vizitare și măsurarea reclamelor) — atunci Google poate seta cookie-uri.",
+        details: "Detalii", accept: "Accept tot", necessary: "Doar necesare",
+        settings: "Setări cookie-uri", privacyLink: "Politica de confidențialitate",
+        mapPlaceholder: "Harta este furnizată de Google Maps. Când o afișezi, Google primește adresa ta IP și poate seta cookie-uri.",
+        mapLoad: "Afișează harta",
       },
       contact: {
         title: "Contact", sub: "Sună acum și îți rezolvăm problema rapid",
         phone: "+40 737 444 337", phoneFull: "+40737444337",
         email: "adifrigotehnist@yahoo.com",
         address: "Bulevardul Timișoara 53, Sector 6, București",
+        serviceArea: "Doar la domiciliul clienților, în București",
         hours: "Luni – Sâmbătă: 09:00 – 18:00",
-        legalAddress: "Sediul social: Bd. Timișoara nr. 53, sector 6, București. PFA CUI 26374475 / 07.01.2010",
+        legalAddress: "Sediul social: Bd. Timișoara nr. 53, sector 6, București (fără punct de lucru — nu primesc clienți la sediu). PFA CUI 26374475 / 07.01.2010",
         consumerProtection: "Protecția consumatorilor: INFOCONS 0219551 · site:",
         copyright: "Opris Adrian PFA • Toate drepturile rezervate.",
       },
     },
     en: {
-      nav: { acasa: "Home", despre: "About Me", servicii: "Services", galerie: "Gallery", zone: "Areas", blog: "Blog", recenzii: "Reviews", faq: "FAQ", gdpr: "GDPR", contact: "Contact" },
+      nav: { acasa: "Home", galerie: "Gallery", despre: "About Me", servicii: "Services", zone: "Areas", blog: "Blog", recenzii: "Reviews", faq: "FAQ", gdpr: "GDPR", contact: "Contact" },
       hero: {
         badge: "AGFR Authorized • 16+ years experience",
         h1: "Fridge broken down?", h1b: "We repair it at your home.",
         sub: "Certified, authorized fridge repair technician — fridges, fridge-freezers and freezers. Fast response in Bucharest and surrounding areas.",
-        cta1: "Call Now",
+        cta1: "Call now · dedicated number",
         badges: ["12-month warranty", "Fiscal invoice", "Original parts", "Call-out fee 70 RON"],
       },
       about: {
-        title: "About Me", sub: "16+ years of fridge repairs in Bucharest, 1000+ satisfied clients",
+        title: "About Me", sub: "16+ years of fridge repairs in Bucharest, 10000+ satisfied clients",
         facts: [
           { label: "Experience", value: "16+ years" },
           { label: "Authorization", value: "AGFR — refrigerant" },
           { label: "Sole trader (PFA)", value: "Tax ID 26374475 / 07.01.2010" },
-          { label: "Interventions completed", value: "1000+" },
+          { label: "Interventions completed", value: "10000+" },
         ],
         paragraphs: [
           "My name is Adrian Opriș and I am a qualified, authorized refrigeration technician and automation electronics engineer, with over 16 years of experience. I carry out fridge and fridge-freezer repairs in the Bucharest area as a sole trader, officially registered under Tax ID (CUI) 26374475 / 07.01.2010, and authorized by AGFR to handle and charge refrigeration systems with refrigerant (freon). I'm at your service for quality fridge repairs at home, including emergencies.",
@@ -1137,7 +1629,7 @@ export default function App() {
           "For information as close as possible to the likely cause of the fault — so I can come prepared with the right parts and repair your fridge as quickly as possible — please be near the fridge during our phone call, so I can ask you a few short questions about how it's behaving. Photos of the fridge or fridge-freezer in question would also help me get a clearer picture of the technical problem. Based on our phone conversation, if I can help with the repair, we'll agree together on a visit to assess the fault and carry out the repair at your home.",
           "I use quality tools specific to the refrigeration trade, with the best reviews, and for every repair I use quality original parts, with warranty, guaranteeing both the repair carried out and the part replaced.",
           "Maintenance of household fridges by an authorized refrigeration technician, while not legally required, becomes necessary after 3-4 years of use. I also consider commissioning important, including adjusting the fridge's settings according to its location and placement. Done correctly, this helps users enjoy their fridge-freezer or fridge for much longer, avoiding premature failures.",
-          "I also carry out periodic professional maintenance checks on fridges and fridge-freezers. For any service issue with your fridge, I'm at your disposal with the professionalism and extensive experience built up over more than 1000 interventions carried out.",
+          "I also carry out periodic professional maintenance checks on fridges and fridge-freezers. For any service issue with your fridge, I'm at your disposal with the professionalism and extensive experience built up over more than 10000 interventions carried out.",
         ],
       },
       gallery: { title: "Photo Gallery", sub: "Our work — fridge repairs at home in Bucharest" },
@@ -1169,18 +1661,21 @@ export default function App() {
       },
       brands: { title: "Brands Serviced", sub: "We repair all major refrigerator brands" },
       zones: {
-        title: "Service Areas in Bucharest", sub: "We cover the entire capital and surroundings",
-        sectors: "All sectors",
-        sectorsDesc: "We serve all 6 sectors of Bucharest: Sector 1 (Floreasca, Dorobanți, Aviației), Sector 2 (Obor, Iancului, Pantelimon), Sector 3 (Titan, Vitan, Dristor), Sector 4 (Berceni, Văcărești, Tineretului), Sector 5 (Rahova) and Sector 6 (Militari, Drumul Taberei, Crângași).",
-        neighborhoods: "Main neighborhoods",
-        neighborhoodsDesc: "Militari, Drumul Taberei, Titan, Berceni, Pantelimon, Colentina, Floreasca, Dorobanți, Aviației, Pipera, Rahova, Giulești, Crângași, Văcărești, Tineretului, Dristor, Vitan, Iancului, Obor, Grivița, Băneasa.",
-        suburbs: "Surrounding areas",
-        suburbsDesc: "Bragadiru, Domnești, Clinceni, Măgurele, Militari Residence, Chiajna, Roșu, Popești-Leordeni.",
-        seoText: "Our fridge repair services cover the entire Bucharest metropolitan area. Whether you live in sector 1, 2, 3, 4, 5, or 6, or in the surrounding towns, our authorized technician reaches you quickly.",
+        badge: "Bucharest & nearby",
+        title: "Service Areas in Bucharest", sub: "Sectors 1, 3, 4, 5, 6, a few areas of Sector 2 and nearby towns",
+        partialDesc: "Only the areas below.",
+        sectorCard: n => `Sector ${n}`, wholeSector: "Whole sector",
+        suburbs: "Nearby towns",
+        suburbsDesc: "I also cover a few towns right next to Bucharest.",
+        mapTitle: "Interactive map of the areas I cover",
+        mapHint: "Click a sector, a neighborhood, or a town to highlight it on the map. In Sector 2 (grey) I only cover the marked areas.",
+        seoText: "I repair fridges at your home in Bucharest sectors 1, 3, 4, 5 and 6, in Sector 2 around Obor, Calea Moșilor, Iancului and Mihai Bravu — from Militari, Drumul Taberei, Crângași and Ghencea to Rahova, Berceni, Titan, Dristor, Floreasca or Bucureștii Noi — and in the towns of Chiajna, Bragadiru, Clinceni, Domnești, Măgurele and Popești-Leordeni.",
       },
       reviews: {
-        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest, 1000+ satisfied clients, 700+ reviews on Google Maps",
+        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest, 10000+ satisfied clients, 700+ reviews on Google Maps",
         mapTitle: "Our Location",
+        homeOnlyTitle: "I only work at customers' homes",
+        homeOnly: "I have no workshop and no fixed place of business — that's also how I'm registered at the Trade Register. I don't receive customers at the registered office: you call me, we agree on a time, and I come to your home with the parts and tools needed.",
         loadMore: "More reviews", loadLess: "Fewer reviews",
         items: [
           { name: "Andreea Popa", zone: "Rahova, Sector 5", rating: 5, text: "Our Electrolux fridge-freezer suddenly froze up on one side. I called Adrian in the morning, he came by noon, quickly found a faulty temperature sensor and replaced it on the spot. Very happy with how fast and professional he was.", date: "2026" },
@@ -1219,6 +1714,16 @@ export default function App() {
       },
       faq: {
         title: "Frequently Asked Questions", sub: "Answers to the most common questions",
+        tipsTitle: "Useful tips before calling a technician",
+        tips: [
+          "If neither the fridge nor its interior light works, check the socket: plug another appliance into the same socket and see if it works.",
+          "If water collects in the vegetable compartment of an auto-defrost fridge, check whether the condensate drain is blocked.",
+          "On No-Frost fridges, when the fridge compartment no longer holds the right temperature, do a full defrost of at least 24 hours with both the fridge and freezer doors open.",
+          "If the fridge tends to run non-stop, set it to the lowest setting (1) and move it away from the walls — especially at the back, where the condenser is (on No-Frost models, sometimes in the side walls).",
+          "In summer, set the thermostat low (1–2) or, on models with a display, 6–7°C for the fridge and -18°C for the freezer, to protect the compressor. The warmer the room, the lower the setting should be.",
+          "If the power suddenly dips (lights flicker, the TV turns off and back on), unplug the fridge for 15–20 minutes so the pressures can equalize and it can reset its thermal protection — otherwise the compressor may lock up.",
+          "Don't place the fridge next to heat sources or in direct sunlight.",
+        ],
         items: [
           { q: "How long does a fridge repair take?", a: "Most repairs are completed on the first visit, in 1-2 hours. If a special spare part is needed, it may take an additional 1-2 days." },
           { q: "Do you work on weekends?", a: "Yes, we work Monday to Saturday, 09:00-18:00. For emergencies, we try to find solutions outside normal hours too." },
@@ -1254,21 +1759,32 @@ export default function App() {
         ],
       },
       gdpr: {
-        title: "Data Protection (GDPR)", sub: "Transparent about what data I collect and how I use it",
+        title: "Privacy Policy (GDPR)", sub: "Transparent about what data is collected and how it's used",
         items: [
-          { q: "What data I collect", a: "When you leave a comment on an article, I save the name (or nickname) you type and the comment text. For reactions (👍❤️👎) I use an anonymous identifier, generated automatically and stored in your browser (localStorage), just so I know which reaction is yours — it contains no name, email, or other personal data. If you contact me by phone, WhatsApp, or email, that conversation happens directly through those apps, not through this website." },
-          { q: "How I use this data", a: "I use the name and comment only to display and moderate the blog's comment section. The anonymous browser identifier is used only to prevent multiple reactions from the same visitor on the same post. I don't sell, rent, or use this data for marketing purposes." },
-          { q: "Cookies and local storage", a: "This site doesn't use advertising or traffic-analytics cookies. I only store, locally in your browser, what's strictly necessary for the site to work: the anonymous identifier for reactions. The map in the Contact section is loaded directly from Google (Google Maps) and may set its own cookies, per Google's privacy policy." },
-          { q: "How long I keep the data", a: "Comments stay published until I remove them as the administrator, or until you request deletion. The anonymous browser identifier stays stored locally until you clear your browser data." },
-          { q: "Your rights", a: "You have the right to access, rectify, erase, restrict, object to, and port your data, under Regulation (EU) 2016/679 (GDPR). For any request about your data (for example, deleting a comment), email me at adifrigotehnist@yahoo.com. You also have the right to file a complaint with Romania's data protection authority (ANSPDCP) — dataprotection.ro." },
-          { q: "Data controller", a: "Controller: Opriș Adrian PFA, Tax ID (CUI) 26374475, registered office at Bd. Timișoara no. 53, District 6, Bucharest." },
+          { q: "Who I am (data controller)", a: "Controller: Opriș Adrian PFA, tax ID 26374475, registered office at Bd. Timișoara no. 53, Sector 6, Bucharest. For any question about your data, contact me at adifrigotehnist@yahoo.com or +40 737 444 337." },
+          { q: "What data I collect", a: "There are no contact or order forms on this site. When you leave a comment on an article, I save the name (or nickname) you type and the comment text. For reactions (👍❤️👎) I use an anonymous identifier, generated automatically and stored in your browser (localStorage), just so I know which reaction is yours — it contains no name, email, or other personal data. If you contact me by phone, WhatsApp, or email, that conversation happens directly through those apps, not through this website." },
+          { q: "Data collected automatically (server logs)", a: "As with any website, the server hosting it (the hosting provider) automatically records technical data about each visit for security and operational reasons: IP address, date and time, requested page, browser and device type. An IP address counts as personal data. These logs are kept by the hosting provider for a limited time and are used only to keep the site running safely (protection against attacks, troubleshooting) — I don't use them to identify you or for marketing. The legal basis is legitimate interest (Art. 6(1)(f) GDPR)." },
+          { q: "How I use this data", a: "I use the name and comment only to display and moderate the blog's comment section (legal basis: your consent, given by submitting the comment). The anonymous browser identifier is used solely to prevent the same visitor from reacting multiple times to the same post. I don't sell, rent, or use this data for marketing." },
+          { q: "Cookies and local storage", a: "Without your consent, this site doesn't set advertising or traffic-analytics cookies. I only store, locally in your browser (localStorage), what's strictly necessary: your choice from the cookie banner and the anonymous identifier for reactions. The fonts are hosted on this site itself, so displaying text sends no data to Google. Only if you choose “Accept all” do I enable Google Analytics 4 / Google Ads (Google tags in “Consent Mode”), which may set cookies for visit statistics and for measuring ad performance. Without consent, the Google tag only sends cookieless signals. You can change your choice at any time from the “Cookie settings” link in the page footer." },
+          { q: "Third-party services", a: "Hosting: the site's hosting provider (server logs, described above). Google Analytics / Google Ads: only with your consent (legal basis: consent, Art. 6(1)(a) GDPR); Google may transfer data outside the EU under its own legal mechanisms. DeepL: the blog articles I write are automatically translated into English via DeepL — no visitor data is sent. Links to Facebook, YouTube, WhatsApp, and Google Maps open those sites, which have their own privacy policies." },
+          { q: "How long I keep data", a: "Comments stay published until I delete them as the administrator, or until you ask me to delete them. The anonymous identifier and your cookie choice stay stored locally until you clear your browser data. Server logs are deleted automatically by the hosting provider after a short period." },
+          { q: "Your rights", a: "You have the right of access, rectification, erasure, restriction, objection, and data portability, as well as the right to withdraw your consent at any time, under Regulation (EU) 2016/679 (GDPR). For any request (for example, deleting a comment), email me at adifrigotehnist@yahoo.com. You also have the right to file a complaint with Romania's National Supervisory Authority for Personal Data Processing (ANSPDCP) — dataprotection.ro." },
         ],
+      },
+      cookies: {
+        title: "Cookies & privacy",
+        text: "I use strictly necessary technical storage. Only if you choose “Accept all” do I enable Google Analytics / Google Ads (visit statistics and ad measurement) — Google may then set cookies.",
+        details: "Details", accept: "Accept all", necessary: "Necessary only",
+        settings: "Cookie settings", privacyLink: "Privacy policy",
+        mapPlaceholder: "The map is provided by Google Maps. When you show it, Google receives your IP address and may set cookies.",
+        mapLoad: "Show map",
       },
       contact: {
         title: "Contact", sub: "Call now and we'll fix your problem fast",
         phone: "+40 737 444 337", phoneFull: "+40737444337",
         email: "adifrigotehnist@yahoo.com",
         address: "Bulevardul Timișoara 53, Sector 6, Bucharest",
+        serviceArea: "Home visits only, in Bucharest",
         hours: "Monday – Saturday: 09:00 – 18:00",
         legalAddress: "Registered office: Bd. Timișoara no. 53, district 6, Bucharest. Sole proprietorship (PFA), Tax ID (CUI) 26374475 / 07.01.2010",
         consumerProtection: "Consumer protection: INFOCONS 0219551 · site:",
@@ -1307,7 +1823,9 @@ export default function App() {
   // Same single-page layout for every URL — the path only decides which section gets
   // focused/scrolled-to and what the <title>/meta tags say. See CLAUDE.md.
 
-  const seoSlugMatch = pathname.match(/^\/reparatii-frigidere-([a-z0-9-]+)\/?$/);
+  // Old-site URLs (still linked from paid articles) map onto a section of this page.
+  const routePage = seoData.pages.find(p => pathname.replace(/\/$/, "") === `/${p.path}`) || null;
+  const seoSlugMatch = !routePage && pathname.match(/^\/reparatii-frigidere-([a-z0-9-]+)\/?$/);
   const routeBrand = seoSlugMatch ? seoData.brands.find(b => b.slug === seoSlugMatch[1]) : null;
   const routeZone = seoSlugMatch && !routeBrand ? ZONE_ALL.find(z => z.id === seoSlugMatch[1]) : null;
   const blogSlugMatch = pathname.match(/^\/blog\/([^/]+)\/?$/);
@@ -1348,7 +1866,9 @@ export default function App() {
 
   // Deep link / back-forward navigation: focus the right section once its data is ready.
   useEffect(() => {
-    if (routeBrand) {
+    if (routePage) {
+      document.getElementById(routePage.section)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (routeBrand) {
       setSelectedBrand(routeBrand.name);
       document.getElementById("marca-frigider")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } else if (routeZone) {
@@ -1365,27 +1885,28 @@ export default function App() {
   useEffect(() => {
     document.documentElement.lang = lang;
     let title, description, canonical, ogImage;
-    if (routeBlogSlug) {
+    if (routePage) {
+      ({ title, description } = routePage[lang] || routePage.ro);
+      canonical = `${SITE_URL}/${routePage.path}`;
+    } else if (routeBlogSlug) {
       const post = posts.find(p => p.slug === routeBlogSlug);
       if (post) {
-        title = `${postTitle(post)} | Opris Adrian PFA`;
+        title = `${postTitle(post)} | Adrian Opris`;
         description = postExcerpt(post) || postTitle(post);
         canonical = `${SITE_URL}/blog/${post.slug}`;
         ogImage = post.image_url ? `${SITE_URL}${post.image_url}` : undefined;
       }
     } else if (routeBrand) {
-      title = lang === "ro" ? `Reparații frigidere ${routeBrand.name} București | Opris Adrian PFA` : `${routeBrand.name} Fridge Repair Bucharest | Opris Adrian PFA`;
+      title = lang === "ro" ? `Reparații frigidere ${routeBrand.name} București | Adrian Opris` : `${routeBrand.name} Fridge Repair Bucharest | Adrian Opris`;
       description = brandRepairText(routeBrand.name);
       canonical = `${SITE_URL}/reparatii-frigidere-${routeBrand.slug}`;
     } else if (routeZone) {
-      title = lang === "ro" ? `Reparații frigidere ${routeZone.name}, București | Opris Adrian PFA` : `Fridge Repair ${routeZone.name}, Bucharest | Opris Adrian PFA`;
-      description = lang === "ro"
-        ? `Reparații frigidere și combine frigorifice la domiciliu în ${routeZone.name}. Tehnician autorizat AGFR, 16+ ani experiență, garanție 12 luni. Sună: +40 737 444 337.`
-        : `Fridge and fridge-freezer repairs at home in ${routeZone.name}. AGFR-authorized technician, 16+ years experience, 12-month warranty. Call: +40 737 444 337.`;
+      title = lang === "ro" ? `Reparații frigidere ${routeZone.name}, București | Adrian Opris` : `Fridge Repair ${routeZone.name}, Bucharest | Adrian Opris`;
+      description = zoneBlurb(routeZone.id, lang);
       canonical = `${SITE_URL}/reparatii-frigidere-${routeZone.id}`;
     }
     if (!title) {
-      title = lang === "ro" ? "Reparații Frigidere București | Opris Adrian PFA | +40 737 444 337" : "Fridge Repair Bucharest | Opris Adrian PFA | +40 737 444 337";
+      title = lang === "ro" ? "Reparații Frigidere București | Adrian Opris | +40 737 444 337" : "Fridge Repair Bucharest | Adrian Opris | +40 737 444 337";
       description = t.hero.sub;
       canonical = `${SITE_URL}/`;
     }
@@ -1405,10 +1926,24 @@ export default function App() {
     upsert('meta[name="twitter:description"]', "meta", { name: "twitter:description" }).setAttribute("content", description);
   }, [pathname, posts, lang]);
 
+  // FAQPage structured data, so Google can show the questions directly in search results.
+  useEffect(() => {
+    let el = document.getElementById("faq-jsonld");
+    if (!el) { el = document.createElement("script"); el.type = "application/ld+json"; el.id = "faq-jsonld"; document.head.appendChild(el); }
+    el.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      inLanguage: lang,
+      mainEntity: t.faq.items.map(item => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: item.a } })),
+    });
+  }, [lang]);
+
   // ===== RENDER =====
 
   return (
     <div style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif", color: "#0d3158", background: "#f8faff" }}>
+
+      {showIntro && <FridgeIntro lang={lang} setLang={setLang} onDone={() => setShowIntro(false)} />}
 
       {/* ===== HEADER ===== */}
       {/* Note: the blur/background/shadow live on the inner row, not on <header> itself —
@@ -1425,10 +1960,10 @@ export default function App() {
         }} />
         <div style={{ position: "relative", maxWidth: "1200px", margin: "0 auto", padding: "0 32px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <a href="#acasa" onClick={() => { setActiveNav("acasa"); navigateTo("/"); }} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
-            <img src="/logo_0.png" alt="Reparații frigidere" style={{ width: "36px", height: "36px", objectFit: "contain" }} />
+            <img src="/logo.svg" alt={lang === "en" ? "Fridge repairs — Adrian Opris" : "Reparații frigidere — Adrian Opris"} style={{ width: "36px", height: "36px", objectFit: "contain" }} />
             <div>
-              <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1" }}>Reparații frigidere</div>
-              <div style={{ fontSize: "10px", color: "#01579b", letterSpacing: "0.5px", textTransform: "uppercase" }}>Opris Adrian PFA</div>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1" }}>{lang === "en" ? "Fridge Repairs" : "Reparații frigidere"}</div>
+              <div style={{ fontSize: "10px", color: "#01579b", letterSpacing: "0.5px", textTransform: "uppercase" }}>Adrian Opris</div>
             </div>
           </a>
 
@@ -1476,24 +2011,32 @@ export default function App() {
         <div style={{ position: "absolute", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(41,182,246,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
         <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 2, width: "100%" }}>
           <div className="two-col" style={{ display: "flex", alignItems: "center", gap: "48px" }}>
-            <img src="/poza-profil.jpg" alt="Opriș Adrian — tehnician frigotehnist autorizat AGFR" style={{
-              width: "320px", maxWidth: "100%", height: "auto", borderRadius: "20px", flexShrink: 0,
-              border: "3px solid rgba(41,182,246,0.4)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)", animation: "fadeInUp 0.7s ease both",
-            }} />
+            <figure className="hero-photo" style={{ margin: 0, width: "360px", maxWidth: "100%", flexShrink: 0, animation: "fadeInUp 0.7s ease both" }}>
+              <img src="/poza-profil.jpg" alt="Adrian Opris — tehnician frigotehnist autorizat AGFR" style={{
+                width: "100%", height: "auto", display: "block", borderRadius: "20px",
+                border: "3px solid rgba(41,182,246,0.4)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)",
+              }} />
+              <figcaption style={{ marginTop: "14px", textAlign: "center" }}>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: "22px", fontWeight: "700", color: "white", lineHeight: "1.2" }}>Adrian Opris</div>
+                <div style={{ fontSize: "13px", color: "#81d4fa", marginTop: "4px" }}>{lang === "ro" ? "Tehnician frigotehnist autorizat AGFR" : "AGFR-authorized refrigeration technician"}</div>
+                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginTop: "2px", fontWeight: "600" }}>Opris Adrian P.F.A.</div>
+              </figcaption>
+            </figure>
             <div className="hero-content" style={{ animation: "fadeInUp 0.7s ease both", minWidth: 0 }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", marginBottom: "28px" }}>
                 <FaShieldAlt size={11} /> {t.hero.badge}
               </div>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
-              <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "24px" }}>{t.hero.h1b}</h1>
+              <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "12px" }}>{t.hero.h1b}</h1>
+              <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "20px", fontWeight: "700", color: "white", letterSpacing: "0.5px", margin: "0 0 20px" }}>— Opris Adrian P.F.A.</p>
               <p style={{ fontSize: "18px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
               <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
                 <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "#29b6f6", color: "#0d3158", padding: "12px 26px", borderRadius: "10px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
                   <FaPhone size={20} />
                   <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.25" }}>
-                    <span style={{ fontSize: "12px", fontWeight: "600", opacity: 0.75 }}>{t.hero.cta1}</span>
-                    <span style={{ fontSize: "17px", fontWeight: "800", whiteSpace: "nowrap" }}>{t.contact.phone}</span>
-                    <span style={{ fontSize: "11px", fontWeight: "700", opacity: 0.7, whiteSpace: "nowrap" }}>07 FRIGIDER</span>
+                    <span style={{ fontSize: "12px", fontWeight: "700", opacity: 0.8 }}>{t.hero.cta1}</span>
+                    <span style={{ fontSize: "20px", fontWeight: "800", whiteSpace: "nowrap" }}>{t.contact.phone}</span>
+                    <span style={{ fontSize: "20px", fontWeight: "800", whiteSpace: "nowrap" }}>07 FRIGIDER</span>
                   </span>
                 </a>
                 <div style={{ display: "flex", alignItems: "stretch", gap: "10px" }}>
@@ -1518,35 +2061,6 @@ export default function App() {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== ABOUT ME ===== */}
-      <section id="despre" className="section-pad" style={{ background: "#f8faff" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div className="two-col" style={{ display: "flex", alignItems: "flex-start", gap: "56px" }}>
-            <div style={{ flexShrink: 0, width: "300px", maxWidth: "100%" }}>
-              <img src="/adrian-1.jpg" alt="Adrian Opriș — tehnician frigotehnist autorizat AGFR" style={{
-                width: "100%", height: "auto", borderRadius: "16px", display: "block",
-                border: "1px solid #e2e8f0", boxShadow: "0 12px 32px rgba(2,119,189,0.15)",
-              }} />
-              <div style={{ marginTop: "20px", border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden" }}>
-                {t.about.facts.map((f, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", padding: "12px 16px", borderBottom: i < t.about.facts.length - 1 ? "1px solid #e2e8f0" : "none", background: i % 2 === 1 ? "#f8faff" : "white" }}>
-                    <span style={{ fontSize: "12px", color: "#01579b", fontWeight: "500" }}>{f.label}</span>
-                    <span style={{ fontSize: "12px", color: "#0d3158", fontWeight: "700", textAlign: "right" }}>{f.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.about.title}</h2>
-              <p style={{ fontSize: "16px", color: "#01579b", marginBottom: "28px" }}>{t.about.sub}</p>
-              {t.about.paragraphs.map((p, i) => (
-                <p key={i} style={{ fontSize: "15px", color: "#01579b", lineHeight: "1.8", marginBottom: "16px", textIndent: "28px" }}>{p}</p>
-              ))}
             </div>
           </div>
         </div>
@@ -1577,40 +2091,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* ===== SERVICES ===== */}
-      <section id="servicii" className="section-pad" style={{ background: "#f8faff" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.services.title}</h2>
-            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.services.sub}</p>
-          </div>
-          <div style={{ background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "16px", padding: "24px 32px", marginBottom: "40px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <div style={{ width: "48px", height: "48px", background: "rgba(255,255,255,0.2)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "22px" }}>🚗</div>
-              <div>
-                <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "13px", fontWeight: "500" }}>{t.services.callout}</div>
-                <div style={{ color: "white", fontSize: "28px", fontWeight: "700", fontFamily: "'Poppins', sans-serif" }}>{t.services.calloutPrice}</div>
-              </div>
-            </div>
-            <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "white", color: "#0277bd", padding: "12px 24px", borderRadius: "10px", fontWeight: "700", fontSize: "14px", textDecoration: "none" }}>
-              <FaPhone size={13} /> {t.contact.phone}
-            </a>
-          </div>
-          <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #e2e8f0" }}>
-            {t.services.items.map((item, i) => (
-              <div key={i} className="price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: i < t.services.items.length - 1 ? "1px solid #e2e8f0" : "none", transition: "background 0.15s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                  <div style={{ width: "36px", height: "36px", background: "#e3f2fd", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "#0277bd", fontSize: "15px" }}>{item.icon}</div>
-                  <span style={{ fontSize: "15px", color: "#0d3158", fontWeight: "500" }}>{item.name}</span>
-                </div>
-                <span style={{ fontSize: "15px", fontWeight: "700", color: "#0277bd", whiteSpace: "nowrap", marginLeft: "16px" }}>{item.price}</span>
-              </div>
-            ))}
-          </div>
-          <p style={{ fontSize: "12px", color: "#01579b", marginTop: "16px", lineHeight: "1.6" }}>{t.services.note}</p>
-        </div>
-      </section>
-
       {/* ===== GALLERY ===== */}
       <section id="galerie" style={{ padding: "80px 0", background: "#0d1b2a", position: "relative", overflow: "hidden" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 40px" }}>
@@ -1622,9 +2102,9 @@ export default function App() {
             <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.6)" }}>{t.gallery.sub}</p>
           </div>
 
-          {/* Carousel — 4 photos per slide, in a 2x2 grid */}
-          <div style={{ position: "relative", borderRadius: "20px", overflow: "hidden", boxShadow: "0 24px 64px rgba(0,0,0,0.5)", maxWidth: "860px", margin: "0 auto" }}>
-            <div style={{ position: "relative", height: "480px", background: "#0a1520" }}>
+          {/* Carousel — one watermarked collage per slide; click opens it full screen */}
+          <div {...blockImageCopy} style={{ position: "relative", borderRadius: "20px", overflow: "hidden", boxShadow: "0 24px 64px rgba(0,0,0,0.5)", maxWidth: "960px", margin: "0 auto", userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none" }}>
+            <div style={{ position: "relative", aspectRatio: "1720 / 960", background: "#0a1520" }}>
               {galleryGroups.map((group, gi) => {
                 const rows = Math.ceil(group.length / 2);
                 return (
@@ -1644,10 +2124,11 @@ export default function App() {
                       {group.map((img, ii) => {
                         const spanFull = group.length % 2 === 1 && ii === group.length - 1;
                         return (
-                          <div key={ii} style={{ position: "relative", overflow: "hidden", gridColumn: spanFull ? "1 / -1" : undefined }}>
+                          <div key={ii} style={{ position: "relative", overflow: "hidden", gridColumn: spanFull ? "1 / -1" : undefined, cursor: "zoom-in" }}
+                            onClick={() => setGalleryZoom(img)}>
                             <img
-                              src={img.url} alt={img.caption}
-                              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                              src={img.url} alt={captionText(img.caption)} draggable={false}
+                              style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", pointerEvents: "none" }}
                               onError={e => { e.currentTarget.style.display = "none"; }}
                             />
                           </div>
@@ -1655,9 +2136,8 @@ export default function App() {
                       })}
                     </div>
 
-                    {/* One label for the whole group of 4 */}
-                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "32px 20px 14px", background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)", pointerEvents: "none" }}>
-                      <p style={{ margin: 0, color: "white", fontSize: "15px", fontWeight: "600", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{group[0]?.caption}</p>
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, padding: "12px 20px 28px 80px", background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)", pointerEvents: "none" }}>
+                      <p style={{ margin: 0, color: "white", fontSize: "15px", fontWeight: "600", textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{captionText(group[0]?.caption)}</p>
                     </div>
                   </div>
                 );
@@ -1689,7 +2169,7 @@ export default function App() {
                   onClick={() => {
                     const url = window.prompt("URL imagine:");
                     const caption = url && window.prompt("Descriere:");
-                    if (url && caption) { setGalleryImages(g => [...g, { url, caption }]); setGalleryIndex(Math.floor(galleryImages.length / 4)); }
+                    if (url && caption) { setGalleryImages(g => [...g, { url, caption }]); setGalleryIndex(galleryImages.length); }
                   }}
                   style={{ position: "absolute", top: "12px", right: "12px", zIndex: 3, background: "rgba(41,182,246,0.8)", color: "white", border: "none", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "12px", fontWeight: "600" }}>
                   <FaPlus size={10} /> {lang === "ro" ? "Adaugă" : "Add"}
@@ -1697,7 +2177,7 @@ export default function App() {
               )}
             </div>
 
-            {/* Dots — one per group of 4 */}
+            {/* Dots — one per collage */}
             <div style={{ display: "flex", justifyContent: "center", gap: "8px", padding: "16px", background: "#111827" }}>
               {galleryGroups.map((_, i) => (
                 <button key={i} onClick={() => { clearInterval(galleryTimer.current); setGalleryIndex(i); galleryTimer.current = setInterval(advanceGallery, 4500); }}
@@ -1705,6 +2185,82 @@ export default function App() {
               ))}
             </div>
           </div>
+        </div>
+
+        {galleryZoom && (
+          <div {...blockImageCopy} onClick={() => setGalleryZoom(null)} role="dialog" aria-modal="true" aria-label={captionText(galleryZoom.caption)}
+            style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(5,12,20,0.94)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", padding: "16px", cursor: "zoom-out", userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none", animation: "fadeIn 0.2s ease" }}>
+            <button onClick={() => setGalleryZoom(null)} aria-label={lang === "ro" ? "Închide" : "Close"}
+              style={{ position: "absolute", top: "16px", right: "16px", width: "44px", height: "44px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <FaTimes />
+            </button>
+            <img src={galleryZoom.url} alt={captionText(galleryZoom.caption)} draggable={false}
+              style={{ maxWidth: "100%", maxHeight: "calc(100% - 48px)", objectFit: "contain", borderRadius: "8px", pointerEvents: "none" }} />
+            <p style={{ margin: 0, color: "white", fontSize: "15px", fontWeight: "600", textAlign: "center" }}>{captionText(galleryZoom.caption)}</p>
+          </div>
+        )}
+      </section>
+
+      {/* ===== ABOUT ME ===== */}
+      <section id="despre" className="section-pad" style={{ background: "#f8faff" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div className="two-col" style={{ display: "flex", alignItems: "flex-start", gap: "56px" }}>
+            <div style={{ flexShrink: 0, width: "300px", maxWidth: "100%" }}>
+              <img src="/adrian-opris.jpg" alt="Adrian Opris — tehnician frigotehnist autorizat AGFR" style={{
+                width: "100%", height: "auto", borderRadius: "16px", display: "block",
+                border: "1px solid #e2e8f0", boxShadow: "0 12px 32px rgba(2,119,189,0.15)",
+              }} />
+              <div style={{ marginTop: "20px", border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden" }}>
+                {t.about.facts.map((f, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", padding: "12px 16px", borderBottom: i < t.about.facts.length - 1 ? "1px solid #e2e8f0" : "none", background: i % 2 === 1 ? "#f8faff" : "white" }}>
+                    <span style={{ fontSize: "12px", color: "#01579b", fontWeight: "500" }}>{f.label}</span>
+                    <span style={{ fontSize: "12px", color: "#0d3158", fontWeight: "700", textAlign: "right" }}>{f.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.about.title}</h2>
+              <p style={{ fontSize: "16px", color: "#01579b", marginBottom: "28px" }}>{t.about.sub}</p>
+              {t.about.paragraphs.map((p, i) => (
+                <p key={i} style={{ fontSize: "15px", color: "#01579b", lineHeight: "1.8", marginBottom: "16px", textIndent: "28px" }}>{p}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SERVICES ===== */}
+      <section id="servicii" className="section-pad" style={{ background: "#f0f7ff" }}>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "60px" }}>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.services.title}</h2>
+            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.services.sub}</p>
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "16px", padding: "24px 32px", marginBottom: "40px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <div style={{ width: "48px", height: "48px", background: "rgba(255,255,255,0.2)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "22px" }}>🚗</div>
+              <div>
+                <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "13px", fontWeight: "500" }}>{t.services.callout}</div>
+                <div style={{ color: "white", fontSize: "28px", fontWeight: "700", fontFamily: "'Poppins', sans-serif" }}>{t.services.calloutPrice}</div>
+              </div>
+            </div>
+            <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "white", color: "#0277bd", padding: "12px 24px", borderRadius: "10px", fontWeight: "700", fontSize: "14px", textDecoration: "none" }}>
+              <FaPhone size={13} /> {t.contact.phone}
+            </a>
+          </div>
+          <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid #e2e8f0" }}>
+            {t.services.items.map((item, i) => (
+              <div key={i} className="price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: i < t.services.items.length - 1 ? "1px solid #e2e8f0" : "none", transition: "background 0.15s" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <div style={{ width: "36px", height: "36px", background: "#e3f2fd", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "#0277bd", fontSize: "15px" }}>{item.icon}</div>
+                  <span style={{ fontSize: "15px", color: "#0d3158", fontWeight: "500" }}>{item.name}</span>
+                </div>
+                <span style={{ fontSize: "15px", fontWeight: "700", color: "#0277bd", whiteSpace: "nowrap", marginLeft: "16px" }}>{item.price}</span>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: "12px", color: "#01579b", marginTop: "16px", lineHeight: "1.6" }}>{t.services.note}</p>
         </div>
       </section>
 
@@ -1746,26 +2302,27 @@ export default function App() {
       <section id="zone" className="section-pad" style={{ background: "#f0f7ff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#0277bd", background: "#e3f2fd", border: "1px solid #bfdbfe", padding: "6px 16px", borderRadius: "20px", marginBottom: "12px" }}><FaMapMarkerAlt style={{ marginRight: "6px" }} />București & împrejurimi</div>
+            <div style={{ display: "inline-flex", alignItems: "center", fontSize: "12px", fontWeight: "700", letterSpacing: "2px", textTransform: "uppercase", color: "#0277bd", background: "#e3f2fd", border: "1px solid #bfdbfe", padding: "6px 16px", borderRadius: "20px", marginBottom: "12px" }}><FaMapMarkerAlt style={{ marginRight: "6px" }} />{t.zones.badge}</div>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.zones.title}</h2>
             <p style={{ fontSize: "16px", color: "#01579b" }}>{t.zones.sub}</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", marginBottom: "32px" }}>
             {[
-              { icon: "🏙️", title: t.zones.sectors, desc: t.zones.sectorsDesc, items: ZONE_SECTORS },
-              { icon: "🏘️", title: t.zones.neighborhoods, desc: t.zones.neighborhoodsDesc, items: ZONE_NEIGHBORHOODS },
-              { icon: "🛣️", title: t.zones.suburbs, desc: t.zones.suburbsDesc, items: ZONE_SUBURBS },
-            ].map((z, i) => (
-              <div key={i} style={{ background: "white", borderRadius: "16px", padding: "28px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                <div style={{ fontSize: "28px", marginBottom: "12px" }}>{z.icon}</div>
-                <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", marginBottom: "10px" }}>{z.title}</h3>
-                <p style={{ fontSize: "13px", color: "#01579b", lineHeight: "1.7", marginBottom: "16px" }}>{z.desc}</p>
+              ...CARD_SECTORS.map(n => ({ key: `sector-${n}`, title: t.zones.sectorCard(n), desc: n === PARTIAL_SECTOR ? t.zones.partialDesc : null, head: { id: `sector-${n}`, name: n === PARTIAL_SECTOR ? t.zones.sectorCard(n) : t.zones.wholeSector }, items: ZONE_NEIGHBORHOODS.filter(nb => inSector(nb, n)) })),
+              { key: "suburbs", title: t.zones.suburbs, desc: t.zones.suburbsDesc, items: ZONE_SUBURBS },
+            ].map(card => (
+              <div key={card.key} style={{ background: "white", borderRadius: "16px", padding: "24px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", margin: "0 0 12px", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <FaMapMarkerAlt style={{ color: "#0277bd" }} />{card.title}
+                </h3>
+                {card.desc && <p style={{ fontSize: "13px", color: "#01579b", lineHeight: "1.7", margin: "0 0 12px" }}>{card.desc}</p>}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {z.items.map(zi => {
+                  {[...(card.head ? [card.head] : []), ...card.items].map(zi => {
                     const active = highlightedZone === zi.id;
+                    const isHead = zi === card.head;
                     return (
                       <a key={zi.id} href={`/reparatii-frigidere-${zi.id}`} onClick={e => goToZone(e, zi.id)}
-                        style={{ fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : "#f1f5f9", color: active ? "white" : "#01579b", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}` }}>
+                        style={{ fontSize: "11px", fontWeight: isHead ? "700" : "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : isHead ? "#e3f2fd" : "#f1f5f9", color: active ? "white" : "#01579b", border: `1px solid ${active ? "#0277bd" : isHead ? "#90caf9" : "#e2e8f0"}` }}>
                         {zi.name}
                       </a>
                     );
@@ -1779,7 +2336,7 @@ export default function App() {
           <div id="harta-zone" style={{ scrollMarginTop: "84px", background: "white", borderRadius: "16px", padding: "28px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginBottom: "32px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
               <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", margin: 0 }}>
-                {lang === "ro" ? "Hartă interactivă a zonelor deservite" : "Interactive map of the areas we cover"}
+                {t.zones.mapTitle}
               </h3>
               {highlightedZone && (
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#0277bd" }}>
@@ -1787,11 +2344,14 @@ export default function App() {
                 </span>
               )}
             </div>
+            {highlightedZone && (
+              <p style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.7", margin: "0 0 16px", background: "#f0f7ff", borderRadius: "10px", padding: "12px 16px" }}>
+                {zoneBlurb(highlightedZone, lang)}
+              </p>
+            )}
             <InteractiveZoneMap highlighted={highlightedZone} onSelect={selectZone} />
             <p style={{ fontSize: "12px", color: "#01579b", textAlign: "center", marginTop: "12px", marginBottom: 0 }}>
-              {lang === "ro"
-                ? "Click pe un sector, un cartier sau o localitate pentru a-l evidenția pe hartă."
-                : "Click a sector, a neighborhood, or a locality to highlight it on the map."}
+              {t.zones.mapHint}
             </p>
           </div>
 
@@ -1838,8 +2398,10 @@ export default function App() {
             </div>
           )}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }} className="two-col">
-            <div style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", minHeight: "300px" }}>
-              <iframe title={t.reviews.mapTitle} src="https://maps.google.com/maps?q=Bulevardul+Timisoara+53,+Sector+6,+Bucuresti&output=embed" width="100%" height="300" style={{ border: "none", display: "block" }} loading="lazy" />
+            <div style={{ borderRadius: "16px", padding: "32px", background: "linear-gradient(135deg, #0277bd, #01579b)", color: "white", display: "flex", flexDirection: "column", justifyContent: "center", gap: "12px", boxShadow: "0 4px 20px rgba(2,119,189,0.25)" }}>
+              <FaTools size={30} color="#b3e5fc" />
+              <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "20px", fontWeight: "700", margin: 0 }}>{t.reviews.homeOnlyTitle}</h3>
+              <p style={{ fontSize: "14px", lineHeight: "1.7", margin: 0, color: "rgba(255,255,255,0.88)" }}>{t.reviews.homeOnly}</p>
             </div>
             <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" style={{ background: "#f0f7ff", borderRadius: "16px", padding: "32px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center", textDecoration: "none", transition: "background 0.2s" }}
               onMouseEnter={e => e.currentTarget.style.background = "#e3f2fd"}
@@ -2180,6 +2742,14 @@ export default function App() {
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.faq.title}</h2>
             <p style={{ fontSize: "16px", color: "#01579b" }}>{t.faq.sub}</p>
           </div>
+          <div style={{ background: "white", borderRadius: "16px", border: "1px solid #bfdbfe", borderLeft: "4px solid #0277bd", padding: "24px 24px 20px", marginBottom: "28px" }}>
+            <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "19px", fontWeight: "700", color: "#0d3158", margin: "0 0 14px" }}>{t.faq.tipsTitle}</h3>
+            <ol style={{ margin: 0, paddingLeft: "22px", display: "flex", flexDirection: "column", gap: "10px" }}>
+              {t.faq.tips.map((tip, i) => (
+                <li key={i} style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.7" }}>{tip}</li>
+              ))}
+            </ol>
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {t.faq.items.map((item, i) => (
               <div key={i} style={{ background: "#f8faff", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden" }}>
@@ -2247,7 +2817,7 @@ export default function App() {
               { icon: <FaPhone />, value: t.contact.phone, href: `tel:${t.contact.phoneFull}` },
               { icon: <FaEnvelope />, value: t.contact.email, href: `mailto:${t.contact.email}` },
               { icon: <FaClock />, value: t.contact.hours, href: null },
-              { icon: <FaMapMarkerAlt />, value: t.contact.address, href: GOOGLE_REVIEWS_URL },
+              { icon: <FaTools />, value: t.contact.serviceArea, href: null },
             ].map((item, i) => {
               const Tag = item.href ? "a" : "div";
               return (
@@ -2268,7 +2838,10 @@ export default function App() {
               <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.6)" }}>anpc.ro</a>
             </p>
             <p style={{ margin: 0 }}>
-              <a href="#gdpr" style={{ color: "rgba(255,255,255,0.6)" }}>{t.gdpr.title}</a>
+              <a href="/politica-de-confidentialitate" onClick={e => { if (!isPlainClick(e)) return; e.preventDefault(); navigateTo("/politica-de-confidentialitate"); document.getElementById("gdpr")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+                style={{ color: "rgba(255,255,255,0.6)" }}>{t.cookies.privacyLink}</a>
+              {" · "}
+              <button onClick={() => saveConsent(null)} style={{ background: "none", border: "none", padding: 0, font: "inherit", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer" }}>{t.cookies.settings}</button>
             </p>
           </div>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "20px", margin: 0, userSelect: "none" }}>
@@ -2284,6 +2857,24 @@ export default function App() {
         title={t.contact.phone}>
         <FaPhone size={22} />
       </a>
+
+      {/* ===== COOKIE BANNER ===== */}
+      {!consent && !showIntro && (
+        <div role="dialog" aria-label={t.cookies.title}
+          style={{ position: "fixed", left: "16px", right: "16px", bottom: "calc(16px + env(safe-area-inset-bottom, 0px))", zIndex: 300, maxWidth: "720px", margin: "0 auto", background: "#0d1b2a", color: "white", borderRadius: "14px", padding: "18px 20px", boxShadow: "0 12px 40px rgba(0,0,0,0.35)", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "14px 20px", animation: "fadeInUp 0.3s ease" }}>
+          <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+            <strong style={{ display: "block", fontSize: "15px", marginBottom: "4px" }}>{t.cookies.title}</strong>
+            <p style={{ margin: 0, fontSize: "13px", lineHeight: "1.6", color: "#cbd5e1" }}>
+              {t.cookies.text}{" "}
+              <a href="#gdpr" style={{ color: "#4fc3f7" }}>{t.cookies.details}</a>
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button onClick={() => saveConsent("necessary")} style={{ background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "8px", padding: "10px 14px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>{t.cookies.necessary}</button>
+            <button onClick={() => saveConsent("all")} style={{ background: "#0277bd", color: "white", border: "none", borderRadius: "8px", padding: "10px 16px", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>{t.cookies.accept}</button>
+          </div>
+        </div>
+      )}
 
       {/* ===== TOAST ===== */}
       {toast && (

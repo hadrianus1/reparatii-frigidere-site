@@ -549,6 +549,7 @@ app.get('/sitemap.xml', async (req, res) => {
     const posts = await publishedPostRows();
     const urls = [
       { loc: `${SITE_URL}/` },
+      ...seoData.pages.map(p => ({ loc: `${SITE_URL}/${p.path}` })),
       ...seoData.brands.map(b => ({ loc: `${SITE_URL}/reparatii-frigidere-${b.slug}` })),
       ...seoData.zones.map(z => ({ loc: `${SITE_URL}/reparatii-frigidere-${z.slug}` })),
       ...posts.map(p => ({ loc: `${SITE_URL}/blog/${p.slug}`, lastmod: p.updated_at })),
@@ -563,9 +564,9 @@ app.get('/sitemap.xml', async (req, res) => {
   } catch (err) { res.status(500).end(); }
 });
 
-const brandTitle = (name) => `Reparații frigidere ${name} București | Opris Adrian PFA`;
-const brandDescription = (name) => `Reparăm frigidere și combine frigorifice ${name} la domiciliul tău, în București și împrejurimi. Diagnosticăm rapid defecțiunea, folosim piese originale sau echivalente de calitate superioară și oferim garanție 12 luni la orice reparație ${name}.`;
-const zoneTitle = (name) => `Reparații frigidere ${name}, București | Opris Adrian PFA`;
+const brandTitle = (name) => `Reparații frigidere ${name} București | Adrian Opris`;
+const brandDescription = (name) => `Reparăm frigidere și combine frigorifice ${name} la domiciliul tău, în București. Diagnosticăm rapid defecțiunea, folosim piese originale sau echivalente de calitate superioară și oferim garanție 12 luni la orice reparație ${name}.`;
+const zoneTitle = (name) => `Reparații frigidere ${name}, București | Adrian Opris`;
 const zoneDescription = (name) => `Reparații frigidere și combine frigorifice la domiciliu în ${name}. Tehnician autorizat AGFR, 16+ ani experiență, garanție 12 luni. Sună: +40 737 444 337.`;
 
 const escapeHtmlAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -639,13 +640,17 @@ if (process.env.NODE_ENV === 'production') {
     let html = indexHtmlTemplate;
     try {
       const blogMatch = req.path.match(/^\/blog\/([^/]+)\/?$/);
-      const seoMatch = req.path.match(/^\/reparatii-frigidere-([a-z0-9-]+)\/?$/);
-      if (blogMatch) {
+      // Old-site URLs that paid articles still link to — kept alive as real pages.
+      const legacyPage = seoData.pages.find(p => req.path.replace(/\/$/, '') === `/${p.path}`);
+      const seoMatch = !legacyPage && req.path.match(/^\/reparatii-frigidere-([a-z0-9-]+)\/?$/);
+      if (legacyPage) {
+        html = injectMeta(html, { title: legacyPage.ro.title, description: legacyPage.ro.description, canonical: `${SITE_URL}/${legacyPage.path}` });
+      } else if (blogMatch) {
         const posts = await publishedPostRows();
         const post = posts.find(p => p.slug === blogMatch[1]);
         if (post) {
           html = injectMeta(html, {
-            title: `${post.title} | Opris Adrian PFA`,
+            title: `${post.title} | Adrian Opris`,
             description: post.excerpt || post.title,
             canonical: `${SITE_URL}/blog/${post.slug}`,
             ogImage: post.image_url ? (/^https?:\/\//.test(post.image_url) ? post.image_url : `${SITE_URL}${post.image_url}`) : undefined,

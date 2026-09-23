@@ -15,38 +15,186 @@
   "zones": [
     { "slug": "sector-1", "name": "Sector 1" },
     { "slug": "sector-2", "name": "Sector 2" },
+    { "slug": "calea-mosilor", "name": "Calea Moșilor" },
+    { "slug": "obor", "name": "Obor" },
+    { "slug": "mihai-bravu", "name": "Șoseaua Mihai Bravu" },
+    { "slug": "iancului", "name": "Iancului" },
+    { "slug": "cartier-armenesc", "name": "Cartierul Armenesc" },
     { "slug": "sector-3", "name": "Sector 3" },
     { "slug": "sector-4", "name": "Sector 4" },
     { "slug": "sector-5", "name": "Sector 5" },
     { "slug": "sector-6", "name": "Sector 6" },
-    { "slug": "baneasa", "name": "Băneasa" },
-    { "slug": "pipera", "name": "Pipera" },
+    { "slug": "bucurestii-noi", "name": "Bucureștii Noi" },
+    { "slug": "pajura", "name": "Pajura" },
+    { "slug": "soseaua-chitilei", "name": "Șoseaua Chitilei" },
     { "slug": "aviatiei", "name": "Aviației" },
-    { "slug": "grivita", "name": "Grivița" },
+    { "slug": "baneasa", "name": "Băneasa" },
+    { "slug": "banu-manta", "name": "Banu Manta" },
+    { "slug": "ion-mihalache", "name": "Bulevardul Ion Mihalache" },
+    { "slug": "turda", "name": "Turda" },
+    { "slug": "calea-grivitei", "name": "Calea Griviței" },
+    { "slug": "nicolae-titulescu", "name": "Șoseaua Nicolae Titulescu" },
+    { "slug": "stefan-cel-mare", "name": "Șoseaua Ștefan cel Mare" },
     { "slug": "dorobanti", "name": "Dorobanți" },
+    { "slug": "piata-romana", "name": "Piața Romană" },
+    { "slug": "piata-victoriei", "name": "Piața Victoriei" },
     { "slug": "floreasca", "name": "Floreasca" },
-    { "slug": "colentina", "name": "Colentina" },
-    { "slug": "obor", "name": "Obor" },
-    { "slug": "iancului", "name": "Iancului" },
-    { "slug": "pantelimon", "name": "Pantelimon" },
-    { "slug": "dristor", "name": "Dristor" },
     { "slug": "vitan", "name": "Vitan" },
+    { "slug": "dudesti", "name": "Dudești" },
+    { "slug": "dristor", "name": "Dristor" },
+    { "slug": "camil-ressu", "name": "Bulevardul Camil Ressu" },
+    { "slug": "theodor-pallady", "name": "Bulevardul Theodor Pallady" },
+    { "slug": "ozana", "name": "Ozana" },
+    { "slug": "trapezului", "name": "Trapezului" },
+    { "slug": "nicolae-grigorescu", "name": "Bulevardul Nicolae Grigorescu" },
+    { "slug": "calea-calarasilor", "name": "Calea Călărașilor" },
+    { "slug": "vatra-luminoasa", "name": "Vatra Luminoasă" },
+    { "slug": "piata-alba-iulia", "name": "Piața Alba Iulia" },
+    { "slug": "timpuri-noi", "name": "Timpuri Noi" },
+    { "slug": "salajan", "name": "Sălăjan" },
     { "slug": "titan", "name": "Titan" },
-    { "slug": "tineretului", "name": "Tineretului" },
-    { "slug": "vacaresti", "name": "Văcărești" },
     { "slug": "berceni", "name": "Berceni" },
+    { "slug": "soseaua-oltenitei", "name": "Șoseaua Oltenitei" },
+    { "slug": "aparatorii-patriei", "name": "Apărătorii Patriei" },
+    { "slug": "tineretului", "name": "Tineretului" },
+    { "slug": "calea-vacaresti", "name": "Calea Văcărești" },
+    { "slug": "bulevardul-metalurgiei", "name": "Bulevardul Metalurgiei" },
+    { "slug": "alexandru-obregia", "name": "Bulevardul Alexandru Obregia" },
+    { "slug": "constantin-brancoveanu", "name": "Bulevardul Constantin Brâncoveanu" },
+    { "slug": "soseaua-giurgiului", "name": "Șoseaua Giurgiului" },
+    { "slug": "progresului", "name": "Progresul" },
     { "slug": "rahova", "name": "Rahova" },
-    { "slug": "crangasi", "name": "Crângași" },
-    { "slug": "giulesti", "name": "Giulești" },
+    { "slug": "petre-ispirescu", "name": "Strada Petre Ispirescu" },
+    { "slug": "soseaua-alexandriei", "name": "Șoseaua Alexandriei" },
+    { "slug": "margeanului", "name": "Mărgeanului" },
+    { "slug": "strada-sebastian", "name": "Strada Sebastian" },
+    { "slug": "piata-unirii", "name": "Piața Unirii" },
+    { "slug": "salaj", "name": "Sălaj" },
+    { "slug": "13-septembrie", "name": "Calea 13 Septembrie" },
+    { "slug": "panduri", "name": "Panduri" },
+    { "slug": "tudor-vladimirescu", "name": "Tudor Vladimirescu" },
+    { "slug": "centrul-civic", "name": "Centrul Civic" },
     { "slug": "drumul-taberei", "name": "Drumul Taberei" },
+    { "slug": "iuliu-maniu", "name": "Bulevardul Iuliu Maniu" },
     { "slug": "militari", "name": "Militari" },
-    { "slug": "chiajna", "name": "Chiajna" },
+    { "slug": "crangasi", "name": "Crângași" },
+    { "slug": "ghencea", "name": "Ghencea" },
+    { "slug": "prelungirea-ghencea", "name": "Prelungirea Ghencea" },
+    { "slug": "cartier-latin", "name": "Cartier Latin" },
+    { "slug": "strada-lujerului", "name": "Strada Lujerului" },
+    { "slug": "strandul-drumul-taberei", "name": "Ștrandul Drumul Taberei" },
+    { "slug": "soseaua-virtutii", "name": "Șoseaua Virtuții" },
+    { "slug": "bulevardul-uverturii", "name": "Bulevardul Uverturii" },
+    { "slug": "giulesti", "name": "Giulești" },
+    { "slug": "cotroceni", "name": "Cotroceni" },
+    { "slug": "cartier-brancusi", "name": "Cartier Brâncuși" },
+    { "slug": "valea-cascadelor", "name": "Valea Cascadelor" },
     { "slug": "militari-residence", "name": "Militari Residence" },
     { "slug": "rosu", "name": "Roșu" },
-    { "slug": "domnesti", "name": "Domnești" },
-    { "slug": "clinceni", "name": "Clinceni" },
+    { "slug": "chiajna", "name": "Chiajna" },
     { "slug": "bragadiru", "name": "Bragadiru" },
+    { "slug": "clinceni", "name": "Clinceni" },
+    { "slug": "domnesti", "name": "Domnești" },
     { "slug": "magurele", "name": "Măgurele" },
     { "slug": "popesti-leordeni", "name": "Popești-Leordeni" }
+  ],
+  "pages": [
+    {
+      "path": "reparatii-frigidere-preturi",
+      "section": "servicii",
+      "ro": {
+        "title": "Prețuri reparații frigidere București | Adrian Opris",
+        "description": "Tarife reparații frigidere la domiciliu în București: deplasare și diagnostic 70 lei, încărcare freon, înlocuire compresor, termostat, plăci electronice. Garanție 12 luni. Sună: +40 737 444 337."
+      },
+      "en": {
+        "title": "Fridge repair prices Bucharest | Adrian Opris",
+        "description": "Fridge repair prices at your home in Bucharest: 70 RON call-out and diagnosis, refrigerant recharge, compressor, thermostat and control board replacement. 12-month warranty. Call: +40 737 444 337."
+      }
+    },
+    {
+      "path": "reparatii-congelatoare",
+      "section": "servicii",
+      "ro": {
+        "title": "Reparații congelatoare la domiciliu București | Adrian Opris",
+        "description": "Reparăm congelatoare și lăzi frigorifice la domiciliu în București: nu îngheață, face zgomot, pierde freon. Tehnician autorizat AGFR, 16+ ani experiență, garanție 12 luni."
+      },
+      "en": {
+        "title": "Freezer repairs at home in Bucharest | Adrian Opris",
+        "description": "Freezer and chest-freezer repairs at your home in Bucharest: not freezing, noisy, refrigerant leaks. AGFR-authorized technician, 16+ years of experience, 12-month warranty."
+      }
+    },
+    {
+      "path": "service-frigidere",
+      "section": "servicii",
+      "ro": {
+        "title": "Service frigidere la domiciliu București | Adrian Opris",
+        "description": "Service frigidere și combine frigorifice la domiciliu în București. Diagnostic rapid, piese originale, factură fiscală și garanție 12 luni. Sună: +40 737 444 337."
+      },
+      "en": {
+        "title": "Fridge service at home in Bucharest | Adrian Opris",
+        "description": "Fridge and fridge-freezer service at your home in Bucharest. Fast diagnosis, original parts, invoice and 12-month warranty. Call: +40 737 444 337."
+      }
+    },
+    {
+      "path": "reparatii-frigidere",
+      "section": "servicii",
+      "ro": {
+        "title": "Reparații frigidere la domiciliu București | Adrian Opris",
+        "description": "Reparații frigidere la domiciliu în București, sectoarele 1, 3, 4, 5, 6. Tehnician autorizat AGFR, 16+ ani experiență, garanție 12 luni. Sună: +40 737 444 337."
+      },
+      "en": {
+        "title": "Fridge repairs at home in Bucharest | Adrian Opris",
+        "description": "Fridge repairs at your home in Bucharest, sectors 1, 3, 4, 5, 6. AGFR-authorized technician, 16+ years of experience, 12-month warranty. Call: +40 737 444 337."
+      }
+    },
+    {
+      "path": "sfaturi-utile-frigidere",
+      "section": "faq",
+      "ro": {
+        "title": "Sfaturi utile pentru frigidere care nu răcesc | Adrian Opris",
+        "description": "Ce să verifici înainte să chemi un frigotehnist: priza, scurgerea condensului, dezghețarea No-Frost, setarea termostatului vara, căderile de tensiune. Plus răspunsuri la cele mai frecvente defecte."
+      },
+      "en": {
+        "title": "Useful tips for fridges that are not cooling | Adrian Opris",
+        "description": "What to check before calling a technician: the socket, the condensate drain, No-Frost defrosting, thermostat settings in summer, power cuts. Plus answers to the most common faults."
+      }
+    },
+    {
+      "path": "poze-reparatii-frigidere",
+      "section": "galerie",
+      "ro": {
+        "title": "Poze reparații frigidere | Adrian Opris",
+        "description": "Galerie foto cu lucrări reale: plăci electronice, evaporatoare, înlocuiri de compresor, încărcări cu freon și intervenții la domiciliul clienților din București."
+      },
+      "en": {
+        "title": "Fridge repair photos | Adrian Opris",
+        "description": "Photo gallery of real jobs: control boards, evaporators, compressor replacements, refrigerant recharges and repairs at customers’ homes in Bucharest."
+      }
+    },
+    {
+      "path": "contact",
+      "section": "contact",
+      "ro": {
+        "title": "Contact reparații frigidere București | Adrian Opris",
+        "description": "Sună la +40 737 444 337 pentru reparații frigidere la domiciliu în București. Luni – Sâmbătă, 09:00 – 18:00. E-mail: adifrigotehnist@yahoo.com."
+      },
+      "en": {
+        "title": "Contact — fridge repairs Bucharest | Adrian Opris",
+        "description": "Call +40 737 444 337 for fridge repairs at your home in Bucharest. Monday – Saturday, 09:00 – 18:00. Email: adifrigotehnist@yahoo.com."
+      }
+    },
+    {
+      "path": "politica-de-confidentialitate",
+      "section": "gdpr",
+      "intro": false,
+      "ro": {
+        "title": "Politica de confidențialitate | Adrian Opris – reparații frigidere",
+        "description": "Ce date colectează site-ul frigidere-reparatii.ro (Opriș Adrian PFA), cum sunt folosite, cookie-uri, jurnalele serverului și drepturile tale conform GDPR."
+      },
+      "en": {
+        "title": "Privacy policy | Adrian Opris – fridge repairs",
+        "description": "What data the frigidere-reparatii.ro website (Opriș Adrian PFA) collects, how it is used, cookies, server logs and your rights under GDPR."
+      }
+    }
   ]
 }

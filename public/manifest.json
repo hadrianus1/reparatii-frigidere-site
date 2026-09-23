@@ -1,8 +1,22 @@
 {
   "short_name": "Reparații frigidere",
-  "name": "Reparații frigidere — Opris Adrian PFA",
+  "name": "Reparații frigidere — Adrian Opris",
   "icons": [
-    { "src": "logo_0.png", "type": "image/png", "sizes": "100x100" }
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "logo-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
   ],
   "start_url": ".",
   "display": "standalone",
