@@ -164,13 +164,17 @@ section[id] { scroll-margin-top: 76px; }
 .fridge-intro.is-entering { opacity: 0; pointer-events: none; }
 
 .fridge-skip {
-  position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); right: 16px;
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.75); border: 1px solid #cfe3f3; color: #01579b;
-  border-radius: 999px; padding: 8px 14px; font: 600 13px 'Inter', sans-serif; cursor: pointer;
-  transition: background 0.2s;
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-width: min(240px, 80vw); min-height: 50px;
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+  background: #0277bd; border: none; color: #ffffff;
+  border-radius: 999px; padding: 12px 28px; font: 700 17px 'Inter', sans-serif; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(2,119,189,0.35);
+  transition: background 0.2s, transform 0.2s;
 }
-.fridge-skip:hover { background: #ffffff; }
+.fridge-skip:hover { background: #01579b; transform: translateY(-1px); }
+.fridge-skip.is-hidden { visibility: hidden; }
 
 /* countdown toast (same look as the site's confirmation toasts) */
 .fridge-toast {
@@ -202,8 +206,8 @@ section[id] { scroll-margin-top: 76px; }
 
 /* scene — sized so that on a phone (S24 / iPhone 16) the fridge fills the screen */
 .fridge-scene {
-  --fw: min(78vw, calc((100vh - 170px) * 0.52), 400px);
-  --fw: min(78vw, calc((100dvh - 170px) * 0.52), 400px);
+  --fw: min(78vw, calc((100vh - 234px) * 0.52), 400px);
+  --fw: min(78vw, calc((100dvh - 234px) * 0.52), 400px);
   --u: calc(var(--fw) / 100);
   --depth: calc(var(--u) * 62);
   --door-t: calc(var(--u) * 5);
@@ -522,7 +526,7 @@ section[id] { scroll-margin-top: 76px; }
   background: radial-gradient(circle at 35% 35%, #4fc3f7, #0277bd);
   box-shadow: 0 0.6cqw 1cqw rgba(0,0,0,0.3);
 }
-.fridge-magnet-photo img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.fridge-magnet-photo img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; object-position: center top; }
 .fridge-magnet-photo span {
   display: block; text-align: center; padding: 1.4cqw 0 1.6cqw;
   font: 700 3.4cqw 'Poppins', sans-serif; color: #0d3158;

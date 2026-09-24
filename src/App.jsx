@@ -677,6 +677,13 @@ function ReactionBtn({ type, count, active, onClick, size = "md" }) {
   );
 }
 
+// ===== BLOG POST FORM =====
+
+const EMPTY_POST_FORM = { title: "", excerpt: "", content: "", category: "General", images: [], lang: "ro", tags: "" };
+
+// Posts saved before multi-image support only have image_url.
+const postImages = post => (post?.images?.length ? post.images : post?.image_url ? [post.image_url] : []);
+
 // ===== FRIDGE-DOOR INTRO =====
 
 // Shown on every load of the homepage, of an area page (sector / neighborhood / town) and
@@ -695,7 +702,7 @@ const WRENCH_FLY_MS = 550;
 const WRENCH_TWIST_MS = 1300;
 const FIXED_PAUSE_MS = 700;
 const FRIDGE_DOOR_OPEN_MS = 1100;
-const FRIDGE_HOLD_MS = 3000;
+const FRIDGE_HOLD_MS = 5000;
 
 const FRIDGE_COPY = {
   ro: {
@@ -860,6 +867,9 @@ function FridgeIntro({ lang, setLang, onDone }) {
   };
 
   useEffect(() => {
+    // A reload would otherwise land back wherever the visitor had scrolled to.
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const pending = timers.current;
@@ -888,14 +898,11 @@ function FridgeIntro({ lang, setLang, onDone }) {
   return (
     <div className={`fridge-intro is-${phase}${unlatched ? " is-unlatched" : ""}${broken ? " is-broken-state" : ""}`} role="dialog" aria-modal="true" aria-label={c.aria}>
       {!showToast && (
-        <>
-          <div className="fridge-lang" role="group" aria-label={c.language}>
-            {["ro", "en"].map(l => (
-              <button key={l} type="button" className={lang === l ? "is-active" : ""} aria-pressed={lang === l} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
-            ))}
-          </div>
-          <button type="button" className="fridge-skip" onClick={skip}>{c.skip} <FaChevronRight size={10} /></button>
-        </>
+        <div className="fridge-lang" role="group" aria-label={c.language}>
+          {["ro", "en"].map(l => (
+            <button key={l} type="button" className={lang === l ? "is-active" : ""} aria-pressed={lang === l} onClick={() => setLang(l)}>{l.toUpperCase()}</button>
+          ))}
+        </div>
       )}
 
       {showToast && (
@@ -1000,7 +1007,7 @@ function FridgeIntro({ lang, setLang, onDone }) {
                   <span>{c.noteArea}</span>
                 </div>
                 <div className="fridge-magnet-photo" aria-hidden="true">
-                  <img src="/adrian-opris.jpg" alt="" />
+                  <img src="/poza-profil.jpg" alt="" />
                   <span>Adrian Opris</span>
                 </div>
                 <a href="tel:+40737444337" className="fridge-magnet-phone" onClick={e => e.stopPropagation()}>
@@ -1044,6 +1051,7 @@ function FridgeIntro({ lang, setLang, onDone }) {
       </div>
 
       <p className="fridge-hint" aria-live="polite">{hint}</p>
+      <button type="button" className={`fridge-skip${showToast ? " is-hidden" : ""}`} onClick={skip} tabIndex={showToast ? -1 : 0}>{c.skip} <FaChevronRight size={14} /></button>
     </div>
   );
 }
@@ -1095,8 +1103,10 @@ export default function App() {
   const [commentsVisible, setCommentsVisible] = useState(5);
   const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
-  const [postForm, setPostForm] = useState({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro", tags: "" });
-  const [uploading, setUploading] = useState(false);
+  const [postForm, setPostForm] = useState(EMPTY_POST_FORM);
+  const [uploading, setUploading] = useState(null); // null, or { done, total } while uploading
+  const [imageUrlDraft, setImageUrlDraft] = useState("");
+  const [postZoom, setPostZoom] = useState(null); // index into the open post's images
 
   // Reactions
   const [postReactions, setPostReactions] = useState({});     // { postId: { like, love, dislike, mine } }
@@ -1172,6 +1182,18 @@ export default function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [galleryZoom]);
+  const activePostImages = postImages(activeBlogPost);
+  const stepPostZoom = dir => setPostZoom(i => (i === null ? i : (i + dir + activePostImages.length) % activePostImages.length));
+  useEffect(() => {
+    if (postZoom === null) return;
+    const onKey = e => {
+      if (e.key === "Escape") setPostZoom(null);
+      else if (e.key === "ArrowRight") stepPostZoom(1);
+      else if (e.key === "ArrowLeft") stepPostZoom(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
   const captionText = c => (typeof c === "string" ? c : c?.[lang] || c?.ro);
   const blockImageCopy = { onContextMenu: e => e.preventDefault(), onDragStart: e => e.preventDefault() };
 
@@ -1302,6 +1324,7 @@ export default function App() {
 
   const openPost = (post) => {
     setActiveBlogPost(post);
+    setPostZoom(null);
     setReplyTo(null); setCommentText(""); setCommentUsername(""); setCommentsVisible(5);
     if (post.content === undefined) {
       fetch(`/api/posts/${post.id}`, { headers: isAdmin ? authHeader() : {} })
@@ -1363,37 +1386,60 @@ export default function App() {
         setPosts(prev => editingPost ? prev.map(p => p.id === updated.id ? updated : p) : [updated, ...prev]);
         setShowNewPostForm(false); setEditingPost(null);
         const targetLangLabel = postForm.lang === "en" ? "română" : "engleză";
-        setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro", tags: "" });
+        setPostForm(EMPTY_POST_FORM);
         const base = editingPost ? "Articol actualizat!" : "Articol creat!";
         showToast(updated.translated ? `${base} Tradus automat în ${targetLangLabel}.` : `${base} (traducere automată indisponibilă — verifică DEEPL_API_KEY)`);
       }
     } catch (_) { showToast("Eroare la salvare."); }
   };
 
-  const handleImageUpload = async (file) => {
-    if (!file) return;
-    setUploading(true);
-    try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-      const base64 = dataUrl.split(',')[1];
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeader() },
-        body: JSON.stringify({ filename: file.name, type: file.type, data: base64 }),
-      });
-      if (res.ok) {
-        const { url } = await res.json();
-        setPostForm(p => ({ ...p, image_url: url }));
-        showToast("Imagine încărcată!");
-      } else { showToast("Eroare la încărcare."); }
-    } catch (_) { showToast("Eroare la încărcare."); }
-    setUploading(false);
+  // Uploads the files as-is (original resolution, no re-encoding), one at a time, appending
+  // each to the post's photos as soon as it's stored.
+  const handleImageUploads = async (fileList) => {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+    let ok = 0;
+    for (let i = 0; i < files.length; i++) {
+      setUploading({ done: i, total: files.length });
+      try {
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(files[i]);
+        });
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          body: JSON.stringify({ filename: files[i].name, type: files[i].type, data: dataUrl.split(',')[1] }),
+        });
+        if (res.status === 401) { handleAdminLogout(); break; }
+        if (res.ok) {
+          const { url } = await res.json();
+          setPostForm(p => ({ ...p, images: [...p.images, url] }));
+          ok++;
+        }
+      } catch (_) {}
+    }
+    setUploading(null);
+    showToast(ok === files.length ? `${ok === 1 ? "Imagine încărcată" : `${ok} imagini încărcate`}!` : `${ok} din ${files.length} imagini încărcate — verifică dimensiunea celorlalte.`);
   };
+
+  const addImageUrl = () => {
+    const url = imageUrlDraft.trim();
+    if (!url) return;
+    setPostForm(p => ({ ...p, images: p.images.includes(url) ? p.images : [...p.images, url] }));
+    setImageUrlDraft("");
+  };
+  const removeImage = i => setPostForm(p => ({ ...p, images: p.images.filter((_, j) => j !== i) }));
+  const moveImage = (i, dir) => setPostForm(p => {
+    const j = i + dir;
+    if (j < 0 || j >= p.images.length) return p;
+    const images = [...p.images];
+    [images[i], images[j]] = [images[j], images[i]];
+    return { ...p, images };
+  });
+  const makeCover = i => setPostForm(p => ({ ...p, images: [p.images[i], ...p.images.filter((_, j) => j !== i)] }));
 
   const handleTogglePublish = async (post) => {
     try {
@@ -1425,16 +1471,16 @@ export default function App() {
         h1: "Frigiderul s-a defectat?",
         h1b: "Îl reparăm la domiciliul tău.",
         sub: "Tehnician frigotehnist autorizat certificat pentru frigidere, combine frigorifice și congelatoare. Intervenție rapidă în București și împrejurimi.",
-        cta1: "Sună acum · nr. dedicat",
+        cta1: "Sună acum la numărul dedicat",
         badges: ["Garanție 12 luni", "Factură fiscală", "Piese originale", "Deplasare 70 lei"],
       },
       about: {
-        title: "Despre mine", sub: "16+ ani de reparații frigidere în București, 10000+ de clienți mulțumiți",
+        title: "Despre mine", sub: "16+ ani de reparații frigidere în București, 5000+ de clienți mulțumiți",
         facts: [
           { label: "Experiență", value: "16+ ani" },
           { label: "Autorizare", value: "AGFR — freon" },
           { label: "PFA", value: "CUI 26374475 / 07.01.2010" },
-          { label: "Intervenții efectuate", value: "10000+" },
+          { label: "Intervenții efectuate", value: "5000+" },
         ],
         paragraphs: [
           "Numele meu este Adrian Opriș și sunt tehnician calificat, autorizat frigotehnist și electronist automatizări, având experiența de peste 16 ani. Efectuez reparații frigidere și combine frigorifice în zona Capitalei ca independent, înregistrat oficial CUI 26374475 / 07.01.2010, autorizat AGFR pentru utilizarea și încărcarea cu freon a instalațiilor frigorifice. Vă stau la dispoziție pentru a vă oferi servicii de reparații frigidere de calitate, la domiciliu, în caz de urgență.",
@@ -1443,7 +1489,7 @@ export default function App() {
           "Pentru o informare cât mai apropiată de posibila cauză a defectului, vă rog frumos, pentru a veni pregătit cu piese potrivite și a vă executa reparația frigiderului cât mai rapid, să vă aflați în apropierea frigiderului în momentul discuției telefonice, pentru a vă putea pune câteva scurte întrebări legate de funcționalitatea lui. De asemenea, m-ar ajuta și poze cu frigiderul sau combina frigorifică în cauză, pentru a-mi face o idee cât mai clară despre natura problemei tehnice apărute. Pe baza discuției telefonice, dacă vă pot ajuta cu reparația frigiderului, vom stabili de comun acord o vizită pentru o constatare și eventuala reparație la domiciliul dumneavoastră.",
           "Folosesc scule specifice domeniului frigotehnic, de calitate, care au cele mai bune evaluări, iar în cadrul reparației frigiderului folosesc piese originale de calitate, cu garanție, oferind garanție pentru reparația frigiderului efectuată și piesa înlocuită.",
           "Mentenanța frigiderelor casnice, efectuată de un frigotehnist autorizat, chiar dacă nu este obligatorie prin lege, este necesară după 3-4 ani de folosire. Consider importantă și punerea în funcțiune, inclusiv reglarea setărilor frigiderului în funcție de locație și modul de amplasare. Efectuate corect, acestea ar ajuta mult utilizatorii să se poată bucura cât mai mult de combina frigorifică sau frigider, evitând defecțiunile premature.",
-          "De asemenea, pot efectua revizii profesionale periodice la frigidere și combine frigorifice. Pentru orice problemă legată de service la frigiderul dumneavoastră, vă stau la dispoziție cu profesionalismul și experiența îndelungată acumulată în cele peste 10000 de intervenții efectuate.",
+          "De asemenea, pot efectua revizii profesionale periodice la frigidere și combine frigorifice. Pentru orice problemă legată de service la frigiderul dumneavoastră, vă stau la dispoziție cu profesionalismul și experiența îndelungată acumulată în cele peste 5000 de intervenții efectuate.",
         ],
       },
       gallery: { title: "Galerie Foto", sub: "Lucrări realizate — reparații frigidere la domiciliu în București" },
@@ -1486,7 +1532,7 @@ export default function App() {
         seoText: "Fac reparații de frigidere la domiciliu în sectoarele 1, 3, 4, 5 și 6 ale Bucureștiului, în Sectorul 2 la Obor, Calea Moșilor, Iancului și Mihai Bravu — de la Militari, Drumul Taberei, Crângași și Ghencea, la Rahova, Berceni, Titan, Dristor, Floreasca sau Bucureștii Noi — și în localitățile Chiajna, Bragadiru, Clinceni, Domnești, Măgurele și Popești-Leordeni.",
       },
       reviews: {
-        title: "Ce spun clienții", sub: "16+ ani de reparații a frigiderelor în București, 10000+ de clienți mulțumiți, 700+ review-uri pe Google Maps",
+        title: "Ce spun clienții", sub: "16+ ani de reparații a frigiderelor în București, 5000+ de clienți mulțumiți, 700+ review-uri pe Google Maps",
         mapTitle: "Locația noastră",
         homeOnlyTitle: "Lucrez doar la domiciliul clienților",
         homeOnly: "Nu am atelier și nici punct de lucru fix — așa figurez și la Registrul Comerțului. Nu primesc clienți la sediu: mă suni, stabilim ora și vin eu la tine acasă, cu piesele și sculele necesare.",
@@ -1521,7 +1567,9 @@ export default function App() {
         langRo: "Română", langEn: "Engleză",
         titleLabel: "Titlu *", excerptLabel: "Rezumat (opțional)", contentLabel: "Conținut *",
         tagsLabel: "Etichete / cuvinte cheie (opțional)", tagsHint: "Separate prin virgulă, ex: freon, compresor, no-frost",
-        categoryLabel: "Categorie", imageLabel: "URL imagine", imageUpload: "Sau încarcă imagine",
+        categoryLabel: "Categorie", imagesLabel: "Poze", imageUpload: "Încarcă poze", imageUploading: "Se încarcă", imageUrlPlaceholder: "sau lipește un link de imagine https://...", imageAddUrl: "Adaugă",
+        imagesHint: "Poți selecta mai multe poze deodată; se păstrează rezoluția originală. Prima poză e coperta articolului.",
+        imageCover: "Copertă", imageMakeCover: "Fă copertă", imageRemove: "Șterge poza", imageMoveLeft: "Mută la stânga", imageMoveRight: "Mută la dreapta",
         publish: "Publică", unpublish: "Ascunde", deleteArticle: "Șterge",
         approve: "Aprobă",
         reactions: { label: "A fost util?", like: "Util", love: "Excelent", dislike: "Nu m-a ajutat" },
@@ -1611,16 +1659,16 @@ export default function App() {
         badge: "AGFR Authorized • 16+ years experience",
         h1: "Fridge broken down?", h1b: "We repair it at your home.",
         sub: "Certified, authorized fridge repair technician — fridges, fridge-freezers and freezers. Fast response in Bucharest and surrounding areas.",
-        cta1: "Call now · dedicated number",
+        cta1: "Call now on the dedicated number",
         badges: ["12-month warranty", "Fiscal invoice", "Original parts", "Call-out fee 70 RON"],
       },
       about: {
-        title: "About Me", sub: "16+ years of fridge repairs in Bucharest, 10000+ satisfied clients",
+        title: "About Me", sub: "16+ years of fridge repairs in Bucharest, 5000+ satisfied clients",
         facts: [
           { label: "Experience", value: "16+ years" },
           { label: "Authorization", value: "AGFR — refrigerant" },
           { label: "Sole trader (PFA)", value: "Tax ID 26374475 / 07.01.2010" },
-          { label: "Interventions completed", value: "10000+" },
+          { label: "Interventions completed", value: "5000+" },
         ],
         paragraphs: [
           "My name is Adrian Opriș and I am a qualified, authorized refrigeration technician and automation electronics engineer, with over 16 years of experience. I carry out fridge and fridge-freezer repairs in the Bucharest area as a sole trader, officially registered under Tax ID (CUI) 26374475 / 07.01.2010, and authorized by AGFR to handle and charge refrigeration systems with refrigerant (freon). I'm at your service for quality fridge repairs at home, including emergencies.",
@@ -1629,7 +1677,7 @@ export default function App() {
           "For information as close as possible to the likely cause of the fault — so I can come prepared with the right parts and repair your fridge as quickly as possible — please be near the fridge during our phone call, so I can ask you a few short questions about how it's behaving. Photos of the fridge or fridge-freezer in question would also help me get a clearer picture of the technical problem. Based on our phone conversation, if I can help with the repair, we'll agree together on a visit to assess the fault and carry out the repair at your home.",
           "I use quality tools specific to the refrigeration trade, with the best reviews, and for every repair I use quality original parts, with warranty, guaranteeing both the repair carried out and the part replaced.",
           "Maintenance of household fridges by an authorized refrigeration technician, while not legally required, becomes necessary after 3-4 years of use. I also consider commissioning important, including adjusting the fridge's settings according to its location and placement. Done correctly, this helps users enjoy their fridge-freezer or fridge for much longer, avoiding premature failures.",
-          "I also carry out periodic professional maintenance checks on fridges and fridge-freezers. For any service issue with your fridge, I'm at your disposal with the professionalism and extensive experience built up over more than 10000 interventions carried out.",
+          "I also carry out periodic professional maintenance checks on fridges and fridge-freezers. For any service issue with your fridge, I'm at your disposal with the professionalism and extensive experience built up over more than 5000 interventions carried out.",
         ],
       },
       gallery: { title: "Photo Gallery", sub: "Our work — fridge repairs at home in Bucharest" },
@@ -1672,7 +1720,7 @@ export default function App() {
         seoText: "I repair fridges at your home in Bucharest sectors 1, 3, 4, 5 and 6, in Sector 2 around Obor, Calea Moșilor, Iancului and Mihai Bravu — from Militari, Drumul Taberei, Crângași and Ghencea to Rahova, Berceni, Titan, Dristor, Floreasca or Bucureștii Noi — and in the towns of Chiajna, Bragadiru, Clinceni, Domnești, Măgurele and Popești-Leordeni.",
       },
       reviews: {
-        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest, 10000+ satisfied clients, 700+ reviews on Google Maps",
+        title: "What Clients Say", sub: "16+ years of fridge repairs in Bucharest, 5000+ satisfied clients, 700+ reviews on Google Maps",
         mapTitle: "Our Location",
         homeOnlyTitle: "I only work at customers' homes",
         homeOnly: "I have no workshop and no fixed place of business — that's also how I'm registered at the Trade Register. I don't receive customers at the registered office: you call me, we agree on a time, and I come to your home with the parts and tools needed.",
@@ -1707,7 +1755,9 @@ export default function App() {
         langRo: "Romanian", langEn: "English",
         titleLabel: "Title *", excerptLabel: "Excerpt (optional)", contentLabel: "Content *",
         tagsLabel: "Tags / keywords (optional)", tagsHint: "Comma-separated, e.g.: freon, compressor, no-frost",
-        categoryLabel: "Category", imageLabel: "Image URL", imageUpload: "Or upload image",
+        categoryLabel: "Category", imagesLabel: "Photos", imageUpload: "Upload photos", imageUploading: "Uploading", imageUrlPlaceholder: "or paste an image link https://...", imageAddUrl: "Add",
+        imagesHint: "You can select several photos at once; the original resolution is kept. The first photo is the article's cover.",
+        imageCover: "Cover", imageMakeCover: "Make cover", imageRemove: "Remove photo", imageMoveLeft: "Move left", imageMoveRight: "Move right",
         publish: "Publish", unpublish: "Unpublish", deleteArticle: "Delete",
         approve: "Approve",
         reactions: { label: "Was this helpful?", like: "Helpful", love: "Excellent", dislike: "Not helpful" },
@@ -2017,26 +2067,26 @@ export default function App() {
                 border: "3px solid rgba(41,182,246,0.4)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)",
               }} />
               <figcaption style={{ marginTop: "14px", textAlign: "center" }}>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: "22px", fontWeight: "700", color: "white", lineHeight: "1.2" }}>Adrian Opris</div>
-                <div style={{ fontSize: "13px", color: "#81d4fa", marginTop: "4px" }}>{lang === "ro" ? "Tehnician frigotehnist autorizat AGFR" : "AGFR-authorized refrigeration technician"}</div>
-                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", marginTop: "2px", fontWeight: "600" }}>Opris Adrian P.F.A.</div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: "26px", fontWeight: "700", color: "white", lineHeight: "1.2" }}>Adrian Opris</div>
+                <div style={{ fontSize: "16px", color: "#81d4fa", marginTop: "4px", fontWeight: "600" }}>{lang === "ro" ? "Tehnician frigotehnist autorizat AGFR" : "AGFR-authorized refrigeration technician"}</div>
+                <div style={{ fontSize: "16px", color: "rgba(255,255,255,0.85)", marginTop: "2px", fontWeight: "700" }}>Opris Adrian P.F.A.</div>
               </figcaption>
             </figure>
             <div className="hero-content" style={{ animation: "fadeInUp 0.7s ease both", minWidth: 0 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "6px 16px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", marginBottom: "28px" }}>
-                <FaShieldAlt size={11} /> {t.hero.badge}
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "8px 18px", borderRadius: "20px", fontSize: "15px", fontWeight: "700", letterSpacing: "0.5px", marginBottom: "28px" }}>
+                <FaShieldAlt size={14} /> {t.hero.badge}
               </div>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "12px" }}>{t.hero.h1b}</h1>
-              <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "20px", fontWeight: "700", color: "white", letterSpacing: "0.5px", margin: "0 0 20px" }}>— Opris Adrian P.F.A.</p>
-              <p style={{ fontSize: "18px", color: "rgba(255,255,255,0.75)", maxWidth: "560px", lineHeight: "1.7", marginBottom: "40px" }}>{t.hero.sub}</p>
+              <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(16px, 5vw, 22px)", fontWeight: "700", color: "white", letterSpacing: "0.5px", margin: "0 0 20px" }}>Opris Adrian P.F.A. <span style={{ whiteSpace: "nowrap" }}>CUI 26374475 / 07.01.2010</span></p>
+              <p style={{ fontSize: "21px", fontWeight: "600", color: "rgba(255,255,255,0.9)", maxWidth: "600px", lineHeight: "1.6", marginBottom: "40px" }}>{t.hero.sub}</p>
               <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
                 <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "#29b6f6", color: "#0d3158", padding: "12px 26px", borderRadius: "10px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
-                  <FaPhone size={20} />
+                  <FaPhone size={24} />
                   <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.25" }}>
-                    <span style={{ fontSize: "12px", fontWeight: "700", opacity: 0.8 }}>{t.hero.cta1}</span>
-                    <span style={{ fontSize: "20px", fontWeight: "800", whiteSpace: "nowrap" }}>{t.contact.phone}</span>
-                    <span style={{ fontSize: "20px", fontWeight: "800", whiteSpace: "nowrap" }}>07 FRIGIDER</span>
+                    <span style={{ fontSize: "15px", fontWeight: "700", opacity: 0.85 }}>{t.hero.cta1}</span>
+                    <span style={{ fontSize: "24px", fontWeight: "800", whiteSpace: "nowrap" }}>{t.contact.phone}</span>
+                    <span style={{ fontSize: "24px", fontWeight: "800", whiteSpace: "nowrap" }}>07 FRIGIDER</span>
                   </span>
                 </a>
                 <div style={{ display: "flex", alignItems: "stretch", gap: "10px" }}>
@@ -2056,8 +2106,8 @@ export default function App() {
               </div>
               <div className="hero-badges" style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 {t.hero.badges.map((b, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)", padding: "7px 14px", borderRadius: "8px", fontSize: "13px", fontWeight: "500" }}>
-                    <FaCheck size={10} color="#4ade80" /> {b}
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.95)", padding: "8px 16px", borderRadius: "8px", fontSize: "16px", fontWeight: "700" }}>
+                    <FaCheck size={13} color="#4ade80" /> {b}
                   </div>
                 ))}
               </div>
@@ -2071,23 +2121,23 @@ export default function App() {
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "60px" }}>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.process.title}</h2>
-            <p style={{ fontSize: "16px", color: "#01579b" }}>{t.process.sub}</p>
+            <p style={{ fontSize: "19px", fontWeight: "600", color: "#01579b" }}>{t.process.sub}</p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "24px", marginBottom: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "24px", marginBottom: "24px" }}>
             {t.process.steps.map((step, i) => (
               <div key={i} style={{ background: "white", borderRadius: "16px", padding: "28px 20px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                <div style={{ width: "48px", height: "48px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "white", fontFamily: "'Poppins', sans-serif", fontSize: "20px", fontWeight: "700" }}>{step.n}</div>
-                <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", marginBottom: "8px", lineHeight: "1.3" }}>{step.title}</h3>
-                <p style={{ fontSize: "15px", color: "#01579b", lineHeight: "1.6" }}>{step.desc}</p>
+                <div style={{ width: "56px", height: "56px", background: "linear-gradient(135deg, #0277bd, #29b6f6)", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "white", fontFamily: "'Poppins', sans-serif", fontSize: "24px", fontWeight: "700" }}>{step.n}</div>
+                <h3 style={{ fontSize: "20px", fontWeight: "800", color: "#0d3158", marginBottom: "10px", lineHeight: "1.3" }}>{step.title}</h3>
+                <p style={{ fontSize: "17px", fontWeight: "600", color: "#01579b", lineHeight: "1.6" }}>{step.desc}</p>
                 {step.phone && (
-                  <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "10px", fontSize: "15px", fontWeight: "700", color: "#0277bd", textDecoration: "none", whiteSpace: "nowrap" }}>
-                    <FaPhone size={11} /> {step.phone}
+                  <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginTop: "10px", fontSize: "18px", fontWeight: "800", color: "#0277bd", textDecoration: "none", whiteSpace: "nowrap" }}>
+                    <FaPhone size={14} /> {step.phone}
                   </a>
                 )}
               </div>
             ))}
           </div>
-          <p style={{ textAlign: "center", fontSize: "14px", color: "#01579b" }}>{t.process.note}</p>
+          <p style={{ textAlign: "center", fontSize: "17px", fontWeight: "600", color: "#01579b" }}>{t.process.note}</p>
         </div>
       </section>
 
@@ -2426,8 +2476,11 @@ export default function App() {
               </button>
 
               <article>
-                {activeBlogPost.image_url && (
-                  <img src={activeBlogPost.image_url} alt={postTitle(activeBlogPost)} style={{ width: "100%", height: "320px", objectFit: "cover", borderRadius: "16px", marginBottom: "32px" }} />
+                {activePostImages.length > 0 && (
+                  <button type="button" onClick={() => setPostZoom(0)} aria-label={lang === "ro" ? "Mărește poza" : "Enlarge photo"}
+                    style={{ display: "flex", justifyContent: "center", width: "100%", padding: 0, border: "none", background: "#0d1b2a", borderRadius: "16px", overflow: "hidden", marginBottom: "32px", cursor: "zoom-in" }}>
+                    <img src={activePostImages[0]} alt={postTitle(activeBlogPost)} style={{ display: "block", maxWidth: "100%", maxHeight: "75vh", width: "auto", height: "auto" }} />
+                  </button>
                 )}
                 <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "16px" }}>
                   <CategoryBadge cat={activeBlogPost.category} />
@@ -2436,6 +2489,16 @@ export default function App() {
                 </div>
                 <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", color: "#0d3158", marginBottom: "24px", lineHeight: "1.2" }}>{postTitle(activeBlogPost)}</h1>
                 <div className="prose" dangerouslySetInnerHTML={{ __html: postContentHtml(activeBlogPost) }} />
+                {activePostImages.length > 1 && (
+                  <div style={{ columnWidth: "260px", columnGap: "12px", marginTop: "28px" }}>
+                    {activePostImages.slice(1).map((src, i) => (
+                      <button key={src} type="button" onClick={() => setPostZoom(i + 1)} aria-label={lang === "ro" ? "Mărește poza" : "Enlarge photo"}
+                        style={{ display: "block", width: "100%", padding: 0, border: "none", background: "none", marginBottom: "12px", breakInside: "avoid", cursor: "zoom-in" }}>
+                        <img src={src} alt={`${postTitle(activeBlogPost)} — ${i + 2}`} loading="lazy" style={{ display: "block", width: "100%", height: "auto", borderRadius: "12px" }} />
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {activeBlogPost.tags?.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "28px" }}>
                     {activeBlogPost.tags.map(tag => (
@@ -2444,6 +2507,29 @@ export default function App() {
                   </div>
                 )}
               </article>
+
+              {postZoom !== null && activePostImages[postZoom] && (
+                <div onClick={() => setPostZoom(null)} role="dialog" aria-modal="true" aria-label={postTitle(activeBlogPost)}
+                  style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(5,12,20,0.94)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", padding: "16px", cursor: "zoom-out", animation: "fadeIn 0.2s ease" }}>
+                  <button onClick={() => setPostZoom(null)} aria-label={lang === "ro" ? "Închide" : "Close"}
+                    style={{ position: "absolute", top: "16px", right: "16px", width: "44px", height: "44px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>
+                    <FaTimes />
+                  </button>
+                  <img src={activePostImages[postZoom]} alt={postTitle(activeBlogPost)}
+                    style={{ maxWidth: "100%", maxHeight: "calc(100% - 48px)", objectFit: "contain", borderRadius: "8px" }} />
+                  {activePostImages.length > 1 && (
+                    <>
+                      {[{ dir: -1, icon: <FaChevronLeft />, side: "left" }, { dir: 1, icon: <FaChevronRight />, side: "right" }].map(({ dir, icon, side }) => (
+                        <button key={side} onClick={e => { e.stopPropagation(); stepPostZoom(dir); }} aria-label={dir < 0 ? (lang === "ro" ? "Poza anterioară" : "Previous photo") : (lang === "ro" ? "Poza următoare" : "Next photo")}
+                          style={{ position: "absolute", top: "50%", [side]: "12px", transform: "translateY(-50%)", width: "48px", height: "48px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          {icon}
+                        </button>
+                      ))}
+                      <p style={{ margin: 0, color: "white", fontSize: "14px", fontWeight: "600" }}>{postZoom + 1} / {activePostImages.length}</p>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* Article reactions */}
               {(() => {
@@ -2462,7 +2548,7 @@ export default function App() {
               {/* Admin post controls */}
               {isAdmin && (
                 <div style={{ display: "flex", gap: "10px", marginTop: "16px", padding: "16px 20px", background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", flexWrap: "wrap" }}>
-                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", image_url: activeBlogPost.image_url || "", lang: "ro", tags: (activeBlogPost.tags || []).join(", ") }); setShowNewPostForm(true); setActiveBlogPost(null); }}
+                  <button onClick={() => { setEditingPost(activeBlogPost); setPostForm({ title: activeBlogPost.title, excerpt: activeBlogPost.excerpt || "", content: activeBlogPost.content, category: activeBlogPost.category || "General", images: postImages(activeBlogPost), lang: "ro", tags: (activeBlogPost.tags || []).join(", ") }); setImageUrlDraft(""); setShowNewPostForm(true); setActiveBlogPost(null); }}
                     style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f59e0b", color: "white", border: "none", padding: "8px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}>
                     <FaEdit size={12} /> {t.blog.editArticle}
                   </button>
@@ -2609,7 +2695,7 @@ export default function App() {
                     </select>
                   )}
                   {isAdmin && (
-                    <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm({ title: "", excerpt: "", content: "", category: "General", image_url: "", lang: "ro", tags: "" }); }} className="btn-primary">
+                    <button onClick={() => { setShowNewPostForm(true); setEditingPost(null); setPostForm(EMPTY_POST_FORM); setImageUrlDraft(""); }} className="btn-primary">
                       <FaPlus size={12} /> {t.blog.newArticle}
                     </button>
                   )}
@@ -2659,19 +2745,42 @@ export default function App() {
                       style={{ width: "100%", padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", outline: "none", boxSizing: "border-box" }} />
                   </div>
 
-                  {/* Image: URL + upload */}
+                  {/* Photos: upload several at once or add by URL; first one is the cover */}
                   <div style={{ marginBottom: "16px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#01579b", marginBottom: "6px" }}>{t.blog.imageLabel}</label>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="text" value={postForm.image_url} onChange={e => setPostForm(p => ({ ...p, image_url: e.target.value }))} placeholder="https://..."
-                        style={{ flex: 1, padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", outline: "none" }} />
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#01579b", marginBottom: "6px" }}>{t.blog.imagesLabel}</label>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                       <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: uploading ? "#94a3b8" : "#0277bd", color: "white", padding: "10px 16px", borderRadius: "8px", cursor: uploading ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: "600", whiteSpace: "nowrap" }}>
-                        <FaUpload size={12} /> {uploading ? "..." : t.blog.imageUpload}
-                        <input type="file" accept="image/*" style={{ display: "none" }} disabled={uploading} onChange={e => handleImageUpload(e.target.files?.[0])} />
+                        <FaUpload size={12} /> {uploading ? `${t.blog.imageUploading} ${uploading.done + 1}/${uploading.total}…` : t.blog.imageUpload}
+                        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple style={{ display: "none" }} disabled={!!uploading}
+                          onChange={e => { handleImageUploads(e.target.files); e.target.value = ""; }} />
                       </label>
+                      <input type="text" value={imageUrlDraft} onChange={e => setImageUrlDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addImageUrl(); } }} placeholder={t.blog.imageUrlPlaceholder}
+                        style={{ flex: "1 1 200px", minWidth: 0, padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: "8px", fontFamily: "inherit", fontSize: "14px", outline: "none" }} />
+                      <button type="button" onClick={addImageUrl} disabled={!imageUrlDraft.trim()} className="btn-secondary" style={{ padding: "10px 16px", fontSize: "13px" }}>{t.blog.imageAddUrl}</button>
                     </div>
-                    {postForm.image_url && (
-                      <img src={postForm.image_url} alt="preview" style={{ marginTop: "8px", height: "80px", objectFit: "cover", borderRadius: "8px", border: "1px solid #e2e8f0" }} onError={e => e.currentTarget.style.display = "none"} />
+                    <p style={{ fontSize: "11px", color: "#01579b", marginTop: "6px" }}>{t.blog.imagesHint}</p>
+                    {postForm.images.length > 0 && (
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "10px", marginTop: "10px" }}>
+                        {postForm.images.map((src, i) => (
+                          <div key={src} style={{ position: "relative", borderRadius: "10px", overflow: "hidden", border: `2px solid ${i === 0 ? "#0277bd" : "#e2e8f0"}`, background: "#f1f5f9" }}>
+                            <img src={src} alt="" style={{ display: "block", width: "100%", aspectRatio: "1", objectFit: "contain" }} />
+                            {i === 0 && <span style={{ position: "absolute", top: "6px", left: "6px", background: "#0277bd", color: "white", fontSize: "11px", fontWeight: "700", padding: "2px 8px", borderRadius: "6px" }}>{t.blog.imageCover}</span>}
+                            <button type="button" onClick={() => removeImage(i)} aria-label={t.blog.imageRemove} title={t.blog.imageRemove}
+                              style={{ position: "absolute", top: "6px", right: "6px", width: "30px", height: "30px", borderRadius: "50%", border: "none", background: "#ef4444", color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+                              <FaTrash size={12} />
+                            </button>
+                            <div style={{ display: "flex", gap: "4px", padding: "6px", background: "white", justifyContent: "space-between" }}>
+                              <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} aria-label={t.blog.imageMoveLeft} title={t.blog.imageMoveLeft}
+                                style={{ border: "1px solid #e2e8f0", background: "white", borderRadius: "6px", padding: "4px 8px", cursor: i === 0 ? "default" : "pointer", opacity: i === 0 ? 0.35 : 1, color: "#01579b" }}><FaChevronLeft size={10} /></button>
+                              {i > 0 && (
+                                <button type="button" onClick={() => makeCover(i)} style={{ border: "1px solid #e2e8f0", background: "white", borderRadius: "6px", padding: "4px 6px", cursor: "pointer", fontSize: "11px", fontWeight: "600", color: "#0277bd" }}>{t.blog.imageMakeCover}</button>
+                              )}
+                              <button type="button" onClick={() => moveImage(i, 1)} disabled={i === postForm.images.length - 1} aria-label={t.blog.imageMoveRight} title={t.blog.imageMoveRight}
+                                style={{ border: "1px solid #e2e8f0", background: "white", borderRadius: "6px", padding: "4px 8px", cursor: i === postForm.images.length - 1 ? "default" : "pointer", opacity: i === postForm.images.length - 1 ? 0.35 : 1, color: "#01579b" }}><FaChevronRight size={10} /></button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
 
