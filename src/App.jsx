@@ -727,7 +727,7 @@ const WRENCH_FLY_MS = 550;
 const WRENCH_TWIST_MS = 1300;
 const FIXED_PAUSE_MS = 700;
 const FRIDGE_DOOR_OPEN_MS = 1100;
-const FRIDGE_HOLD_MS = 2000;
+const FRIDGE_HOLD_MS = 1000;
 
 const FRIDGE_COPY = {
   ro: {
@@ -1033,7 +1033,6 @@ function FridgeIntro({ lang, setLang, onDone }) {
                 </div>
                 <div className="fridge-magnet-photo" aria-hidden="true">
                   <img src="/poza-profil.jpg" alt="" />
-                  <span>Adrian Opris</span>
                 </div>
                 <a href="tel:+40737444337" className="fridge-magnet-phone" onClick={e => e.stopPropagation()}>
                   <FaPhone className="fridge-magnet-phone-icon" /> 0737 444 337

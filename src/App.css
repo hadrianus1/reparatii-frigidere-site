@@ -516,7 +516,7 @@ section[id] { scroll-margin-top: 76px; }
 .fridge-magnet-note strong { font-family: 'Poppins', sans-serif; font-size: 3.8cqw; }
 .fridge-magnet-photo {
   position: absolute; top: 50%; left: 19%;
-  width: 31cqw; padding: 1.6cqw 1.6cqw 0;
+  width: 31cqw; padding: 1.6cqw;
   background: #ffffff; transform: rotate(-5deg);
   box-shadow: 0 1.4cqw 3cqw rgba(13,49,88,0.3);
 }
@@ -527,10 +527,6 @@ section[id] { scroll-margin-top: 76px; }
   box-shadow: 0 0.6cqw 1cqw rgba(0,0,0,0.3);
 }
 .fridge-magnet-photo img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; object-position: center top; }
-.fridge-magnet-photo span {
-  display: block; text-align: center; padding: 1.4cqw 0 1.6cqw;
-  font: 700 3.4cqw 'Poppins', sans-serif; color: #0d3158;
-}
 .fridge-magnet-phone {
   position: absolute; top: 62%; right: 9%;
   display: inline-flex; align-items: center; gap: 1.6cqw;
@@ -544,7 +540,7 @@ section[id] { scroll-margin-top: 76px; }
 .fridge-brand {
   position: absolute; bottom: 5%; left: 0; right: 0; text-align: center;
   font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 3.2cqw;
-  letter-spacing: 1.2cqw; color: #90a4ae;
+  letter-spacing: 1.2cqw; color: #000000;
 }
 
 /* handle */
