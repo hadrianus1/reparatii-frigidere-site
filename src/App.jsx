@@ -1601,7 +1601,7 @@ export default function App() {
         tagsLabel: "Etichete / cuvinte cheie (opțional)", tagsHint: "Separate prin virgulă, ex: freon, compresor, no-frost",
         categoryLabel: "Categorie", imagesLabel: "Poze", imageUpload: "Încarcă poze", imageUploading: "Se încarcă", imageUrlPlaceholder: "sau lipește un link de imagine https://...", imageAddUrl: "Adaugă",
         imagesHint: "Poți selecta mai multe poze deodată; se păstrează rezoluția originală. Prima poză e coperta articolului.",
-        imageCover: "Copertă", imageMakeCover: "Fă copertă", imageRemove: "Șterge poza", imageMoveLeft: "Mută la stânga", imageMoveRight: "Mută la dreapta",
+        imageCover: "Copertă", imageMakeCover: "Setează poza ca și copertă", imageRemove: "Șterge poza", imageMoveLeft: "Mută la stânga", imageMoveRight: "Mută la dreapta",
         publish: "Publică", unpublish: "Ascunde", deleteArticle: "Șterge",
         approve: "Aprobă",
         reactions: { label: "A fost util?", like: "Util", love: "Excelent", dislike: "Nu m-a ajutat" },
@@ -1789,7 +1789,7 @@ export default function App() {
         tagsLabel: "Tags / keywords (optional)", tagsHint: "Comma-separated, e.g.: freon, compressor, no-frost",
         categoryLabel: "Category", imagesLabel: "Photos", imageUpload: "Upload photos", imageUploading: "Uploading", imageUrlPlaceholder: "or paste an image link https://...", imageAddUrl: "Add",
         imagesHint: "You can select several photos at once; the original resolution is kept. The first photo is the article's cover.",
-        imageCover: "Cover", imageMakeCover: "Make cover", imageRemove: "Remove photo", imageMoveLeft: "Move left", imageMoveRight: "Move right",
+        imageCover: "Cover", imageMakeCover: "Set photo as cover", imageRemove: "Remove photo", imageMoveLeft: "Move left", imageMoveRight: "Move right",
         publish: "Publish", unpublish: "Unpublish", deleteArticle: "Delete",
         approve: "Approve",
         reactions: { label: "Was this helpful?", like: "Helpful", love: "Excellent", dislike: "Not helpful" },
@@ -2808,12 +2808,14 @@ export default function App() {
                             <div style={{ display: "flex", gap: "4px", padding: "6px", background: "white", justifyContent: "space-between" }}>
                               <button type="button" onClick={() => moveImage(i, -1)} disabled={i === 0} aria-label={t.blog.imageMoveLeft} title={t.blog.imageMoveLeft}
                                 style={{ border: "1px solid #e2e8f0", background: "white", borderRadius: "6px", padding: "4px 8px", cursor: i === 0 ? "default" : "pointer", opacity: i === 0 ? 0.35 : 1, color: "#01579b" }}><FaChevronLeft size={10} /></button>
-                              {i > 0 && (
-                                <button type="button" onClick={() => makeCover(i)} style={{ border: "1px solid #e2e8f0", background: "white", borderRadius: "6px", padding: "4px 6px", cursor: "pointer", fontSize: "11px", fontWeight: "600", color: "#0277bd" }}>{t.blog.imageMakeCover}</button>
-                              )}
                               <button type="button" onClick={() => moveImage(i, 1)} disabled={i === postForm.images.length - 1} aria-label={t.blog.imageMoveRight} title={t.blog.imageMoveRight}
                                 style={{ border: "1px solid #e2e8f0", background: "white", borderRadius: "6px", padding: "4px 8px", cursor: i === postForm.images.length - 1 ? "default" : "pointer", opacity: i === postForm.images.length - 1 ? 0.35 : 1, color: "#01579b" }}><FaChevronRight size={10} /></button>
                             </div>
+                            {i > 0 && (
+                              <div style={{ padding: "0 6px 6px", background: "white" }}>
+                                <button type="button" onClick={() => makeCover(i)} style={{ width: "100%", border: "1px solid #bfdbfe", background: "#e3f2fd", borderRadius: "6px", padding: "5px 6px", cursor: "pointer", fontSize: "11px", fontWeight: "600", color: "#0277bd", lineHeight: "1.25" }}>{t.blog.imageMakeCover}</button>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
