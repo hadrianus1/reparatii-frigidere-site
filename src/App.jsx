@@ -727,7 +727,7 @@ const WRENCH_FLY_MS = 550;
 const WRENCH_TWIST_MS = 1300;
 const FIXED_PAUSE_MS = 700;
 const FRIDGE_DOOR_OPEN_MS = 1100;
-const FRIDGE_HOLD_MS = 2500;
+const FRIDGE_HOLD_MS = 2000;
 
 const FRIDGE_COPY = {
   ro: {
