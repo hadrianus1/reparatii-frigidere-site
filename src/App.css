@@ -700,7 +700,7 @@ section[id] { scroll-margin-top: 76px; }
 }
 
 /* sparks while the wrench turns */
-.fridge-sparks { position: absolute; top: calc(7% + 7.3cqw); left: 50%; width: 0; height: 0; pointer-events: none; }
+.fridge-sparks { position: absolute; top: 7%; margin-top: 7.3cqw; /* no calc(): the build's postcss-calc can't parse cq units */ left: 50%; width: 0; height: 0; pointer-events: none; }
 .fridge-sparks span {
   position: absolute; left: -0.5cqw; top: -1.5cqw;
   width: 1cqw; height: 3cqw; border-radius: 1cqw;
