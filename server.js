@@ -334,6 +334,7 @@ app.patch('/api/posts/:id', requireAdmin, async (req, res) => {
         [r.title, r.excerpt, r.content, category, pics.image_url, pics.images, r.title_en, r.excerpt_en, r.content_en, cleanTags, req.params.id]
       );
       if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+      if (result.rows[0].published) await pingIndexNow([`/blog/${result.rows[0].slug}`]);
       return res.json({ ...result.rows[0], translated: r.translated });
     }
     const post = db.posts.get(Number(req.params.id));
@@ -349,11 +350,14 @@ app.patch('/api/posts/:id/publish', requireAdmin, async (req, res) => {
     if (db.isReal) {
       const result = await db.query('UPDATE posts SET published=$1, updated_at=NOW() WHERE id=$2 RETURNING *', [published, req.params.id]);
       if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+      // Unpublishing is reported too: the URL now 404s, which is how IndexNow drops it.
+      await pingIndexNow([`/blog/${result.rows[0].slug}`, '/sitemap.xml']);
       return res.json(result.rows[0]);
     }
     const post = db.posts.get(Number(req.params.id));
     if (!post) return res.status(404).json({ error: 'Not found' });
     post.published = published; post.updated_at = new Date().toISOString();
+    await pingIndexNow([`/blog/${post.slug}`, '/sitemap.xml']);
     res.json(post);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
@@ -532,6 +536,28 @@ app.delete('/api/comments/:id/reactions', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ===== INDEXNOW =====
+// Bing, Yandex, Seznam and Naver recrawl a URL right away when it's submitted here (Google
+// doesn't take part — it relies on the sitemap + Search Console). Optional: without
+// INDEXNOW_KEY nothing is sent. The key must also be served at /<key>.txt (route below).
+const INDEXNOW_KEY = (process.env.INDEXNOW_KEY || '').trim();
+
+async function pingIndexNow(paths) {
+  if (!INDEXNOW_KEY || !paths.length) return;
+  try {
+    await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ host: new URL(SITE_URL).host, key: INDEXNOW_KEY, keyLocation: `${SITE_URL}/${INDEXNOW_KEY}.txt`, urlList: paths.map(p => `${SITE_URL}${p}`) }),
+      signal: AbortSignal.timeout(4000),
+    });
+  } catch (err) { console.warn('IndexNow ping failed:', err.message); }
+}
+
+if (INDEXNOW_KEY) {
+  app.get(`/${INDEXNOW_KEY}.txt`, (req, res) => res.type('text/plain').send(INDEXNOW_KEY));
+}
+
 // ===== HEALTH =====
 
 app.get('/api/health', async (req, res) => {
@@ -550,20 +576,28 @@ app.get('/api/health', async (req, res) => {
 
 const publishedPostRows = async () => {
   if (db.isReal) {
-    const result = await db.query('SELECT slug, title, excerpt, image_url, updated_at FROM posts WHERE published = true ORDER BY created_at DESC');
+    const result = await db.query('SELECT slug, title, excerpt, image_url, created_at, updated_at FROM posts WHERE published = true ORDER BY created_at DESC');
     return result.rows;
   }
   return Array.from(db.posts.values()).filter(p => p.published);
 };
 
+// Every non-blog page's content ships with the frontend build, so the build's own date is
+// the honest <lastmod> for them (search engines ignore lastmod once it proves unreliable,
+// e.g. "now" on every request). No build (dev) → no lastmod.
+const BUILD_DATE = (() => {
+  try { return fs.statSync(path.join(__dirname, 'build', 'index.html')).mtime; } catch { return null; }
+})();
+
 app.get('/sitemap.xml', async (req, res) => {
   try {
     const posts = await publishedPostRows();
+    const lastmod = BUILD_DATE;
     const urls = [
-      { loc: `${SITE_URL}/` },
-      ...seoData.pages.map(p => ({ loc: `${SITE_URL}/${p.path}` })),
-      ...seoData.brands.map(b => ({ loc: `${SITE_URL}/reparatii-frigidere-${b.slug}` })),
-      ...seoData.zones.map(z => ({ loc: `${SITE_URL}/reparatii-frigidere-${z.slug}` })),
+      { loc: `${SITE_URL}/`, lastmod },
+      ...seoData.pages.map(p => ({ loc: `${SITE_URL}/${p.path}`, lastmod })),
+      ...seoData.brands.map(b => ({ loc: `${SITE_URL}/reparatii-frigidere-${b.slug}`, lastmod })),
+      ...seoData.zones.map(z => ({ loc: `${SITE_URL}/reparatii-frigidere-${z.slug}`, lastmod })),
       ...posts.map(p => ({ loc: `${SITE_URL}/blog/${p.slug}`, lastmod: p.updated_at })),
     ];
     const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -610,6 +644,36 @@ function injectMeta(html, { title, description, canonical, ogImage }) {
   return out;
 }
 
+// Page-specific structured data, added next to the homepage's LocalBusiness block (which
+// every page keeps, and which these reference by its @id): a breadcrumb trail for every
+// sub-page, plus a Service (brand / zone pages) or a BlogPosting (posts).
+const BUSINESS_ID = `${SITE_URL}/#business`;
+const breadcrumb = (name, url) => ({
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Acasă', item: `${SITE_URL}/` },
+    { '@type': 'ListItem', position: 2, name, item: url },
+  ],
+});
+const serviceLd = (name, description, url, areaServed) => ({
+  '@type': 'Service',
+  name, description, url,
+  serviceType: 'Reparații frigidere la domiciliu',
+  provider: { '@id': BUSINESS_ID },
+  areaServed: areaServed || { '@type': 'City', name: 'București' },
+});
+
+function injectJsonLd(html, graph) {
+  // "<" escaped so a post title containing "</script>" can't end the block early.
+  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+  return html.replace('</head>', () => `<script type="application/ld+json">${json}</script></head>`);
+}
+
+// Real 404 for URLs that match no page: the SPA shell still renders (the visitor gets the
+// homepage), but crawlers get a 404 status and noindex instead of a "soft 404" copy of the
+// homepage under every mistyped or long-gone URL.
+const markNotFound = (html) => html.replace(/(<meta name="robots" content=")[^"]*(")/, '$1noindex, follow$2');
+
 // ===== STATIC FILES (production) =====
 
 if (process.env.NODE_ENV === 'production') {
@@ -649,35 +713,63 @@ if (process.env.NODE_ENV === 'production') {
     // HTML itself (see injectMeta above) — everything else gets the generic shell,
     // same as before. Content-Type set explicitly since we're using res.send(), not
     // res.sendFile(), for this branch.
+    // One URL per page: /reparatii-frigidere-bosch/ → /reparatii-frigidere-bosch.
+    if (req.path.length > 1 && req.path.endsWith('/')) {
+      return res.redirect(301, req.path.replace(/\/+$/, '') + req.url.slice(req.path.length));
+    }
+
     let html = indexHtmlTemplate;
+    let status = 200;
     try {
       const blogMatch = req.path.match(/^\/blog\/([^/]+)\/?$/);
       // Old-site URLs that paid articles still link to — kept alive as real pages.
       const legacyPage = seoData.pages.find(p => req.path.replace(/\/$/, '') === `/${p.path}`);
       const seoMatch = !legacyPage && req.path.match(/^\/reparatii-frigidere-([a-z0-9-]+)\/?$/);
       if (legacyPage) {
-        html = injectMeta(html, { title: legacyPage.ro.title, description: legacyPage.ro.description, canonical: `${SITE_URL}/${legacyPage.path}` });
+        const url = `${SITE_URL}/${legacyPage.path}`;
+        html = injectMeta(html, { title: legacyPage.ro.title, description: legacyPage.ro.description, canonical: url });
+        html = injectJsonLd(html, [breadcrumb(legacyPage.ro.title.split(' | ')[0], url)]);
       } else if (blogMatch) {
         const posts = await publishedPostRows();
         const post = posts.find(p => p.slug === blogMatch[1]);
         if (post) {
-          html = injectMeta(html, {
-            title: `${post.title} | Adrian Opris`,
-            description: post.excerpt || post.title,
-            canonical: `${SITE_URL}/blog/${post.slug}`,
-            ogImage: post.image_url ? (/^https?:\/\//.test(post.image_url) ? post.image_url : `${SITE_URL}${post.image_url}`) : undefined,
-          });
-        }
+          const url = `${SITE_URL}/blog/${post.slug}`;
+          const image = post.image_url ? (/^https?:\/\//.test(post.image_url) ? post.image_url : `${SITE_URL}${post.image_url}`) : undefined;
+          html = injectMeta(html, { title: `${post.title} | Adrian Opris`, description: post.excerpt || post.title, canonical: url, ogImage: image });
+          html = injectJsonLd(html, [
+            {
+              '@type': 'BlogPosting',
+              headline: post.title,
+              description: post.excerpt || post.title,
+              url, mainEntityOfPage: url,
+              ...(image && { image }),
+              ...(post.created_at && { datePublished: new Date(post.created_at).toISOString() }),
+              ...(post.updated_at && { dateModified: new Date(post.updated_at).toISOString() }),
+              inLanguage: 'ro',
+              author: { '@type': 'Person', name: 'Adrian Opriș', url: `${SITE_URL}/` },
+              publisher: { '@id': BUSINESS_ID },
+            },
+            breadcrumb(post.title, url),
+          ]);
+        } else status = 404;
       } else if (seoMatch) {
         const brand = seoData.brands.find(b => b.slug === seoMatch[1]);
         const zone = !brand && seoData.zones.find(z => z.slug === seoMatch[1]);
         if (brand) {
-          html = injectMeta(html, { title: brandTitle(brand.name), description: brandDescription(brand.name), canonical: `${SITE_URL}/reparatii-frigidere-${brand.slug}` });
+          const url = `${SITE_URL}/reparatii-frigidere-${brand.slug}`;
+          const name = `Reparații frigidere ${brand.name}`;
+          html = injectMeta(html, { title: brandTitle(brand.name), description: brandDescription(brand.name), canonical: url });
+          html = injectJsonLd(html, [serviceLd(name, brandDescription(brand.name), url), breadcrumb(name, url)]);
         } else if (zone) {
-          html = injectMeta(html, { title: zoneTitle(zone.name), description: zoneDescription(zone.name), canonical: `${SITE_URL}/reparatii-frigidere-${zone.slug}` });
-        }
-      }
+          const url = `${SITE_URL}/reparatii-frigidere-${zone.slug}`;
+          const name = `Reparații frigidere ${zone.name}`;
+          html = injectMeta(html, { title: zoneTitle(zone.name), description: zoneDescription(zone.name), canonical: url });
+          html = injectJsonLd(html, [serviceLd(name, zoneDescription(zone.name), url, { '@type': 'Place', name: `${zone.name}, București` }), breadcrumb(name, url)]);
+        } else status = 404;
+      } else if (req.path !== '/') status = 404;
     } catch (err) { console.error('Meta injection error:', err.message); }
+    if (status === 404) html = markNotFound(html);
+    res.status(status);
     res.set('Content-Type', 'text/html');
     res.send(html);
   });

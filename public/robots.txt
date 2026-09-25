@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+# the JSON API is useless to crawlers — but uploaded blog photos should stay indexable
+Allow: /api/images/
+Disallow: /api/
 
 Sitemap: https://www.frigidere-reparatii.ro/sitemap.xml

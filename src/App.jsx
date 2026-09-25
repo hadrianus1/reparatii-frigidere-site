@@ -563,24 +563,72 @@ const BF_BODY_SLICES = Array.from({ length: Math.floor(BF_DEPTH / BF_STEP) }, (_
   return { z: `${z}px`, l: `${60 + (i * BF_STEP / BF_DEPTH) * 22}%`, hollow: z > BF_CAV_BACK };
 });
 const BF_DOOR_SLICES = ["-1.5px", "-3px", "-4.5px", "-6px"];
-const BF_CAV = { x: BF_WALL, y: BF_WALL, w: BF_W - 2 * BF_WALL, h: BF_SPLIT - 2 * BF_WALL, d: BF_DEPTH / 2 - BF_CAV_BACK };
+// Cavity walls sit 1px inside the body's hollow rings (flush, the ring edges z-fight through
+// them as stripes), and its two top corners follow the rings' rounded inner edge (radius
+// BF_R) with a few flat facets — square corners would poke out through the rounded shell.
+const BF_IN = BF_WALL + 1;
+const BF_R = 30 - BF_IN;                         // --r (30px) minus the inset
+const BF_CAV = { x: BF_IN, y: BF_IN, w: BF_W - 2 * BF_IN, h: BF_SPLIT - BF_WALL - BF_IN, d: BF_DEPTH / 2 - BF_CAV_BACK };
+const BF_CORNER_FACETS = [[BF_IN + BF_R, 180], [BF_W - BF_IN - BF_R, 270]].flatMap(([cx, a0]) =>
+  [0, 1, 2, 3].map(i => {
+    const pt = a => [cx + BF_R * Math.cos(a * Math.PI / 180), BF_IN + BF_R + BF_R * Math.sin(a * Math.PI / 180)];
+    const [x1, y1] = pt(a0 + i * 22.5), [x2, y2] = pt(a0 + (i + 1) * 22.5);
+    // a side-wall plane whose height runs from (x1,y1) to (x2,y2): rotateZ turns its local y axis
+    return { x: x1, y: y1, len: Math.hypot(x2 - x1, y2 - y1) + 0.6, rot: Math.atan2(-(x2 - x1), y2 - y1) * 180 / Math.PI };
+  }));
 const BF_SHELVES = [68, 124];                    // glass shelf heights (y)
 const BF_SHELF_DEPTH = 52;                       // shelves stop short of the door bins
-// Groceries: x, y = where they stand, z = depth, cls = look.
+// 3D groceries. "box" = cuboid (w × h × d), "rev" = n planes turned around the vertical axis
+// sharing one silhouette (reads as a solid of revolution from any angle), "ball" = the same
+// with a round silhouette plus a horizontal disc. Looks are in BrandFridge3D.css (.bfi-<kind>).
+const BF_KINDS = {
+  milk: { t: "box", w: 14, h: 30, d: 14 }, juice: { t: "box", w: 13, h: 26, d: 9 },
+  cheese: { t: "box", w: 26, h: 12, d: 16 },
+  yogurt: { t: "rev", w: 13, h: 13, n: 4, cap: true }, can: { t: "rev", w: 11, h: 18, n: 4, cap: true },
+  beer: { t: "rev", w: 9, h: 34, n: 4 }, wine: { t: "rev", w: 11, h: 47, n: 4 },
+  water: { t: "rev", w: 12, h: 36, n: 4 }, sauce: { t: "rev", w: 10, h: 24, n: 4 },
+  pineapple: { t: "rev", w: 20, h: 25, n: 4, crown: true },
+  apple: { t: "ball", w: 15, h: 15 }, "apple-green": { t: "ball", w: 15, h: 15 },
+  orange: { t: "ball", w: 16, h: 16 }, lemon: { t: "ball", w: 12, h: 14 }, egg: { t: "ball", w: 10, h: 13 },
+  grapes: { t: "ball", w: 16, h: 18 },
+  banana: { t: "banana", w: 34, h: 15 },
+};
+// x = centre, y = the shelf it stands on, z = depth (back wall −28 … door +52), ry = turn.
 const BF_ITEMS = [
-  { x: 22, y: 68, z: -14, cls: "bf-jar" }, { x: 46, y: 68, z: 4, cls: "bf-milk" }, { x: 70, y: 68, z: -20, cls: "bf-cake" },
-  { x: 118, y: 68, z: 0, cls: "bf-jar is-red" },
-  { x: 20, y: 124, z: -6, cls: "bf-bottle" }, { x: 34, y: 124, z: 8, cls: "bf-bottle is-green" },
-  { x: 62, y: 124, z: -18, cls: "bf-box" }, { x: 104, y: 124, z: 2, cls: "bf-cheese" },
-  { x: 30, y: 176, z: -8, cls: "bf-fruit" }, { x: 52, y: 176, z: 6, cls: "bf-fruit is-lime" },
-  { x: 96, y: 176, z: -4, cls: "bf-fruit is-orange" }, { x: 120, y: 176, z: 8, cls: "bf-fruit" },
+  { k: "milk", x: 22, y: 68, z: -12, ry: -15 }, { k: "yogurt", x: 44, y: 68, z: 4 }, { k: "yogurt", x: 59, y: 68, z: -8 },
+  { k: "wine", x: 84, y: 68, z: -16 }, { k: "beer", x: 104, y: 68, z: -6 }, { k: "beer", x: 116, y: 68, z: 4 },
+  { k: "beer", x: 128, y: 68, z: -12 }, { k: "juice", x: 140, y: 68, z: 12, ry: 20 },
+  { k: "pineapple", x: 28, y: 124, z: -12 }, { k: "banana", x: 66, y: 124, z: 2, ry: -10 },
+  { k: "cheese", x: 110, y: 124, z: -10, ry: 12 }, { k: "grapes", x: 136, y: 124, z: 14 },
+  { k: "apple", x: 26, y: 179, z: 0 }, { k: "apple-green", x: 45, y: 179, z: 10 }, { k: "orange", x: 68, y: 179, z: -2 },
+  { k: "lemon", x: 90, y: 179, z: 8 }, { k: "apple", x: 110, y: 179, z: -4 }, { k: "orange", x: 132, y: 179, z: 6 },
 ];
 // Door bins (door-local y of the bin's top) and what stands in them.
 const BF_DOOR_BINS = [
-  { y: 22, items: ["bf-egg", "bf-egg", "bf-egg", "bf-egg"] },
-  { y: 78, items: ["bf-bottle is-sauce", "bf-bottle is-green", "bf-bottle is-sauce"] },
-  { y: 132, items: ["bf-water", "bf-water", "bf-milk"] },
+  { y: 22, items: ["egg", "egg", "egg", "egg", "egg"] },
+  { y: 78, items: ["sauce", "can", "can", "sauce"] },
+  { y: 132, items: ["water", "wine", "milk"] },
 ];
+
+function BfItem({ k, ry = 0 }) {
+  const s = BF_KINDS[k];
+  const size = { width: s.w, height: s.h, left: -s.w / 2, top: -s.h, transform: ry ? `rotateY(${ry}deg)` : undefined, "--w": `${s.w}px`, "--h": `${s.h}px`, "--d": `${s.d || s.w}px` };
+  let faces;
+  if (s.t === "box") {
+    faces = ["f", "b", "l", "r", "t"].map(f => <b key={f} className={`bfi-${f}`} />);
+  } else if (s.t === "banana") {
+    faces = [-4, 0, 4].map(z => <b key={z} className="bfi-p" style={{ transform: `translateZ(${z}px)` }} />);
+  } else {
+    const n = s.n || 3;
+    faces = [
+      ...Array.from({ length: n }, (_, i) => <b key={i} className="bfi-p" style={{ transform: `rotateY(${(i * 180) / n}deg)` }} />),
+      ...(s.t === "ball" ? [<b key="eq" className="bfi-eq" />] : []),
+      ...(s.cap ? [<b key="cap" className="bfi-cap" />] : []),
+      ...(s.crown ? [0, 60, 120].map(a => <b key={`c${a}`} className="bfi-crown" style={{ transform: `rotateY(${a}deg)` }} />) : []),
+    ];
+  }
+  return <div className={`bfi bfi-${s.t} bfi-${k}`} style={size}>{faces}</div>;
+}
 
 function BrandFridge3D({ brand, onNext, onPrev, hint, labels }) {
   const [open, setOpen] = useState(false);
@@ -604,9 +652,12 @@ function BrandFridge3D({ brand, onNext, onPrev, hint, labels }) {
 
             {/* fridge compartment: back, side, top and bottom walls, then shelves and groceries */}
             <div className="bf-cw bf-cw-back" style={{ ...pos(BF_CAV.x, BF_CAV.y, BF_CAV_BACK), width: BF_CAV.w, height: BF_CAV.h }}><div className="bf-led" /></div>
-            <div className="bf-cw bf-cw-side" style={{ ...pos(BF_CAV.x, BF_CAV.y, BF_CAV_BACK, " rotateY(-90deg)"), width: BF_CAV.d, height: BF_CAV.h }} />
-            <div className="bf-cw bf-cw-side" style={{ ...pos(BF_CAV.x + BF_CAV.w, BF_CAV.y, BF_CAV_BACK, " rotateY(-90deg)"), width: BF_CAV.d, height: BF_CAV.h }} />
-            <div className="bf-cw bf-cw-top" style={{ ...pos(BF_CAV.x, BF_CAV.y, BF_CAV_BACK, " rotateX(90deg)"), width: BF_CAV.w, height: BF_CAV.d }} />
+            <div className="bf-cw bf-cw-side" style={{ ...pos(BF_CAV.x, BF_CAV.y + BF_R, BF_CAV_BACK, " rotateY(-90deg)"), width: BF_CAV.d, height: BF_CAV.h - BF_R }} />
+            <div className="bf-cw bf-cw-side" style={{ ...pos(BF_CAV.x + BF_CAV.w, BF_CAV.y + BF_R, BF_CAV_BACK, " rotateY(-90deg)"), width: BF_CAV.d, height: BF_CAV.h - BF_R }} />
+            <div className="bf-cw bf-cw-top" style={{ ...pos(BF_CAV.x + BF_R, BF_CAV.y, BF_CAV_BACK, " rotateX(90deg)"), width: BF_CAV.w - 2 * BF_R, height: BF_CAV.d }} />
+            {BF_CORNER_FACETS.map((f, i) => (
+              <div key={i} className="bf-cw bf-cw-top" style={{ ...pos(f.x, f.y, BF_CAV_BACK, ` rotateZ(${f.rot}deg) rotateY(-90deg)`), width: BF_CAV.d, height: f.len }} />
+            ))}
             <div className="bf-cw bf-cw-floor" style={{ ...pos(BF_CAV.x, BF_CAV.y + BF_CAV.h, BF_CAV_BACK, " rotateX(90deg)"), width: BF_CAV.w, height: BF_CAV.d }} />
             {BF_SHELVES.map(y => (
               <React.Fragment key={y}>
@@ -614,7 +665,7 @@ function BrandFridge3D({ brand, onNext, onPrev, hint, labels }) {
                 <div className="bf-shelf-lip" style={{ ...pos(BF_CAV.x, y - 1, BF_CAV_BACK + BF_SHELF_DEPTH), width: BF_CAV.w }} />
               </React.Fragment>
             ))}
-            {BF_ITEMS.map((it, i) => <div key={i} className="bf-anchor" style={pos(it.x, it.y, it.z)}><i className={it.cls} /></div>)}
+            {BF_ITEMS.map((it, i) => <div key={i} className="bf-anchor" style={pos(it.x, it.y, it.z)}><BfItem k={it.k} ry={it.ry} /></div>)}
             <div className="bf-crisper" style={{ ...pos(BF_CAV.x + 4, BF_CAV.y + BF_CAV.h - 30, 16), width: BF_CAV.w - 8 }} />
 
             <div className={`bf-door bf-door-top${open ? " is-open" : ""}`} role="button" tabIndex={0}
@@ -640,8 +691,8 @@ function BrandFridge3D({ brand, onNext, onPrev, hint, labels }) {
                   <div className="bf-bin-bottom" />
                   <div className="bf-bin-side is-l" />
                   <div className="bf-bin-side is-r" />
-                  {bin.items.map((cls, j) => (
-                    <div key={j} className="bf-anchor" style={{ left: `${38 + j * (104 / Math.max(1, bin.items.length - 1))}px`, top: "26px", transform: "translateZ(-18px) rotateY(180deg)" }}><i className={cls} /></div>
+                  {bin.items.map((k, j) => (
+                    <div key={j} className="bf-anchor" style={{ left: `${36 + j * (98 / Math.max(1, bin.items.length - 1))}px`, top: "26px", transform: "translateZ(-18px) rotateY(180deg)" }}><BfItem k={k} /></div>
                   ))}
                   <div className="bf-bin-front" />
                 </div>
@@ -800,7 +851,7 @@ const FRIDGE_COPY = {
     welcome: "Bine ai venit!", sub: "Reparații frigidere la domiciliu",
     fridge: "FRIGIDER", freezer: "CONGELATOR",
     note: "Reparații la domiciliu", noteArea: "București și împrejurimi",
-    hintBroken: "Frigiderul s-a stricat! Apasă pe cheie ca să ți-l repar.",
+    hintBroken: "Ți s-a stricat frigiderul??? Apasă pe cheie ca să ți-l repar!!!",
     hintRepairing: "Se repară…", hintFixed: "Reparat! Se deschide ușa…",
     entering: s => `Intri pe site în ${s}s…`, enterNow: "Intră acum",
     milk: "LAPTE", juice: "SUC", butter: "UNT", jam: "GEM", yogurt: "IAURT", water: "APĂ",
@@ -812,7 +863,7 @@ const FRIDGE_COPY = {
     welcome: "Welcome!", sub: "Fridge repairs at your home",
     fridge: "FRIDGE", freezer: "FREEZER",
     note: "Home repairs", noteArea: "Bucharest & nearby",
-    hintBroken: "The fridge broke down! Tap the wrench and I'll fix it for you.",
+    hintBroken: "Did your fridge break down??? Tap the wrench and I'll fix it!!!",
     hintRepairing: "Repairing…", hintFixed: "Fixed! Opening the door…",
     entering: s => `Entering the site in ${s}s…`, enterNow: "Enter now",
     milk: "MILK", juice: "JUICE", butter: "BUTTER", jam: "JAM", yogurt: "YOGURT", water: "WATER",
@@ -837,18 +888,18 @@ const FRIDGE_CRATE_FRUIT = ["🍎", "🥕", "🍇", "🍋", "🥒"];
 const FRIDGE_SHELF_YS = ["44%", "72%"];
 // Door bins (top in --u from the top of the door); items sit on the bin floor, z < 0 = towards the bin's lip.
 const FRIDGE_DOOR_BINS = [
-  { top: 20, items: [
+  { top: 24, items: [
     { kind: "butter", label: "butter", x: 6, y: "100%", z: -6.5, w: 14, h: 6, d: 8, ry: 0 },
     { kind: "eggs", x: 26, y: "100%", z: -6.5, w: 26, h: 6, d: 10, ry: 0 },
     { kind: "cheese", x: 60, y: "100%", z: -6.5, w: 16, h: 7, d: 9, ry: 0 },
   ] },
-  { top: 56, items: [
+  { top: 68, items: [
     { kind: "jam", label: "jam", x: 6, y: "100%", z: -6.5, w: 11, h: 13, d: 10, ry: 0 },
     { kind: "juice", label: "juice", x: 24, y: "100%", z: -6.5, w: 10, h: 16, d: 7, ry: 0 },
     { kind: "yogurt", label: "yogurt", x: 42, y: "100%", z: -6.5, w: 10, h: 10, d: 9, ry: 0 },
     { kind: "yogurt", x: 58, y: "100%", z: -6.5, w: 10, h: 10, d: 9, ry: 0 },
   ] },
-  { top: 94, items: [
+  { top: 114, items: [
     { kind: "water", label: "water", x: 6, y: "100%", z: -6.5, w: 10, h: 30, d: 10, ry: 0 },
     { kind: "milk", label: "milk", x: 24, y: "100%", z: -6.5, w: 11, h: 22, d: 11, ry: 0 },
     { kind: "juice", label: "juice", x: 43, y: "100%", z: -6.5, w: 11, h: 22, d: 8, ry: 0 },
@@ -1023,6 +1074,9 @@ function FridgeIntro({ lang, setLang, onDone }) {
             <div className="fc-top" aria-hidden="true" />
             <div className="fc-frame" aria-hidden="true" />
             <div className="fc-frame-lower" aria-hidden="true" />
+            <div className="fc-plinth" aria-hidden="true" />
+            <div className="fc-hinge is-top" aria-hidden="true" />
+            <div className="fc-hinge is-mid" aria-hidden="true" />
 
             <div className="fridge-cavity" aria-hidden="true">
               <div className="fcv-back">
@@ -1113,6 +1167,7 @@ function FridgeIntro({ lang, setLang, onDone }) {
               <div className="fz-front"><span className="fridge-freezer-handle" /></div>
               <div className="fd-edge fd-edge-left" />
               <div className="fd-edge fd-edge-top" />
+              <div className="fd-edge fd-edge-bottom" />
             </div>
           </div>
         </div>
@@ -1559,7 +1614,7 @@ export default function App() {
 
   const t = {
     ro: {
-      nav: { acasa: "Acasă", galerie: "Galerie", despre: "Despre mine", servicii: "Servicii", marci: "Mărci", zone: "Zone", blog: "Blog", recenzii: "Recenzii", faq: "Întrebări", gdpr: "GDPR", contact: "Contact" },
+      nav: { acasa: "Acasă", galerie: "Galerie", despre: "Despre mine", servicii: "Servicii", marci: "Mărci", zone: "Zone", blog: "Blog", recenzii: "Recenzii", faq: "Întrebări", contact: "Contact" },
       hero: {
         badge: "Autorizat AGFR • 16+ ani experiență",
         h1: "Frigiderul s-a defectat?",
@@ -1613,7 +1668,7 @@ export default function App() {
         ],
         note: "* Diagnosticarea este inclusă în tariful de deplasare de 70 lei.",
       },
-      brands: { title: "Mărci deservite", sub: "Reparăm toate brandurile importante de frigidere", fridgeHint: "Apasă pe ușă ca s-o deschizi, pe congelator sau pe săgeți pentru altă marcă", fridgeLabels: { open: "Deschide ușa frigiderului", close: "Închide ușa frigiderului", next: "Marca următoare", prev: "Marca anterioară" } },
+      brands: { title: "Mărci deservite", sub: "Reparăm toate brandurile importante de frigidere", fridgeHint: "Apasă pe ușă ca s-o deschizi sau selectează congelatorul/săgețile pentru reparații asociate altei mărci", fridgeLabels: { open: "Deschide ușa frigiderului", close: "Închide ușa frigiderului", next: "Marca următoare", prev: "Marca anterioară" } },
       zones: {
         badge: "București și împrejurimi",
         title: "Zone de intervenție în București", sub: "Cartierele și sectoarele 1, 2, 3, 4, 5, 6",
@@ -1748,7 +1803,7 @@ export default function App() {
       },
     },
     en: {
-      nav: { acasa: "Home", galerie: "Gallery", despre: "About Me", servicii: "Services", marci: "Brands", zone: "Areas", blog: "Blog", recenzii: "Reviews", faq: "FAQ", gdpr: "GDPR", contact: "Contact" },
+      nav: { acasa: "Home", galerie: "Gallery", despre: "About Me", servicii: "Services", marci: "Brands", zone: "Areas", blog: "Blog", recenzii: "Reviews", faq: "FAQ", contact: "Contact" },
       hero: {
         badge: "AGFR Authorized • 16+ years experience",
         h1: "Fridge broken down?", h1b: "We repair it at your home.",
@@ -1801,7 +1856,7 @@ export default function App() {
         ],
         note: "* Diagnosis is included in the 70 RON call-out fee.",
       },
-      brands: { title: "Brands Serviced", sub: "We repair all major refrigerator brands", fridgeHint: "Tap the door to open it, the freezer or the arrows for another brand", fridgeLabels: { open: "Open the fridge door", close: "Close the fridge door", next: "Next brand", prev: "Previous brand" } },
+      brands: { title: "Brands Serviced", sub: "We repair all major refrigerator brands", fridgeHint: "Tap the door to open it, or pick the freezer/arrows for repairs on another brand", fridgeLabels: { open: "Open the fridge door", close: "Close the fridge door", next: "Next brand", prev: "Previous brand" } },
       zones: {
         badge: "Bucharest & nearby",
         title: "Service Areas in Bucharest", sub: "Neighborhoods and sectors 1, 2, 3, 4, 5, 6",
@@ -2128,7 +2183,7 @@ export default function App() {
 
           <nav className="desktop-nav" style={{ display: "flex", gap: "2px" }}>
             {Object.entries(t.nav).map(([key, label]) => (
-              <a key={key} href={`#${key}`} onClick={e => { setActiveNav(key); if (key === "acasa") navigateTo("/"); if (key === "gdpr") showGdpr(e); }}
+              <a key={key} href={`#${key}`} onClick={e => { setActiveNav(key); if (key === "acasa") navigateTo("/"); }}
                 style={{ textDecoration: "none", fontSize: "13px", fontWeight: "500", whiteSpace: "nowrap", color: activeNav === key ? "#0277bd" : "#01579b", padding: "6px 9px", borderRadius: "6px", background: activeNav === key ? "#e3f2fd" : "transparent", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#f0f7ff"; e.currentTarget.style.color = "#0277bd"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = activeNav === key ? "#e3f2fd" : "transparent"; e.currentTarget.style.color = activeNav === key ? "#0277bd" : "#01579b"; }}
@@ -2159,7 +2214,7 @@ export default function App() {
             <FaPhone /> +40 737 444 337
           </a>
           {Object.entries(t.nav).map(([key, label]) => (
-            <a key={key} href={`#${key}`} className={activeNav === key ? "active" : ""} onClick={e => { setActiveNav(key); setMenuOpen(false); if (key === "acasa") navigateTo("/"); if (key === "gdpr") showGdpr(e); }}>{label}</a>
+            <a key={key} href={`#${key}`} className={activeNav === key ? "active" : ""} onClick={e => { setActiveNav(key); setMenuOpen(false); if (key === "acasa") navigateTo("/"); }}>{label}</a>
           ))}
         </div>
       </header>

@@ -8,6 +8,7 @@
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "server": "node server.js",
+    "indexnow": "node scripts/indexnow.js",
     "vercel-build": "npm install --include=dev && npm run build"
   },
   "proxy": "http://localhost:3001",

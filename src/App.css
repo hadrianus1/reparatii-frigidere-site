@@ -206,12 +206,14 @@ section[id] { scroll-margin-top: 76px; }
 
 /* scene — sized so that on a phone (S24 / iPhone 16) the fridge fills the screen */
 .fridge-scene {
-  --fw: min(78vw, calc((100vh - 234px) * 0.52), 400px);
-  --fw: min(78vw, calc((100dvh - 234px) * 0.52), 400px);
+  /* a real two-door combi is tall and slim (~60×185 cm) and about as deep as it is wide —
+     a squat, shallow box reads as a cupboard, not a fridge */
+  --fw: min(78vw, calc((100vh - 234px) * 0.408), 340px);
+  --fw: min(78vw, calc((100dvh - 234px) * 0.408), 340px);
   --u: calc(var(--fw) / 100);
-  --depth: calc(var(--u) * 62);
+  --depth: calc(var(--u) * 80);
   --door-t: calc(var(--u) * 5);
-  --cav-d: calc(var(--u) * 48);
+  --cav-d: calc(var(--u) * 60);
   position: relative;
   display: flex; flex-direction: column; align-items: center;
   perspective: calc(var(--fw) * 4.2);
@@ -243,7 +245,7 @@ section[id] { scroll-margin-top: 76px; }
 
 .fridge {
   position: relative;
-  width: var(--fw); height: calc(var(--fw) * 1.923);
+  width: var(--fw); height: calc(var(--fw) * 2.45);
   transform-style: preserve-3d;
   transform-origin: 50% 50% calc(var(--depth) * -0.5);
   transform: rotateX(-8deg) rotateY(20deg);
@@ -267,7 +269,7 @@ section[id] { scroll-margin-top: 76px; }
 .is-entering .fridge-shadow { opacity: 0; }
 
 /* cabinet shell */
-.fc-side, .fc-top, .fc-frame, .fc-frame-lower { position: absolute; }
+.fc-side, .fc-top, .fc-frame, .fc-frame-lower, .fc-plinth, .fc-hinge { position: absolute; }
 .fc-side { top: 0; height: 100%; width: var(--depth); }
 .fc-side-left {
   left: 0; transform-origin: left center; transform: rotateY(90deg);
@@ -285,27 +287,53 @@ section[id] { scroll-margin-top: 76px; }
   border-radius: 10px 10px 0 0;
 }
 .fc-frame {
-  left: 0; top: 0; width: 100%; height: 65.5%;
+  left: 0; top: 0; width: 100%; height: 60%;
   border: solid #c4ced4;
   border-width: calc(var(--u) * 2.9) calc(var(--u) * 3) calc(var(--u) * 1.9);
   border-radius: 12px 12px 0 0;
 }
 .fc-frame-lower {
-  left: 0; top: 65.5%; width: 100%; height: 34.5%;
-  background: #aab6be; border-radius: 0 0 10px 10px;
+  left: 0; top: 60%; width: 100%; height: 34.5%;
+  background: #5f6d77;
 }
+/* recessed kick plate with the compressor's vent grille, standing on two feet */
+.fc-plinth {
+  left: 0; right: 0; bottom: 0; height: 5.5%;
+  transform: translateZ(calc(var(--u) * -1.5));
+  border-radius: 0 0 calc(var(--u) * 2) calc(var(--u) * 2);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(var(--u) * 2.2), rgba(84,104,118,0.55) calc(var(--u) * 2.2) calc(var(--u) * 3.4)) center 40% / 62% 34% no-repeat,
+    linear-gradient(180deg, #dfe5e9, #c2ccd2);
+  box-shadow: inset 0 calc(var(--u) * 0.6) calc(var(--u) * 1) rgba(13,49,88,0.18);
+}
+.fc-plinth::before, .fc-plinth::after {
+  content: ""; position: absolute; bottom: calc(var(--u) * -1.6);
+  width: calc(var(--u) * 7); height: calc(var(--u) * 1.8);
+  border-radius: 0 0 calc(var(--u) * 1) calc(var(--u) * 1); background: #98a5ae;
+}
+.fc-plinth::before { left: calc(var(--u) * 3); }
+.fc-plinth::after { right: calc(var(--u) * 3); }
+/* hinge caps on the hinge (right) side: on top of the fridge door and between the doors */
+.fc-hinge {
+  right: calc(var(--u) * 1.5); width: calc(var(--u) * 10); height: calc(var(--u) * 2);
+  transform: translateZ(calc(var(--door-t) * 0.5));
+  border-radius: calc(var(--u) * 0.8);
+  background: linear-gradient(180deg, #d9e0e4, #8a969f);
+}
+.fc-hinge.is-top { top: calc(var(--u) * -1.2); }
+.fc-hinge.is-mid { top: calc(60% - var(--u) * 0.7); height: calc(var(--u) * 1.8); background: #6e7b84; }
 
 /* inside the fridge: a recessed box with 3D glass shelves */
 .fridge-cavity {
   position: absolute;
   left: calc(var(--u) * 3); right: calc(var(--u) * 3);
-  top: calc(var(--u) * 2.9); height: calc(var(--u) * 121.2);
+  top: calc(var(--u) * 2.9); height: calc(var(--u) * 142.2);
   transform-style: preserve-3d;
 }
 .fridge-cavity > div { position: absolute; }
 .fcv-back {
   inset: 0; transform: translateZ(calc(var(--cav-d) * -1));
-  background: linear-gradient(180deg, #f7fcff 0%, #e4f3fc 60%, #d3eaf8 100%);
+  background: linear-gradient(180deg, #eef6fc 0%, #d6e8f5 60%, #c3dcee 100%);
   container-type: inline-size;
 }
 .fcv-left, .fcv-right { top: 0; height: 100%; width: var(--cav-d); }
@@ -335,9 +363,10 @@ section[id] { scroll-margin-top: 76px; }
   left: 0; width: 100%; height: var(--cav-d);
   top: calc(var(--y) - var(--cav-d));
   transform-origin: bottom center; transform: rotateX(90deg);
-  background: rgba(179,229,252,0.5);
-  border-bottom: calc(var(--u) * 1.3) solid rgba(255,255,255,0.95);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7);
+  background: linear-gradient(0deg, rgba(79,152,201,0.55), rgba(129,190,230,0.4));
+  border: 1px solid rgba(38,98,140,0.55);
+  border-bottom: calc(var(--u) * 1.6) solid #6f8a9c;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.55);
 }
 .fcv-items {
   left: 6%; right: 6%; height: calc(var(--u) * 12);
@@ -385,7 +414,7 @@ section[id] { scroll-margin-top: 76px; }
 
 /* main door — a slab with real thickness, hinged on the right */
 .fridge-door {
-  position: absolute; left: 0; top: 0; width: 100%; height: 65.5%;
+  position: absolute; left: 0; top: 0; width: 100%; height: 60%;
   transform-style: preserve-3d;
   transform-origin: right center;
   transition: transform 1.1s cubic-bezier(.45,.05,.25,1);
@@ -400,17 +429,22 @@ section[id] { scroll-margin-top: 76px; }
 }
 .fd-front, .fz-front {
   transform: translateZ(var(--door-t));
+  /* smooth enamel/steel with a soft diagonal highlight (vertical pinstripes read as wood panelling) */
   background:
-    repeating-linear-gradient(90deg, rgba(255,255,255,0) 0 2px, rgba(255,255,255,0.35) 2px 3px),
-    linear-gradient(100deg, #dfe6ea 0%, #f7f9fa 35%, #e6ecef 60%, #d4dde2 100%);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.85), inset 4px 0 10px rgba(13,49,88,0.10);
+    linear-gradient(115deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.75) 42%, rgba(255,255,255,0) 54%),
+    linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0) 18%),
+    linear-gradient(90deg, #d3dbe0 0%, #eef2f4 22%, #f6f8f9 55%, #e2e8eb 85%, #c9d2d8 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.9),
+    inset calc(var(--u) * 0.8) 0 calc(var(--u) * 2) rgba(13,49,88,0.12),
+    inset calc(var(--u) * -0.8) 0 calc(var(--u) * 2) rgba(13,49,88,0.10);
 }
-.fd-front { border-radius: 12px 12px 3px 3px; }
-.fz-front { border-radius: 3px 3px 10px 10px; }
+.fd-front { border-radius: calc(var(--u) * 3.5) calc(var(--u) * 3.5) calc(var(--u) * 1.2) calc(var(--u) * 1.2); }
+.fz-front { border-radius: calc(var(--u) * 1.2) calc(var(--u) * 1.2) calc(var(--u) * 2.5) calc(var(--u) * 2.5); }
 .fd-back {
   transform: rotateY(180deg);
-  background: linear-gradient(90deg, #e8f1f7, #ffffff 55%, #eef5fa);
-  box-shadow: inset 0 0 0 1.2cqw #cfd8de, inset 0 0 0 1.8cqw #eef3f6, inset 0 0 3cqw 2cqw rgba(13,49,88,0.08);
+  background: linear-gradient(90deg, #d5e0e8, #eef3f7 55%, #dbe5ec);
+  box-shadow: inset 0 0 0 1.4cqw #8fa1ad, inset 0 0 0 2.2cqw #e2e9ee, inset 0 0 3cqw 2cqw rgba(13,49,88,0.14);
   border-radius: 12px 12px 3px 3px;
 }
 .fd-edge { position: absolute; background: linear-gradient(90deg, #aeb9c0, #d5dde2); }
@@ -451,21 +485,21 @@ section[id] { scroll-margin-top: 76px; }
 .fdb-bottom {
   left: 0; right: 0; bottom: 0; height: var(--bin-d);
   transform-origin: bottom center; transform: rotateX(-90deg);
-  background: rgba(144,202,249,0.65);
-  border: 1px solid rgba(255,255,255,0.8);
+  background: rgba(79,152,201,0.6);
+  border: 1px solid #5f7d90;
 }
 .fdb-left, .fdb-right {
   bottom: 0; height: 55%; width: var(--bin-d);
-  background: rgba(179,229,252,0.55);
-  border: 1px solid rgba(255,255,255,0.85);
+  background: rgba(100,165,210,0.55);
+  border: 1px solid #5f7d90;
 }
 .fdb-left { left: 0; transform-origin: left center; transform: rotateY(-90deg); }
 .fdb-right { right: 0; transform-origin: right center; transform: rotateY(90deg); }
 .fdb-front {
   left: 0; right: 0; bottom: 0; height: 55%;
   transform: translateZ(var(--bin-d));
-  background: linear-gradient(180deg, rgba(225,245,254,0.75), rgba(129,212,250,0.55));
-  border: 1px solid rgba(255,255,255,0.95);
+  background: linear-gradient(180deg, rgba(190,222,244,0.8), rgba(84,156,208,0.7));
+  border: 1px solid #5f7d90; border-top: calc(var(--u) * 1.2) solid #6f8a9c;
   border-radius: 0 0 calc(var(--u) * 1.5) calc(var(--u) * 1.5);
 }
 
@@ -581,21 +615,27 @@ section[id] { scroll-margin-top: 76px; }
 }
 .is-unlatched .fridge-handle-bar { animation: none; }
 
-/* bottom freezer drawer */
+/* bottom freezer door — its own vertical bar handle lined up with the fridge door's
+   (a full-width horizontal bar made it look like a drawer) */
 .fridge-freezer {
-  position: absolute; left: 0; bottom: 0; width: 100%; height: 33.8%;
+  position: absolute; left: 0; top: 60.6%; width: 100%; height: 33.9%;
   transform-style: preserve-3d;
 }
 .fridge-freezer-handle {
-  position: absolute; top: 8%; left: 50%; transform: translateX(-50%);
-  width: 44cqw; height: 2.6cqw; border-radius: 99px;
-  background: linear-gradient(180deg, #f5f7f8, #8d9ba5);
-  box-shadow: 0 1cqw 1.5cqw rgba(13,49,88,0.3);
+  position: absolute; top: 7%; left: 6.6cqw; height: 44%; width: 2.8cqw; border-radius: 99px;
+  background: linear-gradient(90deg, #7d8b95, #f5f7f8 45%, #98a6b0);
+  box-shadow: 1.2cqw 0.6cqw 1.5cqw rgba(13,49,88,0.3);
 }
+.fridge-freezer-handle::before, .fridge-freezer-handle::after {
+  content: ""; position: absolute; left: 1.6cqw; width: 3.2cqw; height: 2cqw;
+  background: #9aa7b0; border-radius: 0.6cqw;
+}
+.fridge-freezer-handle::before { top: 8%; }
+.fridge-freezer-handle::after { bottom: 8%; }
 
 .fridge-hint {
   margin: 0; min-height: 2.8em; max-width: min(520px, 92vw);
-  color: #01579b; font-size: 14px; font-weight: 600; text-align: center; line-height: 1.4;
+  color: #01579b; font-size: 17px; font-weight: 700; text-align: center; line-height: 1.4;
   animation: fadeInUp 0.6s ease 0.4s both;
 }
 .is-unlatched .fridge-hint { animation: none; visibility: hidden; }
@@ -660,7 +700,7 @@ section[id] { scroll-margin-top: 76px; }
 }
 
 /* sparks while the wrench turns */
-.fridge-sparks { position: absolute; top: 12.5%; left: 50%; width: 0; height: 0; pointer-events: none; }
+.fridge-sparks { position: absolute; top: calc(7% + 7.3cqw); left: 50%; width: 0; height: 0; pointer-events: none; }
 .fridge-sparks span {
   position: absolute; left: -0.5cqw; top: -1.5cqw;
   width: 1cqw; height: 3cqw; border-radius: 1cqw;
