@@ -1701,6 +1701,17 @@ export default function App() {
       blog: {
         title: "Articole și Sfaturi", sub: "Informații utile despre îngrijirea și repararea frigiderelor",
         readMore: "Citește articolul", backToList: "← Înapoi la articole",
+        featured: "Cel mai citit articol",
+        tipsTitle: "Sfaturi utile înainte să chemi un frigotehnist",
+        tips: [
+          "Dacă nu funcționează nici frigiderul, nici lumina din interior, verifică priza: conectează alt aparat în aceeași priză și vezi dacă merge.",
+          "Dacă se strânge apă în compartimentul de legume la frigiderele cu dezghețare automată, verifică dacă nu s-a înfundat scurgerea condensului.",
+          "La frigiderele No-Frost, când compartimentul frigider nu mai ține temperatura potrivită, fă o dezghețare completă de minimum 24 de ore, cu ușile deschise atât la frigider, cât și la congelator.",
+          "Dacă frigiderul tinde să funcționeze încontinuu, dă-l pe treapta minimă (1) și depărtează-l de pereți, mai ales în spate, unde este condensatorul (la No-Frost, uneori pe pereții laterali).",
+          "Vara, setează termostatul pe o treaptă mică (1–2) sau, la cele cu afișaj electronic, 6–7°C la frigider și -18°C la congelator, ca să protejezi compresorul. Cu cât e mai cald în încăpere, cu atât setarea trebuie să fie mai mică.",
+          "Dacă scade brusc tensiunea (lumina pâlpâie, televizorul se stinge și repornește), scoate frigiderul din priză 15–20 de minute, ca să se egalizeze presiunile și să iasă din protecția termică — altfel există riscul să se blocheze compresorul.",
+          "Nu așeza frigiderul lângă surse de căldură sau în lumina directă a soarelui.",
+        ],
         comments: "Comentarii", addComment: "Adaugă un comentariu",
         namePlaceholder: "Numele tău *", commentPlaceholder: "Scrie comentariul tău...",
         submit: "Trimite", pending: "În așteptare de aprobare",
@@ -1725,16 +1736,6 @@ export default function App() {
       },
       faq: {
         title: "Întrebări frecvente", sub: "Răspunsuri la cele mai comune întrebări",
-        tipsTitle: "Sfaturi utile înainte să chemi un frigotehnist",
-        tips: [
-          "Dacă nu funcționează nici frigiderul, nici lumina din interior, verifică priza: conectează alt aparat în aceeași priză și vezi dacă merge.",
-          "Dacă se strânge apă în compartimentul de legume la frigiderele cu dezghețare automată, verifică dacă nu s-a înfundat scurgerea condensului.",
-          "La frigiderele No-Frost, când compartimentul frigider nu mai ține temperatura potrivită, fă o dezghețare completă de minimum 24 de ore, cu ușile deschise atât la frigider, cât și la congelator.",
-          "Dacă frigiderul tinde să funcționeze încontinuu, dă-l pe treapta minimă (1) și depărtează-l de pereți, mai ales în spate, unde este condensatorul (la No-Frost, uneori pe pereții laterali).",
-          "Vara, setează termostatul pe o treaptă mică (1–2) sau, la cele cu afișaj electronic, 6–7°C la frigider și -18°C la congelator, ca să protejezi compresorul. Cu cât e mai cald în încăpere, cu atât setarea trebuie să fie mai mică.",
-          "Dacă scade brusc tensiunea (lumina pâlpâie, televizorul se stinge și repornește), scoate frigiderul din priză 15–20 de minute, ca să se egalizeze presiunile și să iasă din protecția termică — altfel există riscul să se blocheze compresorul.",
-          "Nu așeza frigiderul lângă surse de căldură sau în lumina directă a soarelui.",
-        ],
         items: [
           { q: "Cât durează o reparație de frigider?", a: "Majoritatea reparațiilor se rezolvă la prima vizită, în 1-2 ore. Dacă este necesară o piesă de schimb specială, poate dura 1-2 zile suplimentare." },
           { q: "Veniți și în weekend?", a: "Da, lucrăm de luni până sâmbătă, între orele 09:00-18:00. Pentru urgențe, încercăm să găsim soluții și în afara programului normal." },
@@ -1889,6 +1890,17 @@ export default function App() {
       blog: {
         title: "Articles & Tips", sub: "Useful information about fridge care and repair",
         readMore: "Read article", backToList: "← Back to articles",
+        featured: "Most-read article",
+        tipsTitle: "Useful tips before calling a technician",
+        tips: [
+          "If neither the fridge nor its interior light works, check the socket: plug another appliance into the same socket and see if it works.",
+          "If water collects in the vegetable compartment of an auto-defrost fridge, check whether the condensate drain is blocked.",
+          "On No-Frost fridges, when the fridge compartment no longer holds the right temperature, do a full defrost of at least 24 hours with both the fridge and freezer doors open.",
+          "If the fridge tends to run non-stop, set it to the lowest setting (1) and move it away from the walls — especially at the back, where the condenser is (on No-Frost models, sometimes in the side walls).",
+          "In summer, set the thermostat low (1–2) or, on models with a display, 6–7°C for the fridge and -18°C for the freezer, to protect the compressor. The warmer the room, the lower the setting should be.",
+          "If the power suddenly dips (lights flicker, the TV turns off and back on), unplug the fridge for 15–20 minutes so the pressures can equalize and it can reset its thermal protection — otherwise the compressor may lock up.",
+          "Don't place the fridge next to heat sources or in direct sunlight.",
+        ],
         comments: "Comments", addComment: "Add a comment",
         namePlaceholder: "Your name *", commentPlaceholder: "Write your comment...",
         submit: "Submit", pending: "Pending approval",
@@ -1913,16 +1925,6 @@ export default function App() {
       },
       faq: {
         title: "Frequently Asked Questions", sub: "Answers to the most common questions",
-        tipsTitle: "Useful tips before calling a technician",
-        tips: [
-          "If neither the fridge nor its interior light works, check the socket: plug another appliance into the same socket and see if it works.",
-          "If water collects in the vegetable compartment of an auto-defrost fridge, check whether the condensate drain is blocked.",
-          "On No-Frost fridges, when the fridge compartment no longer holds the right temperature, do a full defrost of at least 24 hours with both the fridge and freezer doors open.",
-          "If the fridge tends to run non-stop, set it to the lowest setting (1) and move it away from the walls — especially at the back, where the condenser is (on No-Frost models, sometimes in the side walls).",
-          "In summer, set the thermostat low (1–2) or, on models with a display, 6–7°C for the fridge and -18°C for the freezer, to protect the compressor. The warmer the room, the lower the setting should be.",
-          "If the power suddenly dips (lights flicker, the TV turns off and back on), unplug the fridge for 15–20 minutes so the pressures can equalize and it can reset its thermal protection — otherwise the compressor may lock up.",
-          "Don't place the fridge next to heat sources or in direct sunlight.",
-        ],
         items: [
           { q: "How long does a fridge repair take?", a: "Most repairs are completed on the first visit, in 1-2 hours. If a special spare part is needed, it may take an additional 1-2 days." },
           { q: "Do you work on weekends?", a: "Yes, we work Monday to Saturday, 09:00-18:00. For emergencies, we try to find solutions outside normal hours too." },
@@ -2059,7 +2061,8 @@ export default function App() {
     e.preventDefault();
     const page = seoData.pages.find(p => p.path === path);
     navigateTo(`/${path}`);
-    if (page) document.getElementById(page.section)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (page?.section === "sfaturi-utile") setActiveBlogPost(null);
+    if (page) setTimeout(() => document.getElementById(page.section)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   };
   // For the interactive map's SVG shapes — no <a href>, no modifier-key click to preserve.
   const selectZone = (zoneId) => { navigateTo(`/reparatii-frigidere-${zoneId}`); setHighlightedZone(zoneId); };
@@ -2081,7 +2084,8 @@ export default function App() {
     if (routePage?.section === "gdpr") {
       showGdpr();
     } else if (routePage) {
-      document.getElementById(routePage.section)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (routePage.section === "sfaturi-utile") setActiveBlogPost(null);
+      setTimeout(() => document.getElementById(routePage.section)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
     } else if (routeBrand) {
       setSelectedBrand(routeBrand.name);
       document.getElementById("marca-frigider")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2868,6 +2872,24 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Pinned article: the old site's most-visited page, kept at its old URL. */}
+              <article id="sfaturi-utile" style={{ background: "white", borderRadius: "16px", border: "1px solid #bfdbfe", borderLeft: "5px solid #0277bd", padding: "28px 28px 24px", marginBottom: "40px", boxShadow: "0 4px 20px rgba(2,119,189,0.08)", scrollMarginTop: "84px" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase", color: "#ffffff", background: "#0277bd", borderRadius: "20px", padding: "4px 12px", marginBottom: "14px" }}>
+                  <FaStar size={10} /> {t.blog.featured}
+                </div>
+                <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "24px", fontWeight: "700", color: "#0d3158", margin: "0 0 16px", lineHeight: 1.3 }}>
+                  <a href="/sfaturi-utile-frigidere" onClick={e => goToPage(e, "sfaturi-utile-frigidere")} className="tips-title-link"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "10px", color: "inherit", textDecoration: "none", cursor: "pointer" }}>
+                    <FaLightbulb style={{ color: "#0277bd", flexShrink: 0 }} />{t.blog.tipsTitle}
+                  </a>
+                </h3>
+                <ol style={{ margin: 0, paddingLeft: "22px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {t.blog.tips.map((tip, i) => (
+                    <li key={i} style={{ fontSize: "15px", color: "#01579b", lineHeight: "1.75" }}>{tip}</li>
+                  ))}
+                </ol>
+              </article>
+
               {/* Article editor */}
               {showNewPostForm && (
                 <div style={{ background: "white", borderRadius: "16px", padding: "32px", border: "1px solid #e2e8f0", marginBottom: "40px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
@@ -3018,19 +3040,6 @@ export default function App() {
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.faq.title}</h2>
             <p style={{ fontSize: "16px", color: "#01579b" }}>{t.faq.sub}</p>
-          </div>
-          <div style={{ background: "white", borderRadius: "16px", border: "1px solid #bfdbfe", borderLeft: "4px solid #0277bd", padding: "24px 24px 20px", marginBottom: "28px" }}>
-            <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "19px", fontWeight: "700", color: "#0d3158", margin: "0 0 14px" }}>
-              <a href="/sfaturi-utile-frigidere" onClick={e => goToPage(e, "sfaturi-utile-frigidere")} className="tips-title-link"
-                style={{ display: "inline-flex", alignItems: "center", gap: "8px", color: "inherit", textDecoration: "none", cursor: "pointer" }}>
-                <FaLightbulb style={{ color: "#0277bd", flexShrink: 0 }} />{t.faq.tipsTitle}
-              </a>
-            </h3>
-            <ol style={{ margin: 0, paddingLeft: "22px", display: "flex", flexDirection: "column", gap: "10px" }}>
-              {t.faq.tips.map((tip, i) => (
-                <li key={i} style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.7" }}>{tip}</li>
-              ))}
-            </ol>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {t.faq.items.map((item, i) => (

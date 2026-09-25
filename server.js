@@ -728,7 +728,20 @@ if (process.env.NODE_ENV === 'production') {
       if (legacyPage) {
         const url = `${SITE_URL}/${legacyPage.path}`;
         html = injectMeta(html, { title: legacyPage.ro.title, description: legacyPage.ro.description, canonical: url });
-        html = injectJsonLd(html, [breadcrumb(legacyPage.ro.title.split(' | ')[0], url)]);
+        const pageName = legacyPage.ro.title.split(' | ')[0];
+        html = injectJsonLd(html, [
+          ...(legacyPage.article ? [{
+            '@type': 'Article',
+            headline: pageName,
+            description: legacyPage.ro.description,
+            url, mainEntityOfPage: url,
+            inLanguage: 'ro',
+            ...(BUILD_DATE && { dateModified: BUILD_DATE.toISOString() }),
+            author: { '@type': 'Person', name: 'Adrian Opriș', url: `${SITE_URL}/` },
+            publisher: { '@id': BUSINESS_ID },
+          }] : []),
+          breadcrumb(pageName, url),
+        ]);
       } else if (blogMatch) {
         const posts = await publishedPostRows();
         const post = posts.find(p => p.slug === blogMatch[1]);

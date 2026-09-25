@@ -150,7 +150,8 @@
     },
     {
       "path": "sfaturi-utile-frigidere",
-      "section": "faq",
+      "section": "sfaturi-utile",
+      "article": true,
       "ro": {
         "title": "Sfaturi utile pentru frigidere care nu răcesc | Adrian Opris",
         "description": "Ce să verifici înainte să chemi un frigotehnist: priza, scurgerea condensului, dezghețarea No-Frost, setarea termostatului vara, căderile de tensiune. Plus răspunsuri la cele mai frecvente defecte."
