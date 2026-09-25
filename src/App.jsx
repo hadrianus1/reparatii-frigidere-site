@@ -305,8 +305,8 @@ const SECTOR_PATHS = {
 };
 
 const SECTOR_LABEL_POS = {
-  1: [-222.6, -521.3], 2: [279.0, -222.7], 3: [477.6, 139.4],
-  4: [182.0, 459.6], 5: [-209.5, 278.9], 6: [-494.3, -40.1],
+  1: [-220, -560], 2: [290, -240], 3: [630, 100],
+  4: [260, 370], 5: [-210, 370], 6: [-710, 40],
 };
 
 // Sector 2 is only partly served (just the neighborhoods listed under it): it has a zone
@@ -477,10 +477,10 @@ function ZoneMarker({ id, name, x, y, isActive, showLabel = true, onSelect, acti
   return (
     <g onClick={() => onSelect(id)} style={{ cursor: "pointer" }}>
       <title>{name}</title>
-      <circle cx={x} cy={y} r={isActive ? 16 : 9}
-        fill={isActive ? activeColor : MAP_YELLOW_FILL} stroke={isActive ? activeColor : MAP_YELLOW_STROKE} strokeWidth="3.5"
+      <circle cx={x} cy={y} r={isActive ? 24 : 15}
+        fill={isActive ? activeColor : MAP_YELLOW_FILL} stroke={isActive ? activeColor : MAP_YELLOW_STROKE} strokeWidth="6"
         style={{ transition: "all 0.2s" }} />
-      {isActive && showLabel && <text x={x} y={y - 24} textAnchor="middle" fontSize="30" fontWeight="700" fill="#0d3158" style={{ pointerEvents: "none" }}>{name}</text>}
+      {isActive && showLabel && <text x={x} y={y - 34} textAnchor="middle" fontSize="34" fontWeight="700" fill="#0d3158" style={{ pointerEvents: "none" }}>{name}</text>}
     </g>
   );
 }
@@ -488,8 +488,8 @@ function ZoneMarker({ id, name, x, y, isActive, showLabel = true, onSelect, acti
 function ZoneArea({ id, name, path, label, isActive, onSelect }) {
   return (
     <g onClick={() => onSelect(id)} style={{ cursor: "pointer" }}>
-      <path d={path} fill={isActive ? MAP_LOCALITY_ACTIVE : MAP_YELLOW_FILL} stroke={isActive ? MAP_LOCALITY_ACTIVE : MAP_YELLOW_STROKE} strokeWidth="3" style={{ transition: "all 0.2s" }} />
-      <text x={label[0]} y={label[1]} textAnchor="middle" dominantBaseline="middle" fontSize={isActive ? 20 : 15}
+      <path d={path} fill={isActive ? MAP_LOCALITY_ACTIVE : MAP_YELLOW_FILL} stroke={isActive ? MAP_LOCALITY_ACTIVE : MAP_YELLOW_STROKE} strokeWidth="6" strokeLinejoin="round" style={{ transition: "all 0.2s" }} />
+      <text x={label[0]} y={label[1]} textAnchor="middle" dominantBaseline="middle" fontSize={isActive ? 40 : 32}
         fontWeight="700" fill={isActive ? "white" : "#01579b"} style={{ pointerEvents: "none" }}>{name}</text>
     </g>
   );
@@ -505,10 +505,10 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
 
   return (
     <svg viewBox="-1615 -1526 2858 2823" style={{ width: "100%", height: "auto", maxWidth: "900px", display: "block", margin: "0 auto" }}>
-      <rect x="-1615" y="-1526" width="2858" height="2823" fill={MAP_YELLOW_BG} />
+      <rect x="-1615" y="-1526" width="2858" height="2823" fill={MAP_YELLOW_BG} stroke={MAP_YELLOW_STROKE} strokeWidth="16" />
       <g style={{ pointerEvents: "none" }}>
-        <path d={SECTOR_PATHS[2]} fill={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_FILL} fillOpacity={partialActive ? 0.35 : 1} stroke={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_STROKE} strokeWidth="4" style={{ transition: "fill 0.25s" }} />
-        <text x={SECTOR_LABEL_POS[2][0]} y={SECTOR_LABEL_POS[2][1]} textAnchor="middle" dominantBaseline="middle" fontSize="46" fontWeight="700" fill={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_STROKE}>2</text>
+        <path d={SECTOR_PATHS[2]} fill={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_FILL} fillOpacity={partialActive ? 0.35 : 1} stroke={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_STROKE} strokeWidth="9" strokeLinejoin="round" style={{ transition: "fill 0.25s" }} />
+        <text x={SECTOR_LABEL_POS[2][0]} y={SECTOR_LABEL_POS[2][1]} textAnchor="middle" dominantBaseline="middle" fontSize="84" fontWeight="800" fill={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_STROKE}>2</text>
       </g>
       {ZONE_SECTORS.map(s => {
         const n = Number(s.id.split("-")[1]);
@@ -519,9 +519,9 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
           <g key={s.id} onClick={() => onSelect(s.id)} style={{ cursor: "pointer" }}>
             <path d={SECTOR_PATHS[n]}
               fill={isActive ? MAP_SECTOR_ACTIVE : isParent ? MAP_YELLOW_PARENT : MAP_YELLOW_FILL}
-              stroke={isActive ? MAP_SECTOR_ACTIVE : MAP_YELLOW_STROKE} strokeWidth="4" style={{ transition: "fill 0.25s" }} />
+              stroke={isActive ? MAP_SECTOR_ACTIVE : MAP_YELLOW_STROKE} strokeWidth="9" strokeLinejoin="round" style={{ transition: "fill 0.25s" }} />
             <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle"
-              fontSize="46" fontWeight="700" fill={isActive ? "white" : "#a16207"} style={{ pointerEvents: "none" }}>{n}</text>
+              fontSize="84" fontWeight="800" fill={isActive ? "white" : "#a16207"} style={{ pointerEvents: "none" }}>{n}</text>
           </g>
         );
       })}
@@ -851,7 +851,7 @@ const FRIDGE_COPY = {
     welcome: "Bine ai venit!", sub: "Reparații frigidere la domiciliu",
     fridge: "FRIGIDER", freezer: "CONGELATOR",
     note: "Reparații la domiciliu", noteArea: "București și împrejurimi",
-    hintBroken: "Ți s-a stricat frigiderul??? Apasă pe cheie ca să ți-l repar!!!",
+    hintBroken: "Ți s-a stricat frigiderul??? Apasă pe cheie și vin să-l repar la tine acasă!!!",
     hintRepairing: "Se repară…", hintFixed: "Reparat! Se deschide ușa…",
     entering: s => `Intri pe site în ${s}s…`, enterNow: "Intră acum",
     milk: "LAPTE", juice: "SUC", butter: "UNT", jam: "GEM", yogurt: "IAURT", water: "APĂ",
@@ -863,7 +863,7 @@ const FRIDGE_COPY = {
     welcome: "Welcome!", sub: "Fridge repairs at your home",
     fridge: "FRIDGE", freezer: "FREEZER",
     note: "Home repairs", noteArea: "Bucharest & nearby",
-    hintBroken: "Did your fridge break down??? Tap the wrench and I'll fix it!!!",
+    hintBroken: "Did your fridge break down??? Tap the wrench and I'll come fix it at your home!!!",
     hintRepairing: "Repairing…", hintFixed: "Fixed! Opening the door…",
     entering: s => `Entering the site in ${s}s…`, enterNow: "Enter now",
     milk: "MILK", juice: "JUICE", butter: "BUTTER", jam: "JAM", yogurt: "YOGURT", water: "WATER",
@@ -1133,7 +1133,7 @@ function FridgeIntro({ lang, setLang, onDone }) {
                   <div className="fridge-display-cell">
                     <span className="fridge-display-label">{c.freezer}</span>
                     {broken
-                      ? <span className="fridge-display-temp is-error"><FaExclamationTriangle className="fridge-display-snow" />E1</span>
+                      ? <span className="fridge-display-temp is-error"><FaExclamationTriangle className="fridge-display-snow" />A2</span>
                       : <span className="fridge-display-temp"><FaSnowflake className="fridge-display-snow" />-18°</span>}
                   </div>
                 </div>
