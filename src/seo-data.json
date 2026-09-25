@@ -96,7 +96,8 @@
     { "slug": "clinceni", "name": "Clinceni" },
     { "slug": "domnesti", "name": "Domnești" },
     { "slug": "magurele", "name": "Măgurele" },
-    { "slug": "popesti-leordeni", "name": "Popești-Leordeni" }
+    { "slug": "popesti-leordeni", "name": "Popești-Leordeni" },
+    { "slug": "localitati-limitrofe", "name": "Localități limitrofe" }
   ],
   "pages": [
     {

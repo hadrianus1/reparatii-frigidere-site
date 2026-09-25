@@ -408,7 +408,8 @@ const AREA_PATHS = {
   "popesti-leordeni": { name: "Popești-Leordeni", path: "M 293.2,869.1 L 301.7,921.1 L 442.4,895.8 L 471.5,876.4 L 443.7,825.9 L 515.4,791.1 L 521.4,800.1 L 517.5,805.0 L 519.6,809.1 L 535.8,827.4 L 646.4,916.0 L 651.5,917.7 L 680.9,880.1 L 779.8,950.2 L 747.2,996.2 L 1024.2,1217.2 L 1163.3,1046.0 L 876.8,819.1 L 958.0,727.2 L 798.4,608.6 L 802.1,552.2 L 820.4,525.0 L 813.1,516.7 L 814.0,510.5 L 783.3,506.3 L 800.4,494.5 L 798.3,491.4 L 834.0,484.1 L 844.5,471.3 L 850.7,451.1 L 846.6,433.4 L 818.5,386.4 L 814.8,336.5 L 753.7,340.1 L 754.1,345.3 L 556.4,356.7 L 431.5,316.2 L 366.2,448.2 L 362.5,446.2 L 338.8,493.3 L 345.2,497.0 L 313.9,544.6 L 321.9,552.7 L 308.9,575.9 L 314.6,576.7 L 317.8,582.7 L 314.2,585.3 L 320.2,596.4 L 340.3,628.4 L 346.0,629.5 L 360.2,656.0 L 368.9,683.9 L 427.3,790.7 L 447.0,779.7 L 462.8,808.2 L 439.9,816.3 L 444.7,825.1 L 394.4,846.6 L 400.9,862.2 L 396.7,881.1 L 367.4,892.7 L 338.7,864.3 L 330.5,861.6 L 293.2,869.1 Z", label: [694.2, 714.2] },
 };
 
-// Nearby towns — deliberately no generic "Ilfov" zone/heading, only these specific towns.
+// Nearby towns — deliberately no generic "Ilfov" zone, only these specific towns. The
+// "Localități limitrofe" card title links to SUBURBS_ZONE_ID, which highlights all of them.
 const ZONE_SUBURBS = [
   { id: "chiajna", name: "Chiajna" },
   { id: "bragadiru", name: "Bragadiru" },
@@ -418,7 +419,8 @@ const ZONE_SUBURBS = [
   { id: "popesti-leordeni", name: "Popești-Leordeni" },
 ];
 
-const ZONE_ALL = [...ZONE_SECTORS, { id: `sector-${PARTIAL_SECTOR}`, name: `Sector ${PARTIAL_SECTOR}` }, ...ZONE_NEIGHBORHOODS, ...ZONE_SUBURBS];
+const SUBURBS_ZONE_ID = "localitati-limitrofe";
+const ZONE_ALL = [...ZONE_SECTORS, { id: `sector-${PARTIAL_SECTOR}`, name: `Sector ${PARTIAL_SECTOR}` }, ...ZONE_NEIGHBORHOODS, ...ZONE_SUBURBS, { id: SUBURBS_ZONE_ID, name: "Localități limitrofe" }];
 const inSector = (nb, n) => nb.sector === n || nb.alsoIn?.includes(n);
 
 // Brands are listed alphabetically; this one is pre-selected when the page loads.
@@ -431,6 +433,12 @@ function zoneBlurb(zoneId, lang) {
   const tail = ro
     ? "diagnostic la fața locului, piese originale, factură și garanție 12 luni. Deplasare și diagnostic: 70 lei. Sună la 0737 444 337."
     : "on-site diagnosis, original parts, invoice and a 12-month warranty. Call-out and diagnosis: 70 RON. Call 0737 444 337.";
+  if (zoneId === SUBURBS_ZONE_ID) {
+    const names = ZONE_SUBURBS.map(s => s.name).join(", ");
+    return ro
+      ? `Fac reparații de frigidere la domiciliu și în localitățile limitrofe Bucureștiului: ${names} — ${tail}`
+      : `I also repair fridges at your home in the towns right next to Bucharest: ${names} — ${tail}`;
+  }
   if (zoneId.startsWith("sector-")) {
     const n = Number(zoneId.split("-")[1]);
     const names = ZONE_NEIGHBORHOODS.filter(nb => inSector(nb, n)).map(nb => nb.name).join(", ");
@@ -464,14 +472,14 @@ const MAP_LOCALITY_ACTIVE = "#ea580c";
 const MAP_UNSERVED_FILL = "#eef0f3";
 const MAP_UNSERVED_STROKE = "#c3c9d1";
 
-function ZoneMarker({ id, name, x, y, isActive, onSelect, activeColor = MAP_LOCALITY_ACTIVE }) {
+function ZoneMarker({ id, name, x, y, isActive, showLabel = true, onSelect, activeColor = MAP_LOCALITY_ACTIVE }) {
   return (
     <g onClick={() => onSelect(id)} style={{ cursor: "pointer" }}>
       <title>{name}</title>
       <circle cx={x} cy={y} r={isActive ? 16 : 9}
         fill={isActive ? activeColor : MAP_YELLOW_FILL} stroke={isActive ? activeColor : MAP_YELLOW_STROKE} strokeWidth="3.5"
         style={{ transition: "all 0.2s" }} />
-      {isActive && <text x={x} y={y - 24} textAnchor="middle" fontSize="30" fontWeight="700" fill="#0d3158" style={{ pointerEvents: "none" }}>{name}</text>}
+      {isActive && showLabel && <text x={x} y={y - 24} textAnchor="middle" fontSize="30" fontWeight="700" fill="#0d3158" style={{ pointerEvents: "none" }}>{name}</text>}
     </g>
   );
 }
@@ -488,6 +496,8 @@ function ZoneArea({ id, name, path, label, isActive, onSelect }) {
 
 function InteractiveZoneMap({ highlighted, onSelect }) {
   const activeNeighborhood = ZONE_NEIGHBORHOODS.find(n => n.id === highlighted);
+  const allSuburbs = highlighted === SUBURBS_ZONE_ID;
+  const partialActive = highlighted === `sector-${PARTIAL_SECTOR}`;
   const activeSectorNum = highlighted?.startsWith("sector-")
     ? Number(highlighted.split("-")[1])
     : activeNeighborhood?.sector;
@@ -496,8 +506,8 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
     <svg viewBox="-1615 -1526 2858 2823" style={{ width: "100%", height: "auto", maxWidth: "900px", display: "block", margin: "0 auto" }}>
       <rect x="-1615" y="-1526" width="2858" height="2823" fill={MAP_YELLOW_BG} />
       <g style={{ pointerEvents: "none" }}>
-        <path d={SECTOR_PATHS[2]} fill={MAP_UNSERVED_FILL} stroke={MAP_UNSERVED_STROKE} strokeWidth="4" />
-        <text x={SECTOR_LABEL_POS[2][0]} y={SECTOR_LABEL_POS[2][1]} textAnchor="middle" dominantBaseline="middle" fontSize="46" fontWeight="700" fill={MAP_UNSERVED_STROKE}>2</text>
+        <path d={SECTOR_PATHS[2]} fill={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_FILL} fillOpacity={partialActive ? 0.35 : 1} stroke={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_STROKE} strokeWidth="4" style={{ transition: "fill 0.25s" }} />
+        <text x={SECTOR_LABEL_POS[2][0]} y={SECTOR_LABEL_POS[2][1]} textAnchor="middle" dominantBaseline="middle" fontSize="46" fontWeight="700" fill={partialActive ? MAP_SECTOR_ACTIVE : MAP_UNSERVED_STROKE}>2</text>
       </g>
       {ZONE_SECTORS.map(s => {
         const n = Number(s.id.split("-")[1]);
@@ -516,18 +526,18 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
       })}
 
       {Object.entries(AREA_PATHS).map(([id, a]) => (
-        <ZoneArea key={id} id={id} name={a.name} path={a.path} label={a.label} isActive={highlighted === id} onSelect={onSelect} />
+        <ZoneArea key={id} id={id} name={a.name} path={a.path} label={a.label} isActive={highlighted === id || allSuburbs} onSelect={onSelect} />
       ))}
 
       {ZONE_NEIGHBORHOODS.map(nb => (
         AREA_PATHS[nb.id] ? null : (
-          <ZoneMarker key={nb.id} id={nb.id} name={nb.name} x={nb.x} y={nb.y} isActive={highlighted === nb.id} onSelect={onSelect} activeColor={MAP_NEIGHBORHOOD_ACTIVE} />
+          <ZoneMarker key={nb.id} id={nb.id} name={nb.name} x={nb.x} y={nb.y} isActive={highlighted === nb.id || (partialActive && inSector(nb, PARTIAL_SECTOR))} showLabel={highlighted === nb.id} onSelect={onSelect} activeColor={MAP_NEIGHBORHOOD_ACTIVE} />
         )
       ))}
 
       {ZONE_SUBURBS.map(sb => (
         AREA_PATHS[sb.id] ? null : (
-          <ZoneMarker key={sb.id} id={sb.id} name={sb.name} x={sb.x} y={sb.y} isActive={highlighted === sb.id} onSelect={onSelect} activeColor={MAP_LOCALITY_ACTIVE} />
+          <ZoneMarker key={sb.id} id={sb.id} name={sb.name} x={sb.x} y={sb.y} isActive={highlighted === sb.id || allSuburbs} showLabel={highlighted === sb.id} onSelect={onSelect} activeColor={MAP_LOCALITY_ACTIVE} />
         )
       ))}
     </svg>
@@ -698,11 +708,26 @@ function shouldShowFridgeIntro() {
   return performance.getEntriesByType?.("navigation")?.[0]?.type === "reload";
 }
 
+// A reload always starts at the top of the homepage: clicking a zone/brand/nav link leaves
+// its URL (/reparatii-frigidere-sector-1, #zone, …) in the address bar, and without this a
+// refresh would jump straight back to that section. Blog post URLs are kept so a reader
+// refreshing an article doesn't lose it. Fresh visits (links from other sites) still deep-link.
+function initialPathname() {
+  // Set before the first render, or the browser restores the old scroll offset on reload.
+  if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+  const isReload = performance.getEntriesByType?.("navigation")?.[0]?.type === "reload";
+  if (isReload) window.scrollTo(0, 0);
+  if (isReload && !/^\/blog\/[^/]+\/?$/.test(window.location.pathname) && (window.location.pathname !== "/" || window.location.hash)) {
+    window.history.replaceState({}, "", "/" + window.location.search);
+  }
+  return window.location.pathname;
+}
+
 const WRENCH_FLY_MS = 550;
 const WRENCH_TWIST_MS = 1300;
 const FIXED_PAUSE_MS = 700;
 const FRIDGE_DOOR_OPEN_MS = 1100;
-const FRIDGE_HOLD_MS = 5000;
+const FRIDGE_HOLD_MS = 2500;
 
 const FRIDGE_COPY = {
   ro: {
@@ -799,7 +824,7 @@ function FridgeIntro({ lang, setLang, onDone }) {
   const [phase, setPhaseState] = useState("broken"); // broken → repairing → fixed → opening → open → entering
   const phaseRef = useRef("broken");
   const setPhase = p => { phaseRef.current = p; setPhaseState(p); };
-  const [secondsLeft, setSecondsLeft] = useState(FRIDGE_HOLD_MS / 1000);
+  const [secondsLeft, setSecondsLeft] = useState(Math.ceil(FRIDGE_HOLD_MS / 1000));
   const [wrench, setWrench] = useState({ x: 0, y: 0, dragging: false });
   const wrenchOffset = useRef({ x: 0, y: 0 });
   const drag = useRef(null);
@@ -879,7 +904,7 @@ function FridgeIntro({ lang, setLang, onDone }) {
   useEffect(() => {
     if (phase !== "open") return;
     const end = Date.now() + FRIDGE_HOLD_MS;
-    setSecondsLeft(FRIDGE_HOLD_MS / 1000);
+    setSecondsLeft(Math.ceil(FRIDGE_HOLD_MS / 1000));
     const id = setInterval(() => setSecondsLeft(Math.max(1, Math.ceil((end - Date.now()) / 1000))), 150);
     return () => clearInterval(id);
   }, [phase]);
@@ -1051,7 +1076,7 @@ function FridgeIntro({ lang, setLang, onDone }) {
       </div>
 
       <p className="fridge-hint" aria-live="polite">{hint}</p>
-      <button type="button" className={`fridge-skip${showToast ? " is-hidden" : ""}`} onClick={skip} tabIndex={showToast ? -1 : 0}>{c.skip} <FaChevronRight size={14} /></button>
+      <button type="button" className={`fridge-skip${showToast ? " is-hidden" : ""}`} onClick={skip} tabIndex={showToast ? -1 : 0}>{c.skip} <FaChevronRight size={18} /></button>
     </div>
   );
 }
@@ -1063,7 +1088,7 @@ export default function App() {
   const [activeNav, setActiveNav] = useState("acasa");
   const [selectedBrand, setSelectedBrand] = useState(FEATURED_BRAND);
   const [highlightedZone, setHighlightedZone] = useState(null);
-  const [pathname, setPathname] = useState(() => window.location.pathname);
+  const [pathname, setPathname] = useState(initialPathname);
   const [showIntro, setShowIntro] = useState(shouldShowFridgeIntro);
   // "all" = Google Maps may load, "necessary" = only strictly-needed local storage, null = not asked yet
   const [consent, setConsent] = useState(() => { try { return localStorage.getItem("cookieConsent"); } catch { return null; } });
@@ -1116,6 +1141,13 @@ export default function App() {
   // FAQ
   const [openFaq, setOpenFaq] = useState(null);
   const [openGdpr, setOpenGdpr] = useState(null);
+  // The GDPR section stays collapsed until a privacy/GDPR link is clicked (or its URL is opened).
+  const [gdprVisible, setGdprVisible] = useState(() => typeof window !== "undefined" && window.location.hash === "#gdpr");
+  const showGdpr = (e) => {
+    if (e) { if (!isPlainClick(e)) return; e.preventDefault(); }
+    setGdprVisible(true);
+    setTimeout(() => document.getElementById("gdpr")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
 
   // Session ID
   useEffect(() => {
@@ -1524,11 +1556,11 @@ export default function App() {
         badge: "București și împrejurimi",
         title: "Zone de intervenție în București", sub: "Sectoarele 1, 3, 4, 5, 6, câteva zone din Sectorul 2 și localități din apropiere",
         partialDesc: "Doar zonele de mai jos.",
-        sectorCard: n => `Sector ${n}`, wholeSector: "Tot sectorul",
+        sectorCard: n => `Sector ${n}`,
         suburbs: "Localități limitrofe",
         suburbsDesc: "Ajung și în câteva localități aflate imediat lângă București.",
         mapTitle: "Hartă interactivă a zonelor deservite",
-        mapHint: "Click pe un sector, un cartier sau o localitate pentru a-l evidenția pe hartă. Din Sectorul 2 (gri) acopăr doar zonele marcate.",
+        mapHint: "Click pe un sector (sau pe titlul lui de mai sus), un cartier sau o localitate pentru a-l evidenția pe hartă. Din Sectorul 2 (gri) acopăr doar zonele marcate.",
         seoText: "Fac reparații de frigidere la domiciliu în sectoarele 1, 3, 4, 5 și 6 ale Bucureștiului, în Sectorul 2 la Obor, Calea Moșilor, Iancului și Mihai Bravu — de la Militari, Drumul Taberei, Crângași și Ghencea, la Rahova, Berceni, Titan, Dristor, Floreasca sau Bucureștii Noi — și în localitățile Chiajna, Bragadiru, Clinceni, Domnești, Măgurele și Popești-Leordeni.",
       },
       reviews: {
@@ -1712,11 +1744,11 @@ export default function App() {
         badge: "Bucharest & nearby",
         title: "Service Areas in Bucharest", sub: "Sectors 1, 3, 4, 5, 6, a few areas of Sector 2 and nearby towns",
         partialDesc: "Only the areas below.",
-        sectorCard: n => `Sector ${n}`, wholeSector: "Whole sector",
+        sectorCard: n => `Sector ${n}`,
         suburbs: "Nearby towns",
         suburbsDesc: "I also cover a few towns right next to Bucharest.",
         mapTitle: "Interactive map of the areas I cover",
-        mapHint: "Click a sector, a neighborhood, or a town to highlight it on the map. In Sector 2 (grey) I only cover the marked areas.",
+        mapHint: "Click a sector (or its heading above), a neighborhood, or a town to highlight it on the map. In Sector 2 (grey) I only cover the marked areas.",
         seoText: "I repair fridges at your home in Bucharest sectors 1, 3, 4, 5 and 6, in Sector 2 around Obor, Calea Moșilor, Iancului and Mihai Bravu — from Militari, Drumul Taberei, Crângași and Ghencea to Rahova, Berceni, Titan, Dristor, Floreasca or Bucureștii Noi — and in the towns of Chiajna, Bragadiru, Clinceni, Domnești, Măgurele and Popești-Leordeni.",
       },
       reviews: {
@@ -1916,7 +1948,9 @@ export default function App() {
 
   // Deep link / back-forward navigation: focus the right section once its data is ready.
   useEffect(() => {
-    if (routePage) {
+    if (routePage?.section === "gdpr") {
+      showGdpr();
+    } else if (routePage) {
       document.getElementById(routePage.section)?.scrollIntoView({ behavior: "smooth", block: "start" });
     } else if (routeBrand) {
       setSelectedBrand(routeBrand.name);
@@ -2019,7 +2053,7 @@ export default function App() {
 
           <nav className="desktop-nav" style={{ display: "flex", gap: "6px" }}>
             {Object.entries(t.nav).map(([key, label]) => (
-              <a key={key} href={`#${key}`} onClick={() => { setActiveNav(key); if (key === "acasa") navigateTo("/"); }}
+              <a key={key} href={`#${key}`} onClick={e => { setActiveNav(key); if (key === "acasa") navigateTo("/"); if (key === "gdpr") showGdpr(e); }}
                 style={{ textDecoration: "none", fontSize: "13px", fontWeight: "500", color: activeNav === key ? "#0277bd" : "#01579b", padding: "6px 10px", borderRadius: "6px", background: activeNav === key ? "#e3f2fd" : "transparent", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#f0f7ff"; e.currentTarget.style.color = "#0277bd"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = activeNav === key ? "#e3f2fd" : "transparent"; e.currentTarget.style.color = activeNav === key ? "#0277bd" : "#01579b"; }}
@@ -2050,13 +2084,13 @@ export default function App() {
             <FaPhone /> +40 737 444 337
           </a>
           {Object.entries(t.nav).map(([key, label]) => (
-            <a key={key} href={`#${key}`} className={activeNav === key ? "active" : ""} onClick={() => { setActiveNav(key); setMenuOpen(false); if (key === "acasa") navigateTo("/"); }}>{label}</a>
+            <a key={key} href={`#${key}`} className={activeNav === key ? "active" : ""} onClick={e => { setActiveNav(key); setMenuOpen(false); if (key === "acasa") navigateTo("/"); if (key === "gdpr") showGdpr(e); }}>{label}</a>
           ))}
         </div>
       </header>
 
       {/* ===== HERO ===== */}
-      <section id="acasa" style={{ minHeight: "90vh", display: "flex", alignItems: "center", background: "linear-gradient(135deg, #0d1b2a 0%, #01579b 60%, #0288d1 100%)", position: "relative", overflow: "hidden", padding: "80px 40px" }}>
+      <section id="acasa" className="hero-section" style={{ minHeight: "90vh", display: "flex", alignItems: "center", background: "linear-gradient(135deg, #0d1b2a 0%, #01579b 60%, #0288d1 100%)", position: "relative", overflow: "hidden", padding: "80px 40px" }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
         <div style={{ position: "absolute", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(41,182,246,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
         <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 2, width: "100%" }}>
@@ -2066,14 +2100,13 @@ export default function App() {
                 width: "100%", height: "auto", display: "block", borderRadius: "20px",
                 border: "3px solid rgba(41,182,246,0.4)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)",
               }} />
-              <figcaption style={{ marginTop: "14px", textAlign: "center" }}>
+              <figcaption className="hero-caption" style={{ marginTop: "14px", textAlign: "center" }}>
                 <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: "26px", fontWeight: "700", color: "white", lineHeight: "1.2" }}>Adrian Opris</div>
                 <div style={{ fontSize: "16px", color: "#81d4fa", marginTop: "4px", fontWeight: "600" }}>{lang === "ro" ? "Tehnician frigotehnist autorizat AGFR" : "AGFR-authorized refrigeration technician"}</div>
-                <div style={{ fontSize: "16px", color: "rgba(255,255,255,0.85)", marginTop: "2px", fontWeight: "700" }}>Opris Adrian P.F.A.</div>
               </figcaption>
             </figure>
             <div className="hero-content" style={{ animation: "fadeInUp 0.7s ease both", minWidth: 0 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "8px 18px", borderRadius: "20px", fontSize: "15px", fontWeight: "700", letterSpacing: "0.5px", marginBottom: "28px" }}>
+              <div className="hero-badge" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(41,182,246,0.15)", border: "1px solid rgba(41,182,246,0.3)", color: "#29b6f6", padding: "8px 18px", borderRadius: "20px", fontSize: "15px", fontWeight: "700", letterSpacing: "0.5px", marginBottom: "28px" }}>
                 <FaShieldAlt size={14} /> {t.hero.badge}
               </div>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
@@ -2081,7 +2114,7 @@ export default function App() {
               <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(16px, 5vw, 22px)", fontWeight: "700", color: "white", letterSpacing: "0.5px", margin: "0 0 20px" }}>Opris Adrian P.F.A. <span style={{ whiteSpace: "nowrap" }}>CUI 26374475 / 07.01.2010</span></p>
               <p style={{ fontSize: "21px", fontWeight: "600", color: "rgba(255,255,255,0.9)", maxWidth: "600px", lineHeight: "1.6", marginBottom: "40px" }}>{t.hero.sub}</p>
               <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
-                <a href={`tel:${t.contact.phoneFull}`} style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "#29b6f6", color: "#0d3158", padding: "12px 26px", borderRadius: "10px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
+                <a href={`tel:${t.contact.phoneFull}`} className="hero-call" style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "#29b6f6", color: "#0d3158", padding: "14px 30px", borderRadius: "999px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>
                   <FaPhone size={24} />
                   <span style={{ display: "flex", flexDirection: "column", lineHeight: "1.25" }}>
                     <span style={{ fontSize: "15px", fontWeight: "700", opacity: 0.85 }}>{t.hero.cta1}</span>
@@ -2089,17 +2122,17 @@ export default function App() {
                     <span style={{ fontSize: "24px", fontWeight: "800", whiteSpace: "nowrap" }}>07 FRIGIDER</span>
                   </span>
                 </a>
-                <div style={{ display: "flex", alignItems: "stretch", gap: "10px" }}>
-                  <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#25d366", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                <div className="hero-socials" style={{ display: "flex", alignItems: "stretch", gap: "10px" }}>
+                  <a href="https://wa.me/40737444337" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" title="WhatsApp" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "48px", background: "#25d366", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
                     <FaWhatsapp size={20} />
                   </a>
-                  <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#ff0000", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                  <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "48px", background: "#ff0000", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
                     <FaYoutube size={20} />
                   </a>
-                  <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#1877f2", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                  <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "48px", background: "#1877f2", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
                     <FaFacebook size={20} />
                   </a>
-                  <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Maps" title="Google Maps" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "#ea4335", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
+                  <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer" aria-label="Google Maps" title="Google Maps" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "48px", background: "#ea4335", color: "white", width: "48px", borderRadius: "10px", textDecoration: "none" }}>
                     <FaMapMarkerAlt size={20} />
                   </a>
                 </div>
@@ -2358,21 +2391,23 @@ export default function App() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", marginBottom: "32px" }}>
             {[
-              ...CARD_SECTORS.map(n => ({ key: `sector-${n}`, title: t.zones.sectorCard(n), desc: n === PARTIAL_SECTOR ? t.zones.partialDesc : null, head: { id: `sector-${n}`, name: n === PARTIAL_SECTOR ? t.zones.sectorCard(n) : t.zones.wholeSector }, items: ZONE_NEIGHBORHOODS.filter(nb => inSector(nb, n)) })),
-              { key: "suburbs", title: t.zones.suburbs, desc: t.zones.suburbsDesc, items: ZONE_SUBURBS },
+              ...CARD_SECTORS.map(n => ({ key: `sector-${n}`, zoneId: `sector-${n}`, title: t.zones.sectorCard(n), desc: n === PARTIAL_SECTOR ? t.zones.partialDesc : null, items: ZONE_NEIGHBORHOODS.filter(nb => inSector(nb, n)) })),
+              { key: "suburbs", zoneId: SUBURBS_ZONE_ID, title: t.zones.suburbs, desc: t.zones.suburbsDesc, items: ZONE_SUBURBS },
             ].map(card => (
               <div key={card.key} style={{ background: "white", borderRadius: "16px", padding: "24px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#0d3158", margin: "0 0 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <FaMapMarkerAlt style={{ color: "#0277bd" }} />{card.title}
+                <h3 style={{ fontSize: "16px", fontWeight: "700", margin: "0 0 12px" }}>
+                  <a href={`/reparatii-frigidere-${card.zoneId}`} onClick={e => goToZone(e, card.zoneId)}
+                    style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", cursor: "pointer", padding: "4px 12px 4px 8px", marginLeft: "-8px", borderRadius: "20px", transition: "all 0.15s", color: highlightedZone === card.zoneId ? "white" : "#0d3158", background: highlightedZone === card.zoneId ? "#0277bd" : "transparent" }}>
+                    <FaMapMarkerAlt style={{ color: highlightedZone === card.zoneId ? "white" : "#0277bd" }} />{card.title}
+                  </a>
                 </h3>
                 {card.desc && <p style={{ fontSize: "13px", color: "#01579b", lineHeight: "1.7", margin: "0 0 12px" }}>{card.desc}</p>}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  {[...(card.head ? [card.head] : []), ...card.items].map(zi => {
+                  {card.items.map(zi => {
                     const active = highlightedZone === zi.id;
-                    const isHead = zi === card.head;
                     return (
                       <a key={zi.id} href={`/reparatii-frigidere-${zi.id}`} onClick={e => goToZone(e, zi.id)}
-                        style={{ fontSize: "11px", fontWeight: isHead ? "700" : "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : isHead ? "#e3f2fd" : "#f1f5f9", color: active ? "white" : "#01579b", border: `1px solid ${active ? "#0277bd" : isHead ? "#90caf9" : "#e2e8f0"}` }}>
+                        style={{ fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", textDecoration: "none", cursor: "pointer", transition: "all 0.15s", background: active ? "#0277bd" : "#f1f5f9", color: active ? "white" : "#01579b", border: `1px solid ${active ? "#0277bd" : "#e2e8f0"}` }}>
                         {zi.name}
                       </a>
                     );
@@ -2879,8 +2914,13 @@ export default function App() {
       </section>
 
       {/* ===== GDPR ===== */}
+      {gdprVisible && (
       <section id="gdpr" style={{ padding: "80px 40px", background: "#f8faff", scrollMarginTop: "84px" }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", position: "relative" }}>
+          <button type="button" onClick={() => setGdprVisible(false)} aria-label={lang === "ro" ? "Închide" : "Close"}
+            style={{ position: "absolute", top: "-40px", right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: "50%", width: "38px", height: "38px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#01579b" }}>
+            <FaTimes size={16} />
+          </button>
           <div style={{ textAlign: "center", marginBottom: "56px" }}>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "#0d3158" }}>{t.gdpr.title}</h2>
             <p style={{ fontSize: "16px", color: "#01579b" }}>{t.gdpr.sub}</p>
@@ -2903,11 +2943,14 @@ export default function App() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ===== CONTACT ===== */}
-      <section id="contact" style={{ padding: "80px 40px", background: "linear-gradient(135deg, #0d1b2a 0%, #01579b 100%)", color: "white" }}>
+      <section id="contact" className="contact-section" style={{ padding: "80px 40px", background: "linear-gradient(135deg, #0d1b2a 0%, #01579b 100%)", color: "white" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
-          <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white" }}>{t.contact.title}</h2>
+          <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "38px", fontWeight: "700", marginBottom: "12px", color: "white", display: "flex", alignItems: "center", justifyContent: "center", gap: "14px" }}>
+            <img src="/logo-white.svg" alt="" style={{ width: "1.7em", height: "1.7em" }} />{t.contact.title}
+          </h2>
           <p style={{ fontSize: "17px", color: "rgba(255,255,255,0.7)", marginBottom: "56px" }}>{t.contact.sub}</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "12px" }}>
             {[
@@ -2947,7 +2990,9 @@ export default function App() {
               <a href="https://anpc.ro" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.6)" }}>anpc.ro</a>
             </p>
             <p style={{ margin: 0 }}>
-              <a href="/politica-de-confidentialitate" onClick={e => { if (!isPlainClick(e)) return; e.preventDefault(); navigateTo("/politica-de-confidentialitate"); document.getElementById("gdpr")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+              <button onClick={() => showGdpr()} style={{ background: "none", border: "none", padding: 0, font: "inherit", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer" }}>GDPR</button>
+              {" · "}
+              <a href="/politica-de-confidentialitate" onClick={e => { if (!isPlainClick(e)) return; navigateTo("/politica-de-confidentialitate"); showGdpr(e); }}
                 style={{ color: "rgba(255,255,255,0.6)" }}>{t.cookies.privacyLink}</a>
               {" · "}
               <button onClick={() => saveConsent(null)} style={{ background: "none", border: "none", padding: 0, font: "inherit", color: "rgba(255,255,255,0.6)", textDecoration: "underline", cursor: "pointer" }}>{t.cookies.settings}</button>
@@ -2975,7 +3020,7 @@ export default function App() {
             <strong style={{ display: "block", fontSize: "15px", marginBottom: "4px" }}>{t.cookies.title}</strong>
             <p style={{ margin: 0, fontSize: "13px", lineHeight: "1.6", color: "#cbd5e1" }}>
               {t.cookies.text}{" "}
-              <a href="#gdpr" style={{ color: "#4fc3f7" }}>{t.cookies.details}</a>
+              <a href="/politica-de-confidentialitate" onClick={e => { if (!isPlainClick(e)) return; navigateTo("/politica-de-confidentialitate"); showGdpr(e); }} style={{ color: "#4fc3f7" }}>{t.cookies.details}</a>
             </p>
           </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>

@@ -8,9 +8,18 @@
   <g fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="50" cy="50" r="5.5"/>
     <use href="#arm" transform="rotate(90 50 50)"/>
-    <use href="#arm" transform="rotate(150 50 50)"/>
     <use href="#arm" transform="rotate(270 50 50)"/>
-    <use href="#arm" transform="rotate(330 50 50)"/>
+    <!-- upper-left arm ends in an "A" (Adrian) instead of an arrow -->
+    <g transform="rotate(330 50 50)">
+      <line x1="50" y1="44" x2="50" y2="23.5"/>
+      <polyline points="41.5,31 50,8.5 58.5,31"/>
+      <line x1="44.3" y1="23.5" x2="55.7" y2="23.5"/>
+    </g>
+    <!-- lower-right arm ends in an "O" (Opris) instead of an arrow -->
+    <g transform="rotate(150 50 50)">
+      <line x1="50" y1="44" x2="50" y2="27"/>
+      <circle cx="50" cy="19" r="8"/>
+    </g>
     <!-- one arm is an open-end wrench -->
     <path transform="rotate(30 50 50)" d="M46.5 41 L46.5 29.37 A10 10 0 0 1 46.5 10.63 L46.5 17 L53.5 17 L53.5 10.63 A10 10 0 0 1 53.5 29.37 L53.5 41 A3.5 3.5 0 0 1 46.5 41 Z"/>
     <!-- another arm is a screwdriver -->
