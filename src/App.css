@@ -491,15 +491,23 @@ section[id] { scroll-margin-top: 76px; }
 
 /* magnets */
 .fridge-magnet-logo {
-  position: absolute; top: 30%; right: 11%;
+  position: absolute; top: 27%; right: 9%;
   width: 22cqw; height: 22cqw; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   background: #ffffff; transform: rotate(-8deg);
   box-shadow: 0 1.2cqw 2.5cqw rgba(13,49,88,0.3);
 }
+.fridge-magnet-logo::before,
+.fridge-magnet-phone::before {
+  content: ""; position: absolute; top: -1.8cqw; left: 50%; transform: translateX(-50%);
+  width: 5cqw; height: 5cqw; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #aed581, #388e3c);
+  box-shadow: 0 0.6cqw 1cqw rgba(0,0,0,0.3);
+}
+.fridge-magnet-phone::before { background: radial-gradient(circle at 35% 35%, #ffd54f, #f57c00); }
 .fridge-magnet-logo img { width: 72%; height: 72%; object-fit: contain; }
 .fridge-magnet-note {
-  position: absolute; top: 29%; right: 44%;
+  position: absolute; top: 27%; left: 17%;
   width: 36cqw; padding: 4cqw 3cqw 3cqw;
   display: flex; flex-direction: column; gap: 1cqw;
   background: #fff59d; color: #5d4037;
@@ -515,7 +523,7 @@ section[id] { scroll-margin-top: 76px; }
 }
 .fridge-magnet-note strong { font-family: 'Poppins', sans-serif; font-size: 3.8cqw; }
 .fridge-magnet-photo {
-  position: absolute; top: 50%; left: 19%;
+  position: absolute; top: 55%; left: 17%;
   width: 31cqw; padding: 1.6cqw;
   background: #ffffff; transform: rotate(-5deg);
   box-shadow: 0 1.4cqw 3cqw rgba(13,49,88,0.3);
@@ -528,7 +536,7 @@ section[id] { scroll-margin-top: 76px; }
 }
 .fridge-magnet-photo img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; object-position: center top; }
 .fridge-magnet-phone {
-  position: absolute; top: 62%; right: 9%;
+  position: absolute; top: 66%; right: 4%;
   display: inline-flex; align-items: center; gap: 1.6cqw;
   padding: 2.4cqw 3.6cqw; border-radius: 2cqw;
   background: #0277bd; color: #ffffff; text-decoration: none;
@@ -801,6 +809,16 @@ section[id] { scroll-margin-top: 76px; }
   .fx-box, .fcv-items { transform: var(--fx-place) !important; }
 }
 
+/* Header: the full nav needs ~1180px; below that the phone button shrinks to its icon,
+   and at 1080px and below the nav moves into the hamburger menu. */
+@media (max-width: 1180px) {
+  .hdr-phone-text { display: none; }
+}
+@media (max-width: 1080px) {
+  .hamburger-btn { display: flex !important; }
+  .desktop-nav { display: none !important; }
+}
+
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {
   .hamburger-btn { display: flex !important; }
@@ -836,3 +854,6 @@ section[id] { scroll-margin-top: 76px; }
   .hero-badges { display: grid !important; grid-template-columns: repeat(2, auto); justify-content: center !important; gap: 8px !important; }
   .hero-badges > div { font-size: 14px !important; padding: 8px 12px !important; }
 }
+
+.tips-title-link { border-radius: 20px; padding: 4px 12px 4px 8px; margin-left: -8px; transition: background 0.15s, color 0.15s; }
+.tips-title-link:hover { background: #e3f2fd; color: #0277bd !important; }

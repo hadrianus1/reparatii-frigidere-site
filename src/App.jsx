@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "./App.css";
+import "./BrandFridge3D.css";
 import seoData from "./seo-data.json";
 import {
   FaPhone, FaWhatsapp, FaCheck, FaTrash, FaEdit,
@@ -8,7 +9,7 @@ import {
   FaMapMarkerAlt, FaShieldAlt, FaTools,
   FaThermometerHalf, FaWind, FaBolt, FaMicrochip, FaSnowflake,
   FaThumbsUp, FaThumbsDown, FaHeart, FaUpload, FaImages, FaYoutube,
-  FaEnvelope, FaClock, FaFacebook, FaExclamationTriangle,
+  FaEnvelope, FaClock, FaFacebook, FaExclamationTriangle, FaLightbulb,
 } from "react-icons/fa";
 
 const YOUTUBE_URL = "https://www.youtube.com/channel/UC3UWS-FoCuzUIGZrlb4HQqA";
@@ -544,63 +545,125 @@ function InteractiveZoneMap({ highlighted, onSelect }) {
   );
 }
 
-// Generic fridge illustration (no stock photo, no competing brand logos — a real product
-// photo used across every brand would misrepresent whichever brand isn't actually pictured).
-// The brand name renders as a colored "nameplate" pill on the door, driven by whichever
-// brand chip was last clicked, like a real appliance badge.
-function FridgeIllustration({ brand }) {
-  // Nameplate stays left of the door handle (a vertical bar at x=192) — long,
-  // multi-word names (e.g. "Hotpoint Ariston") wrap onto a second line instead
-  // of growing the plate wide enough to run under the handle.
-  const words = brand.split(" ");
-  const isTwoLine = words.length > 1 && brand.length > 10;
-  const mid = Math.ceil(words.length / 2);
-  const line1 = isTwoLine ? words.slice(0, mid).join(" ") : brand;
-  const line2 = isTwoLine ? words.slice(mid).join(" ") : null;
-  const longestLine = Math.max(line1.length, line2?.length || 0);
-  const fontSize = longestLine > 10 ? 14 : longestLine > 7 ? 18 : 22;
-  const plateCx = 108;
-  const plateWidth = Math.min(150, longestLine * fontSize * 0.62 + 36);
-  const plateHeight = isTwoLine ? fontSize * 2 + 28 : fontSize + 20;
-  const plateY = 182;
+// Generic 3D fridge for the brand spotlight (no stock photo, no competing brand logos — a real
+// product photo used across every brand would misrepresent whichever brand isn't pictured).
+// CSS 3D like the intro's FridgeIntro, but the body is a stack of rounded-rectangle slices along
+// z (a plain 6-face box can't have rounded edges), so it reads as a rounded fridge from any angle.
+// In the fridge compartment's depth range the slices are hollow rings, which leaves a real 3D
+// cavity (walls, glass shelves, groceries at different depths) behind the upper door; the door's
+// inner side carries 3D bins. It spins in with the newly selected brand on its door badge (keyed
+// remount); clicking the upper door opens/closes it, the freezer door or the arrows change brand.
+// All px values below are in the body's own space (--w 170, --h 300, --d 104 in BrandFridge3D.css).
+const BF_W = 170, BF_H = 300, BF_DEPTH = 104, BF_STEP = 3;
+const BF_WALL = 7;                               // shell thickness around the fridge compartment
+const BF_SPLIT = Math.round(BF_H * 0.62);        // fridge / freezer split (y)
+const BF_CAV_BACK = -28;                         // z of the cavity's back wall
+const BF_BODY_SLICES = Array.from({ length: Math.floor(BF_DEPTH / BF_STEP) }, (_, i) => {
+  const z = -BF_DEPTH / 2 + i * BF_STEP;
+  return { z: `${z}px`, l: `${60 + (i * BF_STEP / BF_DEPTH) * 22}%`, hollow: z > BF_CAV_BACK };
+});
+const BF_DOOR_SLICES = ["-1.5px", "-3px", "-4.5px", "-6px"];
+const BF_CAV = { x: BF_WALL, y: BF_WALL, w: BF_W - 2 * BF_WALL, h: BF_SPLIT - 2 * BF_WALL, d: BF_DEPTH / 2 - BF_CAV_BACK };
+const BF_SHELVES = [68, 124];                    // glass shelf heights (y)
+const BF_SHELF_DEPTH = 52;                       // shelves stop short of the door bins
+// Groceries: x, y = where they stand, z = depth, cls = look.
+const BF_ITEMS = [
+  { x: 22, y: 68, z: -14, cls: "bf-jar" }, { x: 46, y: 68, z: 4, cls: "bf-milk" }, { x: 70, y: 68, z: -20, cls: "bf-cake" },
+  { x: 118, y: 68, z: 0, cls: "bf-jar is-red" },
+  { x: 20, y: 124, z: -6, cls: "bf-bottle" }, { x: 34, y: 124, z: 8, cls: "bf-bottle is-green" },
+  { x: 62, y: 124, z: -18, cls: "bf-box" }, { x: 104, y: 124, z: 2, cls: "bf-cheese" },
+  { x: 30, y: 176, z: -8, cls: "bf-fruit" }, { x: 52, y: 176, z: 6, cls: "bf-fruit is-lime" },
+  { x: 96, y: 176, z: -4, cls: "bf-fruit is-orange" }, { x: 120, y: 176, z: 8, cls: "bf-fruit" },
+];
+// Door bins (door-local y of the bin's top) and what stands in them.
+const BF_DOOR_BINS = [
+  { y: 22, items: ["bf-egg", "bf-egg", "bf-egg", "bf-egg"] },
+  { y: 78, items: ["bf-bottle is-sauce", "bf-bottle is-green", "bf-bottle is-sauce"] },
+  { y: 132, items: ["bf-water", "bf-water", "bf-milk"] },
+];
+
+function BrandFridge3D({ brand, onNext, onPrev, hint, labels }) {
+  const [open, setOpen] = useState(false);
+  const size = brand.length > 12 ? "is-xs" : brand.length > 8 ? "is-sm" : "";
+  const change = fn => { setOpen(false); fn(); };
+  const keyActivate = fn => e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); } };
+  const toggle = () => setOpen(o => !o);
+  const pos = (x, y, z, extra = "") => ({ left: `${x}px`, top: `${y}px`, transform: `translateZ(${z}px)${extra}` });
   return (
-    <svg viewBox="0 0 240 340" style={{ width: "100%", maxWidth: "220px", display: "block", margin: "0 auto" }}>
-      <defs>
-        <linearGradient id="fridgeBody" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#cfe8fb" />
-          <stop offset="100%" stopColor="#9cd2f0" />
-        </linearGradient>
-        <linearGradient id="fridgePlate" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#0d9488" />
-          <stop offset="100%" stopColor="#14b8a6" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="120" cy="330" rx="88" ry="9" fill="rgba(15,23,42,0.08)" />
-      <rect x="20" y="10" width="200" height="312" rx="26" fill="url(#fridgeBody)" stroke="#5fa8dd" strokeWidth="3" />
-      <rect x="20" y="10" width="200" height="14" rx="7" fill="#0277bd" />
-      <path d="M 34 30 L 34 60" stroke="rgba(255,255,255,0.7)" strokeWidth="10" strokeLinecap="round" />
-      <line x1="24" y1="104" x2="216" y2="104" stroke="#5fa8dd" strokeWidth="3" strokeLinecap="round" />
-      <rect x="192" y="34" width="11" height="46" rx="5.5" fill="#0277bd" />
-      <rect x="192" y="140" width="11" height="120" rx="5.5" fill="#0277bd" />
-      <circle cx="40" cy="120" r="6" fill="#f59e0b" />
-      <rect x={plateCx - plateWidth / 2} y={plateY} width={plateWidth} height={plateHeight} rx={plateHeight / 2} fill="url(#fridgePlate)" />
-      {isTwoLine ? (
-        <>
-          <text x={plateCx} y={plateY + plateHeight * 0.38} textAnchor="middle" dominantBaseline="middle"
-            fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1"
-            fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>{line1}</text>
-          <text x={plateCx} y={plateY + plateHeight * 0.74} textAnchor="middle" dominantBaseline="middle"
-            fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1"
-            fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>{line2}</text>
-        </>
-      ) : (
-        <text x={plateCx} y={plateY + plateHeight / 2 + 1} textAnchor="middle" dominantBaseline="middle"
-          fontFamily="'Poppins', sans-serif" fontWeight="700" letterSpacing="1.5"
-          fontSize={fontSize} fill="white" style={{ textTransform: "uppercase" }}>
-          {brand}
-        </text>
-      )}
-    </svg>
+    <div className="bf">
+      <div className={`bf-stage${open ? " is-open" : ""}`}>
+        <div className="bf-spin" key={brand}>
+          <div className="bf-body">
+            {BF_BODY_SLICES.map((s, i) => s.hollow ? (
+              <React.Fragment key={i}>
+                <div className="bf-slice bf-slice-ring" style={{ "--z": s.z, "--l": s.l, height: `${BF_SPLIT}px`, borderWidth: `${BF_WALL}px` }} />
+                <div className="bf-slice bf-slice-low" style={{ "--z": s.z, "--l": s.l, top: `${BF_SPLIT}px` }} />
+              </React.Fragment>
+            ) : <div key={i} className="bf-slice" style={{ "--z": s.z, "--l": s.l }} />)}
+            <div className="bf-front" style={{ top: `${BF_SPLIT}px` }} />
+
+            {/* fridge compartment: back, side, top and bottom walls, then shelves and groceries */}
+            <div className="bf-cw bf-cw-back" style={{ ...pos(BF_CAV.x, BF_CAV.y, BF_CAV_BACK), width: BF_CAV.w, height: BF_CAV.h }}><div className="bf-led" /></div>
+            <div className="bf-cw bf-cw-side" style={{ ...pos(BF_CAV.x, BF_CAV.y, BF_CAV_BACK, " rotateY(-90deg)"), width: BF_CAV.d, height: BF_CAV.h }} />
+            <div className="bf-cw bf-cw-side" style={{ ...pos(BF_CAV.x + BF_CAV.w, BF_CAV.y, BF_CAV_BACK, " rotateY(-90deg)"), width: BF_CAV.d, height: BF_CAV.h }} />
+            <div className="bf-cw bf-cw-top" style={{ ...pos(BF_CAV.x, BF_CAV.y, BF_CAV_BACK, " rotateX(90deg)"), width: BF_CAV.w, height: BF_CAV.d }} />
+            <div className="bf-cw bf-cw-floor" style={{ ...pos(BF_CAV.x, BF_CAV.y + BF_CAV.h, BF_CAV_BACK, " rotateX(90deg)"), width: BF_CAV.w, height: BF_CAV.d }} />
+            {BF_SHELVES.map(y => (
+              <React.Fragment key={y}>
+                <div className="bf-shelf" style={{ ...pos(BF_CAV.x, y, BF_CAV_BACK, " rotateX(90deg)"), width: BF_CAV.w, height: BF_SHELF_DEPTH }} />
+                <div className="bf-shelf-lip" style={{ ...pos(BF_CAV.x, y - 1, BF_CAV_BACK + BF_SHELF_DEPTH), width: BF_CAV.w }} />
+              </React.Fragment>
+            ))}
+            {BF_ITEMS.map((it, i) => <div key={i} className="bf-anchor" style={pos(it.x, it.y, it.z)}><i className={it.cls} /></div>)}
+            <div className="bf-crisper" style={{ ...pos(BF_CAV.x + 4, BF_CAV.y + BF_CAV.h - 30, 16), width: BF_CAV.w - 8 }} />
+
+            <div className={`bf-door bf-door-top${open ? " is-open" : ""}`} role="button" tabIndex={0}
+              aria-label={open ? labels.close : labels.open} aria-pressed={open} onClick={toggle} onKeyDown={keyActivate(toggle)}>
+              <div className="bf-door-face">
+                <div className="bf-display"><span>4°</span><FaSnowflake /><span>-18°</span></div>
+                <div className={`bf-badge ${size}`}>{brand}</div>
+                <div className="bf-dispenser" aria-hidden="true">
+                  <div className="bf-disp-icons"><span className="bf-disp-drop" /><span className="bf-disp-cube" /></div>
+                  <div className="bf-disp-niche">
+                    <span className="bf-disp-nozzle" />
+                    <span className="bf-disp-drip" />
+                    <span className="bf-disp-paddle" />
+                    <span className="bf-disp-grille" />
+                  </div>
+                </div>
+                <div className="bf-shine" />
+              </div>
+              <div className="bf-door-inner" />
+              {BF_DOOR_SLICES.map(z => <div key={z} className="bf-door-slice" style={{ "--z": z }} />)}
+              {BF_DOOR_BINS.map((bin, i) => (
+                <div key={i} className="bf-bin" style={{ top: `${bin.y}px` }}>
+                  <div className="bf-bin-bottom" />
+                  <div className="bf-bin-side is-l" />
+                  <div className="bf-bin-side is-r" />
+                  {bin.items.map((cls, j) => (
+                    <div key={j} className="bf-anchor" style={{ left: `${38 + j * (104 / Math.max(1, bin.items.length - 1))}px`, top: "26px", transform: "translateZ(-18px) rotateY(180deg)" }}><i className={cls} /></div>
+                  ))}
+                  <div className="bf-bin-front" />
+                </div>
+              ))}
+              <div className="bf-handle" />
+            </div>
+            <div className="bf-door bf-door-bottom" role="button" tabIndex={0} aria-label={labels.next}
+              onClick={() => change(onNext)} onKeyDown={keyActivate(() => change(onNext))}>
+              <div className="bf-door-face"><div className="bf-shine" /></div>
+              {BF_DOOR_SLICES.map(z => <div key={z} className="bf-door-slice" style={{ "--z": z }} />)}
+              <div className="bf-handle" />
+            </div>
+          </div>
+        </div>
+        <div className="bf-floor" aria-hidden="true" />
+      </div>
+      <div className="bf-controls">
+        <button type="button" className="bf-arrow" onClick={() => change(onPrev)} aria-label={labels.prev}><FaChevronLeft /></button>
+        <p className="bf-hint">{hint}</p>
+        <button type="button" className="bf-arrow" onClick={() => change(onNext)} aria-label={labels.next}><FaChevronRight /></button>
+      </div>
+    </div>
   );
 }
 
@@ -727,7 +790,7 @@ const WRENCH_FLY_MS = 550;
 const WRENCH_TWIST_MS = 1300;
 const FIXED_PAUSE_MS = 700;
 const FRIDGE_DOOR_OPEN_MS = 1100;
-const FRIDGE_HOLD_MS = 1000;
+const FRIDGE_HOLD_MS = 1500;
 
 const FRIDGE_COPY = {
   ro: {
@@ -737,7 +800,7 @@ const FRIDGE_COPY = {
     welcome: "Bine ai venit!", sub: "Reparații frigidere la domiciliu",
     fridge: "FRIGIDER", freezer: "CONGELATOR",
     note: "Reparații la domiciliu", noteArea: "București și împrejurimi",
-    hintBroken: "Frigiderul s-a stricat! Apasă pe cheie ca să-l repari.",
+    hintBroken: "Frigiderul s-a stricat! Apasă pe cheie ca să ți-l repar.",
     hintRepairing: "Se repară…", hintFixed: "Reparat! Se deschide ușa…",
     entering: s => `Intri pe site în ${s}s…`, enterNow: "Intră acum",
     milk: "LAPTE", juice: "SUC", butter: "UNT", jam: "GEM", yogurt: "IAURT", water: "APĂ",
@@ -749,7 +812,7 @@ const FRIDGE_COPY = {
     welcome: "Welcome!", sub: "Fridge repairs at your home",
     fridge: "FRIDGE", freezer: "FREEZER",
     note: "Home repairs", noteArea: "Bucharest & nearby",
-    hintBroken: "The fridge broke down! Tap the wrench to fix it.",
+    hintBroken: "The fridge broke down! Tap the wrench and I'll fix it for you.",
     hintRepairing: "Repairing…", hintFixed: "Fixed! Opening the door…",
     entering: s => `Entering the site in ${s}s…`, enterNow: "Enter now",
     milk: "MILK", juice: "JUICE", butter: "BUTTER", jam: "JAM", yogurt: "YOGURT", water: "WATER",
@@ -1496,12 +1559,12 @@ export default function App() {
 
   const t = {
     ro: {
-      nav: { acasa: "Acasă", galerie: "Galerie", despre: "Despre mine", servicii: "Servicii", zone: "Zone", blog: "Blog", recenzii: "Recenzii", faq: "Întrebări", gdpr: "GDPR", contact: "Contact" },
+      nav: { acasa: "Acasă", galerie: "Galerie", despre: "Despre mine", servicii: "Servicii", marci: "Mărci", zone: "Zone", blog: "Blog", recenzii: "Recenzii", faq: "Întrebări", gdpr: "GDPR", contact: "Contact" },
       hero: {
         badge: "Autorizat AGFR • 16+ ani experiență",
         h1: "Frigiderul s-a defectat?",
         h1b: "Îl reparăm la domiciliul tău.",
-        sub: "Tehnician frigotehnist autorizat certificat pentru frigidere, combine frigorifice și congelatoare. Intervenție rapidă în București și împrejurimi.",
+        sub: "Tehnician frigotehnist independent certificat pentru reparații frigidere, combine frigorifice și congelatoare. Intervenție rapidă în București și împrejurimi.",
         cta1: "Sună acum la numărul dedicat",
         badges: ["Garanție 12 luni", "Factură fiscală", "Piese originale", "Deplasare 70 lei"],
       },
@@ -1550,10 +1613,10 @@ export default function App() {
         ],
         note: "* Diagnosticarea este inclusă în tariful de deplasare de 70 lei.",
       },
-      brands: { title: "Mărci deservite", sub: "Reparăm toate brandurile importante de frigidere" },
+      brands: { title: "Mărci deservite", sub: "Reparăm toate brandurile importante de frigidere", fridgeHint: "Apasă pe ușă ca s-o deschizi, pe congelator sau pe săgeți pentru altă marcă", fridgeLabels: { open: "Deschide ușa frigiderului", close: "Închide ușa frigiderului", next: "Marca următoare", prev: "Marca anterioară" } },
       zones: {
         badge: "București și împrejurimi",
-        title: "Zone de intervenție în București", sub: "Sectoarele 1, 3, 4, 5, 6, câteva zone din Sectorul 2 și localități din apropiere",
+        title: "Zone de intervenție în București", sub: "Cartierele și sectoarele 1, 2, 3, 4, 5, 6",
         partialDesc: "Doar zonele de mai jos.",
         sectorCard: n => `Sector ${n}`,
         suburbs: "Localități limitrofe",
@@ -1685,11 +1748,11 @@ export default function App() {
       },
     },
     en: {
-      nav: { acasa: "Home", galerie: "Gallery", despre: "About Me", servicii: "Services", zone: "Areas", blog: "Blog", recenzii: "Reviews", faq: "FAQ", gdpr: "GDPR", contact: "Contact" },
+      nav: { acasa: "Home", galerie: "Gallery", despre: "About Me", servicii: "Services", marci: "Brands", zone: "Areas", blog: "Blog", recenzii: "Reviews", faq: "FAQ", gdpr: "GDPR", contact: "Contact" },
       hero: {
         badge: "AGFR Authorized • 16+ years experience",
         h1: "Fridge broken down?", h1b: "We repair it at your home.",
-        sub: "Certified, authorized fridge repair technician — fridges, fridge-freezers and freezers. Fast response in Bucharest and surrounding areas.",
+        sub: "Independent certified refrigeration technician — repairs for fridges, fridge-freezers and freezers. Fast response in Bucharest and surrounding areas.",
         cta1: "Call now on the dedicated number",
         badges: ["12-month warranty", "Fiscal invoice", "Original parts", "Call-out fee 70 RON"],
       },
@@ -1738,10 +1801,10 @@ export default function App() {
         ],
         note: "* Diagnosis is included in the 70 RON call-out fee.",
       },
-      brands: { title: "Brands Serviced", sub: "We repair all major refrigerator brands" },
+      brands: { title: "Brands Serviced", sub: "We repair all major refrigerator brands", fridgeHint: "Tap the door to open it, the freezer or the arrows for another brand", fridgeLabels: { open: "Open the fridge door", close: "Close the fridge door", next: "Next brand", prev: "Previous brand" } },
       zones: {
         badge: "Bucharest & nearby",
-        title: "Service Areas in Bucharest", sub: "Sectors 1, 3, 4, 5, 6, a few areas of Sector 2 and nearby towns",
+        title: "Service Areas in Bucharest", sub: "Neighborhoods and sectors 1, 2, 3, 4, 5, 6",
         partialDesc: "Only the areas below.",
         sectorCard: n => `Sector ${n}`,
         suburbs: "Nearby towns",
@@ -1930,6 +1993,19 @@ export default function App() {
     setHighlightedZone(zoneId);
     document.getElementById("harta-zone")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const stepBrand = (dir) => {
+    const brand = BRANDS[(BRANDS.indexOf(selectedBrand) + dir + BRANDS.length) % BRANDS.length];
+    navigateTo(`/reparatii-frigidere-${brandSlug(brand)}`);
+    setSelectedBrand(brand);
+  };
+  // Old-site URLs from seoData.pages (e.g. /sfaturi-utile-frigidere), still linked from published articles.
+  const goToPage = (e, path) => {
+    if (!isPlainClick(e)) return;
+    e.preventDefault();
+    const page = seoData.pages.find(p => p.path === path);
+    navigateTo(`/${path}`);
+    if (page) document.getElementById(page.section)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   // For the interactive map's SVG shapes — no <a href>, no modifier-key click to preserve.
   const selectZone = (zoneId) => { navigateTo(`/reparatii-frigidere-${zoneId}`); setHighlightedZone(zoneId); };
   const goToPost = (e, post) => {
@@ -2041,19 +2117,19 @@ export default function App() {
           transition: "all 0.3s",
           boxShadow: isScrolled ? "0 2px 16px rgba(0,0,0,0.06)" : "none",
         }} />
-        <div style={{ position: "relative", maxWidth: "1200px", margin: "0 auto", padding: "0 32px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ position: "relative", maxWidth: "1280px", margin: "0 auto", padding: "0 24px", height: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
           <a href="#acasa" onClick={() => { setActiveNav("acasa"); navigateTo("/"); }} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px" }}>
             <img src="/logo.svg" alt={lang === "en" ? "Fridge repairs — Adrian Opris" : "Reparații frigidere — Adrian Opris"} style={{ width: "36px", height: "36px", objectFit: "contain" }} />
             <div>
-              <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1" }}>{lang === "en" ? "Fridge Repairs" : "Reparații frigidere"}</div>
+              <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "700", fontSize: "15px", color: "#0277bd", lineHeight: "1.1", whiteSpace: "nowrap" }}>{lang === "en" ? "Fridge Repairs" : "Reparații frigidere"}</div>
               <div style={{ fontSize: "10px", color: "#01579b", letterSpacing: "0.5px", textTransform: "uppercase" }}>Adrian Opris</div>
             </div>
           </a>
 
-          <nav className="desktop-nav" style={{ display: "flex", gap: "6px" }}>
+          <nav className="desktop-nav" style={{ display: "flex", gap: "2px" }}>
             {Object.entries(t.nav).map(([key, label]) => (
               <a key={key} href={`#${key}`} onClick={e => { setActiveNav(key); if (key === "acasa") navigateTo("/"); if (key === "gdpr") showGdpr(e); }}
-                style={{ textDecoration: "none", fontSize: "13px", fontWeight: "500", color: activeNav === key ? "#0277bd" : "#01579b", padding: "6px 10px", borderRadius: "6px", background: activeNav === key ? "#e3f2fd" : "transparent", transition: "all 0.2s" }}
+                style={{ textDecoration: "none", fontSize: "13px", fontWeight: "500", whiteSpace: "nowrap", color: activeNav === key ? "#0277bd" : "#01579b", padding: "6px 9px", borderRadius: "6px", background: activeNav === key ? "#e3f2fd" : "transparent", transition: "all 0.2s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = "#f0f7ff"; e.currentTarget.style.color = "#0277bd"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = activeNav === key ? "#e3f2fd" : "transparent"; e.currentTarget.style.color = activeNav === key ? "#0277bd" : "#01579b"; }}
               >{label}</a>
@@ -2061,10 +2137,10 @@ export default function App() {
           </nav>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <a href="tel:+40737444337" className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: "8px", background: "#0277bd", color: "white", textDecoration: "none", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", fontWeight: "600", transition: "all 0.2s" }}
+            <a href="tel:+40737444337" className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: "8px", background: "#0277bd", color: "white", textDecoration: "none", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", fontWeight: "600", whiteSpace: "nowrap", transition: "all 0.2s" }}
               onMouseEnter={e => e.currentTarget.style.background = "#01579b"}
               onMouseLeave={e => e.currentTarget.style.background = "#0277bd"}>
-              <FaPhone size={12} /> +40 737 444 337
+              <FaPhone size={12} /><span className="hdr-phone-text"> +40 737 444 337</span>
             </a>
             {isAdmin && (
               <button onClick={handleAdminLogout} style={{ background: "#ef4444", color: "white", border: "none", padding: "6px 12px", borderRadius: "6px", cursor: "pointer", fontSize: "11px", fontWeight: "600" }}>Admin ✕</button>
@@ -2348,7 +2424,7 @@ export default function App() {
       </section>
 
       {/* ===== BRANDS ===== */}
-      <section style={{ padding: "60px 40px", background: "#f8faff" }}>
+      <section id="marci" style={{ padding: "60px 40px", background: "#f8faff" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "40px" }}>
             <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "32px", fontWeight: "700", marginBottom: "8px", color: "#0d3158" }}>{t.brands.title}</h2>
@@ -2366,10 +2442,10 @@ export default function App() {
             })}
           </div>
 
-          {/* Brand spotlight — generic fridge illustration with a turquoise nameplate for the selected brand (SEO-friendly per-brand copy) */}
+          {/* Brand spotlight — generic 3D fridge with a door badge for the selected brand (SEO-friendly per-brand copy) */}
           <div id="marca-frigider" style={{ marginTop: "40px", scrollMarginTop: "84px", background: "white", borderRadius: "20px", padding: "32px", boxShadow: "0 4px 24px rgba(0,0,0,0.08)", border: "1px solid #e2e8f0", display: "flex", alignItems: "flex-start", gap: "32px", flexWrap: "wrap" }}>
-            <div style={{ flex: "0 0 220px", margin: "0 auto" }}>
-              <FridgeIllustration brand={selectedBrand} />
+            <div style={{ flex: "0 0 260px", margin: "0 auto" }}>
+              <BrandFridge3D brand={selectedBrand} onNext={() => stepBrand(1)} onPrev={() => stepBrand(-1)} hint={t.brands.fridgeHint} labels={t.brands.fridgeLabels} />
             </div>
             <div style={{ flex: "1 1 320px", minWidth: 0 }}>
               <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(20px, 3vw, 28px)", fontWeight: "700", margin: "0 0 14px", color: "#0d3158" }}>
@@ -2889,7 +2965,12 @@ export default function App() {
             <p style={{ fontSize: "16px", color: "#01579b" }}>{t.faq.sub}</p>
           </div>
           <div style={{ background: "white", borderRadius: "16px", border: "1px solid #bfdbfe", borderLeft: "4px solid #0277bd", padding: "24px 24px 20px", marginBottom: "28px" }}>
-            <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "19px", fontWeight: "700", color: "#0d3158", margin: "0 0 14px" }}>{t.faq.tipsTitle}</h3>
+            <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "19px", fontWeight: "700", color: "#0d3158", margin: "0 0 14px" }}>
+              <a href="/sfaturi-utile-frigidere" onClick={e => goToPage(e, "sfaturi-utile-frigidere")} className="tips-title-link"
+                style={{ display: "inline-flex", alignItems: "center", gap: "8px", color: "inherit", textDecoration: "none", cursor: "pointer" }}>
+                <FaLightbulb style={{ color: "#0277bd", flexShrink: 0 }} />{t.faq.tipsTitle}
+              </a>
+            </h3>
             <ol style={{ margin: 0, paddingLeft: "22px", display: "flex", flexDirection: "column", gap: "10px" }}>
               {t.faq.tips.map((tip, i) => (
                 <li key={i} style={{ fontSize: "14px", color: "#01579b", lineHeight: "1.7" }}>{tip}</li>
