@@ -8,9 +8,12 @@
     <!-- Google Search Console ownership verification (same token as the previous site — keep it) -->
     <meta name="google-site-verification" content="rme9MsYnz7bQeo-aGbd-AsV7N3F6WpJ5Z8BFz_9gryk" />
 
-    <!-- Google tag (GA4 G-SJH515Q150, same as the previous site) in Consent Mode v2:
-         everything starts "denied" (no cookies) and is only granted when the visitor
-         picks "Accept tot" in the cookie banner (stored as localStorage.cookieConsent). -->
+    <!-- Google tags in Consent Mode v2: everything starts "denied" (no cookies) and is only
+         granted when the visitor picks "Accept tot" in the cookie banner (stored as
+         localStorage.cookieConsent). One gtag.js loader serves all three IDs:
+         - G-SJH515Q150: GA4 property of the new site
+         - G-5VQHGVGLXE: GA4 property of the old site (reparatii-frigidere.com), for continuity
+         - AW-775433178: Google Ads account of the old site (conversion tracking) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -24,6 +27,23 @@
       });
       gtag('js', new Date());
       gtag('config', 'G-SJH515Q150');
+      gtag('config', 'G-5VQHGVGLXE');
+      gtag('config', 'AW-775433178');
+
+      // Leads: a tap on any phone or WhatsApp link (the site has no contact form). Sent as
+      // a GA4 event to both properties and as a conversion to Google Ads — reusing the
+      // old "contact page" conversion label of frigidere-reparatii.ro, since the new site
+      // has no separate contact page. Capture phase, so it runs even if a handler stops
+      // propagation (e.g. the phone magnet in the intro).
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('a[href]');
+        if (!a) return;
+        var href = a.getAttribute('href');
+        var method = /^tel:/i.test(href) ? 'phone' : /wa\.me|whatsapp/i.test(href) ? 'whatsapp' : null;
+        if (!method) return;
+        gtag('event', 'generate_lead', { method: method, link_url: href });
+        gtag('event', 'conversion', { send_to: 'AW-775433178/6OcDCMfYgfgDENrX4PEC' });
+      }, true);
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJH515Q150"></script>
 

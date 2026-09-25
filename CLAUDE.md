@@ -26,7 +26,7 @@ Marketing/business site for Opris Adrian PFA, a fridge-repair technician in Buch
 
 **Fridge intro.** `FridgeIntro` (3D CSS fridge, broken → fix with the wrench → door opens) shows on `/`, on every zone page and old-site page (except the privacy page), and on any reload; not on direct brand/blog landings.
 
-**Google tags — do not remove.** `public/index.html` carries the `google-site-verification` meta (Search Console ownership, same token as the old site) and the GA4/Google Ads tag `G-SJH515Q150` in Consent Mode v2 (default denied; `saveConsent` in `App.jsx` sends `gtag("consent","update",…)`).
+**Google tags — do not remove.** `public/index.html` carries the `google-site-verification` meta (Search Console ownership, same token as the old site) and, all in Consent Mode v2 (default denied; `saveConsent` in `App.jsx` sends `gtag("consent","update",…)`), GA4 `G-SJH515Q150` (new site), GA4 `G-5VQHGVGLXE` and Google Ads `AW-775433178` (both carried over from the old site at reparatii-frigidere.com). A capture-phase click listener there reports every `tel:` / WhatsApp link tap as a GA4 `generate_lead` event plus an Ads conversion (label `6OcDCMfYgfgDENrX4PEC`), since the site has no contact form.
 
 **Privacy.** Fonts are self-hosted in `public/fonts/` (no Google Fonts requests). There is deliberately no Google Maps embed or public street address: the technician works only at customers' homes (no fixed place of business) and does not want visitors at the registered office. Keep the GDPR section text in sync if a new third-party service is added. The GDPR section is hidden by default (`gdprVisible`) and only rendered once a GDPR/privacy link is clicked (`showGdpr`), or when `/politica-de-confidentialitate` or `#gdpr` is opened directly.
 
