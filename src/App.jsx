@@ -2094,14 +2094,15 @@ export default function App() {
         <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
         <div style={{ position: "absolute", top: "-20%", right: "-10%", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(41,182,246,0.15) 0%, transparent 70%)", borderRadius: "50%" }} />
         <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 2, width: "100%" }}>
-          <div className="two-col" style={{ display: "flex", alignItems: "center", gap: "48px" }}>
+          <div className="two-col hero-row" style={{ display: "flex", alignItems: "center", gap: "48px" }}>
             <figure className="hero-photo" style={{ margin: 0, width: "360px", maxWidth: "100%", flexShrink: 0, animation: "fadeInUp 0.7s ease both" }}>
               <img src="/poza-profil.jpg" alt="Adrian Opris — tehnician frigotehnist autorizat AGFR" style={{
                 width: "100%", height: "auto", display: "block", borderRadius: "20px",
                 border: "3px solid rgba(41,182,246,0.4)", boxShadow: "0 16px 40px rgba(0,0,0,0.4)",
               }} />
               <figcaption className="hero-caption" style={{ marginTop: "14px", textAlign: "center" }}>
-                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: "26px", fontWeight: "700", color: "white", lineHeight: "1.2" }}>Adrian Opris</div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: "22px", fontWeight: "700", color: "white", lineHeight: "1.25" }}>Opris Adrian P.F.A.</div>
+                <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: "16px", fontWeight: "600", color: "rgba(255,255,255,0.85)", marginTop: "2px", whiteSpace: "nowrap" }}>CUI 26374475 / 07.01.2010</div>
                 <div style={{ fontSize: "16px", color: "#81d4fa", marginTop: "4px", fontWeight: "600" }}>{lang === "ro" ? "Tehnician frigotehnist autorizat AGFR" : "AGFR-authorized refrigeration technician"}</div>
               </figcaption>
             </figure>
@@ -2111,7 +2112,7 @@ export default function App() {
               </div>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "white", lineHeight: "1.1", marginBottom: "8px" }}>{t.hero.h1}</h1>
               <h1 style={{ fontFamily: "'Poppins', sans-serif", fontSize: "56px", fontWeight: "700", color: "#29b6f6", lineHeight: "1.1", marginBottom: "12px" }}>{t.hero.h1b}</h1>
-              <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(16px, 5vw, 22px)", fontWeight: "700", color: "white", letterSpacing: "0.5px", margin: "0 0 20px" }}>Opris Adrian P.F.A. <span style={{ whiteSpace: "nowrap" }}>CUI 26374475 / 07.01.2010</span></p>
+              <p style={{ fontFamily: "'Poppins', sans-serif", fontSize: "clamp(16px, 5vw, 22px)", fontWeight: "700", color: "white", letterSpacing: "0.5px", margin: "0 0 20px" }}>Adrian Opris</p>
               <p style={{ fontSize: "21px", fontWeight: "600", color: "rgba(255,255,255,0.9)", maxWidth: "600px", lineHeight: "1.6", marginBottom: "40px" }}>{t.hero.sub}</p>
               <div className="hero-cta-row" style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "48px" }}>
                 <a href={`tel:${t.contact.phoneFull}`} className="hero-call" style={{ display: "inline-flex", alignItems: "center", gap: "12px", background: "#29b6f6", color: "#0d3158", padding: "14px 30px", borderRadius: "999px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 20px rgba(41,182,246,0.4)", animation: "pulse 2.5s infinite" }}>

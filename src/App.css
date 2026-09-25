@@ -818,7 +818,13 @@ section[id] { scroll-margin-top: 76px; }
   .hero-content { width: 100%; text-align: center; }
   .hero-content p { margin-left: auto; margin-right: auto; }
   .hero-cta-row, .hero-badges { justify-content: center; }
-  .hero-section { padding: 48px 16px !important; min-height: 0 !important; }
+  .hero-section { padding: 24px 16px 48px !important; min-height: 0 !important; }
+  /* Phone: photo + caption, then the call button/links/guarantees, then the headline copy —
+     so the phone number is on screen as soon as the page opens. */
+  .two-col.hero-row { gap: 24px !important; }
+  .hero-content { display: flex; flex-direction: column; align-items: center; }
+  .hero-content .hero-cta-row { order: -2; margin-bottom: 20px !important; }
+  .hero-content .hero-badges { order: -1; margin-bottom: 36px; }
   .contact-section { padding: 60px 16px !important; }
   .hero-cta-row { flex-direction: column; align-items: center; }
   .hero-socials { justify-content: center; }
